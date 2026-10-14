@@ -138,7 +138,13 @@
     .col-rank { width: 28px; color: var(--text-muted); font-weight: 600; font-size: 0.76rem !important; }
     td.col-team { text-align: left !important; padding-left: 8px !important; }
     th.col-team { padding-left: 8px !important; }
-    .t-abbr { font-weight: 800; display: inline-block; min-width: 2.7em; }
+    .tchip {
+      display: inline-block; min-width: 3.1em; text-align: center; padding: 2px 5px 4px; border-radius: 4px;
+      background: var(--tc); color: var(--tf); box-shadow: inset 0 -2px 0 var(--ts);
+      font-weight: 800; font-size: 0.74rem; letter-spacing: 0.04em; line-height: 1.15; vertical-align: middle;
+    }
+    td.col-team .tchip { margin-right: 8px; }
+    .team-title .tchip { font-size: 0.8rem; margin-right: 6px; vertical-align: 3px; }
     .t-name { color: var(--text-muted); font-weight: 500; }
     tr.team-row { cursor: pointer; }
     tr.team-row:hover td { background: var(--subtle); }
@@ -248,12 +254,11 @@
     .gqi { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
     .gqi b { font-size: 0.86rem; color: var(--text); letter-spacing: 0; margin-left: 2px; font-variant-numeric: tabular-nums; }
     .game-title { font-size: 1rem; font-weight: 800; margin: 3px 0 8px; text-wrap: balance; }
-    .wp-labels { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+    .wp-labels { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
     .wp-labels .fav { color: var(--text); font-weight: 800; }
     .wp-bar { display: flex; gap: 2px; height: 10px; }
     .wp-seg { border-radius: 4px; min-width: 4px; }
-    .wp-seg.fav { background: var(--brand); }
-    .wp-seg.dog { background: var(--brand-tint); }
+    .wp-labels .tchip { font-size: 0.68rem; }
     .pick-line { font-size: 0.8rem; color: var(--text-muted); margin: 7px 0 6px; }
     .pick-line b { color: var(--text); font-weight: 800; }
     .elo-scroll { overflow-x: auto; }
@@ -265,8 +270,8 @@
     table.elo td small { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; line-height: 1.2; }
     .adj.zero { color: var(--text-muted); }
     .game-elo { font-weight: 800; }
-    .team-link { font: inherit; font-weight: 800; background: none; border: none; padding: 0; color: var(--text); cursor: pointer; text-decoration: underline; text-decoration-color: var(--chip-border); text-underline-offset: 2px; }
-    .team-link:hover { color: var(--brand); text-decoration-color: var(--brand); }
+    .team-link { font: inherit; background: none; border: none; padding: 0; cursor: pointer; border-radius: 4px; }
+    .team-link:hover .tchip { outline: 2px solid var(--brand); outline-offset: 1px; }
     .home-tag { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-left: 4px; }
 
     @media (max-width: 1000px) {
@@ -287,7 +292,7 @@
       table.proj td { padding: 4px 1px; }
       table.proj th { white-space: normal; font-size: 0.58rem; letter-spacing: 0.02em; padding: 4px 1px 6px; line-height: 1.15; }
       .sort-btn { display: inline; padding: 0; }
-      .t-abbr { min-width: 2.3em; }
+      td.col-team .tchip { margin-right: 0; min-width: 2.9em; }
       .legend { flex-wrap: wrap; row-gap: 4px; }
       .wins-num { flex-direction: column; align-items: flex-end; gap: 0; min-width: 0; line-height: 1.1; }
       .table-card { padding-top: 12px; }
@@ -500,6 +505,13 @@
   var state = { week: LAST, sort: "mean", dir: -1, conf: "ALL", view: "ranked", team: "KC", tab: "trend" };
 
   function $(id) { return document.getElementById(id); }
+  var TC = {"ARI":["#97233F","#FFFFFF","#000000"],"ATL":["#A71930","#FFFFFF","#000000"],"BAL":["#241773","#FFFFFF","#9E7C0C"],"BUF":["#00338D","#FFFFFF","#C60C30"],"CAR":["#0085CA","#101820","#101820"],"CHI":["#0B162A","#FFFFFF","#C83803"],"CIN":["#FB4F14","#000000","#000000"],"CLE":["#311D00","#FFFFFF","#FF3C00"],"DAL":["#003594","#FFFFFF","#869397"],"DEN":["#FB4F14","#002244","#002244"],"DET":["#0076B6","#FFFFFF","#B0B7BC"],"GB":["#203731","#FFB612","#FFB612"],"HOU":["#03202F","#FFFFFF","#A71930"],"IND":["#002C5F","#FFFFFF","#A2AAAD"],"JAX":["#006778","#FFFFFF","#D7A22A"],"KC":["#E31837","#FFFFFF","#FFB81C"],"LAC":["#0080C6","#FFFFFF","#FFC20E"],"LAR":["#003594","#FFD100","#FFA300"],"LV":["#000000","#A5ACAF","#A5ACAF"],"MIA":["#008E97","#101820","#FC4C02"],"MIN":["#4F2683","#FFC62F","#FFC62F"],"NE":["#002244","#FFFFFF","#C60C30"],"NO":["#D3BC8D","#101820","#101820"],"NYG":["#0B2265","#FFFFFF","#A71930"],"NYJ":["#125740","#FFFFFF","#000000"],"PHI":["#004C54","#FFFFFF","#A5ACAF"],"PIT":["#FFB612","#101820","#101820"],"SF":["#AA0000","#FFFFFF","#B3995D"],"SEA":["#002244","#69BE28","#69BE28"],"TB":["#D50A0A","#FFFFFF","#34302B"],"TEN":["#0C2340","#FFFFFF","#4B92DB"],"WSH":["#5A1414","#FFB612","#FFB612"]};
+  function chip(a) {
+    var c = TC[a] || ["#475569", "#FFFFFF", "#475569"];
+    return '<span class="tchip" style="--tc:' + c[0] + ";--tf:" + c[1] + ";--ts:" + c[2] + '">' + a + "</span>";
+  }
+  function rgb(h) { return [1, 3, 5].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
+  function colorDist(x, y) { var a = rgb(x), b = rgb(y); return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); }
   function nick(t) { return t.name.split(" ").pop(); }
   function get(a, w) {
     var r = WEEKS[w].teams[a];
@@ -575,7 +587,7 @@
     }
     return '<tr class="team-row' + (a === state.team ? " selected" : "") + '" data-team="' + a + '" tabindex="0" aria-label="' + t.name + ', show detail">' +
       '<td class="col-rank">' + n + "</td>" +
-      '<td class="col-team"><span class="t-abbr">' + a + '</span><span class="t-name">' + nick(t) + "</span></td>" +
+      '<td class="col-team">' + chip(a) + '<span class="t-name">' + nick(t) + "</span></td>" +
       '<td class="rec">' + recStr(r.rec) + "</td>" +
       '<td><span class="wins"><span class="wins-num"><span class="wins-mean">' + r.mean.toFixed(1) + '</span><span class="wins-sd">±' + r.sd.toFixed(1) + "</span></span>" + winsBar(r.mean, r.sd) + "</span></td>" +
       "<td>" + pp(r.poff) + "</td>" +
@@ -734,7 +746,7 @@
   /* ---------- Team panel ---------- */
   function renderTeam() {
     var a = state.team, t = BY[a], w = state.week, r = get(a, w);
-    $("teamTitle").textContent = t.name;
+    $("teamTitle").innerHTML = chip(a) + t.name;
     $("teamSub").innerHTML = '<span class="conf-tag">' + t.conf + "</span>" + t.div + " · " +
       (w === 0 ? "Preseason" : recStr(r.rec) + " after " + WEEKS[w].label);
     $("outWins").textContent = r.mean.toFixed(1);
@@ -853,7 +865,7 @@
   }
   function sideRow(abbr, s, isHome, neutral) {
     var base = s[0] - (s[2] + s[3] + s[4] + s[5]);
-    return "<tr><td>" + '<button class="team-link" type="button" data-team="' + abbr + '">' + abbr + "</button>" +
+    return "<tr><td>" + '<button class="team-link" type="button" data-team="' + abbr + '" aria-label="' + BY[abbr].name + ', show detail">' + chip(abbr) + "</button>" +
       "<small>" + (isHome ? (neutral ? "Home* · " : "Home · ") : "") + recStr(get(abbr, LAST).rec) + "</small></td>" +
       "<td>" + Math.round(base) + "</td>" +
       adjCell(s[2], s[1] >= 100 ? "offseason" : s[1] + " days") + adjCell(s[3]) + adjCell(s[4]) + adjCell(s[5]) +
@@ -861,6 +873,8 @@
   }
   function gameHtml(g) {
     var pa = g.pa, ph = 1 - pa, homeFav = ph >= pa, fav = homeFav ? g.h : g.a;
+    var ca = (TC[g.a] || ["#475569"])[0], ch = (TC[g.h] || ["#94a3b8"])[0];
+    if (colorDist(ca, ch) < 100 && TC[g.h]) ch = TC[g.h][2]; /* similar colors: home team uses its accent */
     var title = nick(BY[g.a]) + (g.site ? " vs. " : " at ") + nick(BY[g.h]);
     var pick = Math.abs(g.m) < 0.05 ? "<b>Even</b>" : "<b>" + nick(BY[fav]) + " by " + Math.abs(g.m).toFixed(1) + "</b>";
     return '<article class="game">' +
@@ -868,10 +882,10 @@
         (g.site ? ' · <span class="site-tag">' + g.site + "</span>" : "") + "</span>" +
         '<span class="gqi" title="Game quality index, 0 to 100">GQI<b>' + Math.round(g.q) + "</b></span></div>" +
       '<h3 class="game-title">' + title + "</h3>" +
-      '<div class="wp-labels"><span class="' + (homeFav ? "" : "fav") + '">' + g.a + " " + pct(pa) + '</span><span class="' + (homeFav ? "fav" : "") + '">' + pct(ph) + " " + g.h + "</span></div>" +
+      '<div class="wp-labels"><span class="' + (homeFav ? "" : "fav") + '">' + chip(g.a) + " " + pct(pa) + '</span><span class="' + (homeFav ? "fav" : "") + '">' + pct(ph) + " " + chip(g.h) + "</span></div>" +
       '<div class="wp-bar" role="img" aria-label="Win chance: ' + BY[g.a].name + " " + pct(pa) + ", " + BY[g.h].name + " " + pct(ph) + '">' +
-        '<span class="wp-seg ' + (homeFav ? "dog" : "fav") + '" style="flex:' + pa.toFixed(4) + '"></span>' +
-        '<span class="wp-seg ' + (homeFav ? "fav" : "dog") + '" style="flex:' + ph.toFixed(4) + '"></span></div>' +
+        '<span class="wp-seg" style="flex:' + pa.toFixed(4) + ";background:" + ca + '"></span>' +
+        '<span class="wp-seg" style="flex:' + ph.toFixed(4) + ";background:" + ch + '"></span></div>' +
       '<div class="pick-line">Predicted margin: ' + pick + "</div>" +
       '<div class="elo-scroll"><table class="elo"><thead><tr><th scope="col">Team</th><th scope="col">Elo</th><th scope="col">Rest</th><th scope="col">Field</th><th scope="col">QB</th><th scope="col">Travel</th><th scope="col">Game Elo</th></tr></thead><tbody>' +
         sideRow(g.a, g.A, false, !!g.site) + sideRow(g.h, g.H, true, !!g.site) +
