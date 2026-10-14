@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>NFL 2026 Forecast · Jackson Martin Forecasts</title>
+  <meta name="description" content="Projected wins, playoff odds, and Super Bowl chances for all 32 NFL teams, from an Elo-based season simulation updated weekly." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="NFL 2026 Forecast" />
+  <meta property="og:description" content="Projected wins, playoff odds, and Super Bowl chances for all 32 teams, updated every week of the season." />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="./favicon.ico" sizes="48x48" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="manifest" href="./site.webmanifest" />
+  <meta name="theme-color" content="#7a1951" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&display=swap" />
+  <style>
+    /* Layout: brand header band (logo, title, view toggle, odds legend, favorites strip),
+       then a two-column body: projection table | sticky team panel. One column under 1000px.
+       Single light look on purpose, matching the Kansas House site. */
+    :root {
+      --bg: #f5f3ec;
+      --card-bg: #fffdf8;
+      --surface: #ffffff;
+      --subtle: #f8fafc;
+      --toggle-bg: #f1f5f9;
+      --border: #e2e8f0;
+      --border-dark: #94a3b8;
+      --chip-border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --brand-start: #55145b;
+      --brand-end: #9f1e47;
+      --brand: #7a1951;
+      --brand-tint: #eab6ca;
+      --brand-wash: #fbf0f5;
+      --on-dark: #ffffff;
+      /* Probability ramp: one hue, light to dark, so it reads by lightness alone */
+      --p1: #f6e6ee;
+      --p2: #ebbfd2;
+      --p3: #d688aa;
+      --p4: #a8436f;
+      --p5: #6a1857;
+      --font: "Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      font-size: 16px;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .gutter {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+
+    /* ---------- Header (mirrors the KS House site) ---------- */
+    header.site-header { background: var(--card-bg); border-bottom: 1px solid var(--border); }
+    .header-inner { padding-block: 10px; display: flex; flex-direction: column; gap: 7px; }
+    .header-left { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .brand-block { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .brand-mark { display: block; width: 34px; height: 34px; flex-shrink: 0; }
+    .brand-mark svg { width: 100%; height: 100%; display: block; }
+    .brand-name { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand); line-height: 1.15; }
+    header h1 { font-size: 1.02rem; margin: 0; font-weight: 800; white-space: nowrap; }
+    .updated-stamp { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-left: 6px; }
+    .view-toggle { display: flex; background: var(--toggle-bg); padding: 2px; border-radius: 8px; border: 1px solid var(--border); gap: 2px; flex-shrink: 0; }
+    .toggle-btn {
+      font: inherit; border: none; background: transparent; padding: 4px 9px; font-size: 0.72rem; font-weight: 700;
+      color: var(--text-muted); border-radius: 6px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; white-space: nowrap;
+    }
+    .toggle-btn:hover { color: var(--text); }
+    .toggle-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1); }
+    .legend { display: flex; gap: 9px; font-size: 0.69rem; font-weight: 600; align-items: center; overflow-x: auto; padding-bottom: 1px; }
+    .legend-title { font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-size: 0.62rem; }
+    .legend-item { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .legend-box { width: 11px; height: 11px; border-radius: 2px; border: 1px solid var(--chip-border); flex-shrink: 0; }
+    .top-summary-bar {
+      display: flex; align-items: stretch; background: var(--subtle); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px; gap: 4px;
+    }
+    .summary-cell {
+      font: inherit; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center;
+      background: transparent; border: none; border-radius: 4px; padding: 3px 4px; cursor: pointer; color: var(--text);
+    }
+    .summary-cell:hover { background: var(--surface); }
+    .summary-cell-stat { font-size: 0.86rem; font-weight: 800; color: var(--brand); line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .summary-cell-sub { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); line-height: 1.15; margin-top: 1px; }
+
+    /* ---------- Body layout ---------- */
+    .page { padding-block: 16px 28px; display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 16px; align-items: start; }
+    .main-col { min-width: 0; }
+    .sidebar { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; min-width: 0; padding-bottom: 2px; }
+    .card { border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); padding: 14px; margin-bottom: 14px; }
+
+    /* ---------- Projection table ---------- */
+    .table-card { padding: 14px 0 4px; }
+    .table-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 0 14px 10px; }
+    .table-title { font-size: 0.95rem; font-weight: 900; margin: 0 0 2px; text-wrap: balance; }
+    .table-sub { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+    .table-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .mini-label { font-size: 0.64rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+    select {
+      font: inherit; width: 100%; padding: 8px 10px; font-size: 0.92rem; border: 1px solid var(--border);
+      border-radius: 8px; background-color: var(--surface); color: var(--text); cursor: pointer; outline: none;
+    }
+    select:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+    select.compact { width: auto; padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 7px; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.proj { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    table.proj th {
+      font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
+      padding: 6px 4px 7px; border-bottom: 2px solid var(--border); text-align: center; white-space: nowrap; vertical-align: bottom;
+    }
+    table.proj th.col-team { text-align: left; }
+    .sort-btn {
+      font: inherit; text-transform: inherit; letter-spacing: inherit; color: inherit; background: none; border: none;
+      padding: 2px 2px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; border-radius: 4px;
+    }
+    .sort-btn:hover { color: var(--text); }
+    th[aria-sort="ascending"] .sort-btn, th[aria-sort="descending"] .sort-btn { color: var(--brand); }
+    .sort-arrow { font-size: 0.6rem; width: 0.6rem; display: inline-block; }
+    table.proj td { padding: 4px 4px; border-bottom: 1px solid var(--border); font-size: 0.86rem; text-align: center; white-space: nowrap; }
+    table.proj td.col-team, table.proj th.col-team { position: sticky; left: 0; z-index: 1; background: var(--card-bg); }
+    table.proj th.col-team { z-index: 2; }
+    .col-rank { width: 28px; color: var(--text-muted); font-weight: 600; font-size: 0.76rem !important; }
+    td.col-team { text-align: left !important; padding-left: 8px !important; }
+    th.col-team { padding-left: 8px !important; }
+    .t-abbr { font-weight: 800; display: inline-block; min-width: 2.7em; }
+    .t-name { color: var(--text-muted); font-weight: 500; }
+    tr.team-row { cursor: pointer; }
+    tr.team-row:hover td { background: var(--subtle); }
+    tr.team-row.selected td { background: var(--brand-wash); }
+    tr.team-row.selected .t-name { color: var(--text); }
+    tr.group-row td {
+      text-align: left; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand);
+      padding: 14px 8px 4px; border-bottom: 1px solid var(--border-dark); background: transparent;
+    }
+    tr.group-row:first-child td { padding-top: 8px; }
+    .rec { font-weight: 600; }
+    .wins { display: inline-flex; align-items: center; gap: 6px; }
+    .wins-num { display: inline-flex; align-items: baseline; gap: 3px; min-width: 4.6em; justify-content: flex-end; }
+    .wins-mean { font-weight: 800; }
+    .wins-sd { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+    svg.wbar { display: block; flex-shrink: 0; }
+    .wbar-track { stroke: var(--border); stroke-width: 2; stroke-linecap: round; }
+    .wbar-mid { stroke: var(--border-dark); stroke-width: 1; }
+    .wbar-band { fill: var(--brand-tint); }
+    .wbar-dot { fill: var(--brand); stroke: var(--card-bg); stroke-width: 1.5; }
+    .pp { display: block; margin: 0 auto; width: 48px; padding: 4px 0; border-radius: 4px; font-weight: 700; font-size: 0.8rem; line-height: 1.25; }
+    .b0 { background: transparent; color: var(--text-muted); font-weight: 600; }
+    .b1 { background: var(--p1); color: var(--text); }
+    .b2 { background: var(--p2); color: var(--text); }
+    .b3 { background: var(--p3); color: var(--text); }
+    .b4 { background: var(--p4); color: var(--on-dark); }
+    .b5 { background: var(--p5); color: var(--on-dark); }
+    .chg { font-size: 0.74rem; font-weight: 700; color: var(--text); }
+    .chg.flat { color: var(--text-muted); font-weight: 600; }
+    .table-foot { font-size: 0.68rem; color: var(--text-muted); padding: 8px 14px 6px; line-height: 1.5; }
+
+    /* ---------- Team panel ---------- */
+    label.control-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); display: block; margin-bottom: 6px; }
+    #teamSelect { margin-bottom: 14px; }
+    .header-row { border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px; }
+    .team-title { font-size: 1.2rem; font-weight: 800; margin: 0; text-wrap: balance; }
+    .team-sub { font-size: 0.86rem; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font-variant-numeric: tabular-nums; }
+    .conf-tag { display: inline-block; padding: 1px 5px; font-size: 0.68rem; font-weight: 800; border-radius: 4px; background: var(--brand-wash); color: var(--brand); border: 1px solid var(--brand-tint); }
+    .result-section { padding-top: 2px; margin-bottom: 12px; }
+    .result-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .result-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .result-big { font-size: 1.35rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .meta-metrics { display: flex; justify-content: space-between; gap: 8px; background: var(--subtle); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+    .meta-item { display: flex; flex-direction: column; }
+    .meta-item.mid { align-items: center; }
+    .meta-item.end { align-items: flex-end; }
+    .meta-label { color: var(--text-muted); font-size: 0.66rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; }
+    .meta-val { font-size: 0.9rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .card-tabs { display: flex; gap: 14px; border-bottom: 2px solid var(--border); margin-bottom: 12px; }
+    .card-tab {
+      font: inherit; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px;
+      padding: 0 4px 6px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); cursor: pointer;
+    }
+    .card-tab:hover { color: var(--text); }
+    .card-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+    .readout { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+    .readout strong { color: var(--text); font-weight: 800; }
+    figure.chart-fig { margin: 0; min-width: 0; }
+    .chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-bottom: 2px; }
+    .chart-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .chart-val { font-size: 0.98rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .chart-sub { font-size: 0.74rem; font-weight: 600; color: var(--text-muted); }
+    .chart-delta { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-left: 3px; }
+    svg.chart { width: 100%; height: auto; display: block; overflow: visible; touch-action: pan-y; cursor: crosshair; }
+    .mini-grid .chart-head { flex-direction: column; align-items: flex-start; gap: 0; }
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; margin-top: 14px; }
+    .chart-note { font-size: 0.68rem; color: var(--text-muted); margin: 4px 0 0; line-height: 1.45; }
+    svg .grid { stroke: var(--border); stroke-width: 1; }
+    svg .ref { stroke: var(--border-dark); stroke-width: 1; stroke-dasharray: 3 3; }
+    svg .ax { fill: var(--text-muted); font-family: var(--font); font-size: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    svg.mini .ax { font-size: 11px; }
+    svg .line { fill: none; stroke: var(--brand); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    svg .area { fill: var(--brand); fill-opacity: 0.09; }
+    svg .band { fill: var(--brand); fill-opacity: 0.15; }
+    svg .xhair { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 2; }
+    svg .dot { fill: var(--brand); stroke: var(--card-bg); stroke-width: 2; }
+    svg .hit { fill: transparent; }
+    .seed-group { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 12px 0 5px; }
+    .seed-group:first-child { margin-top: 0; }
+    .seed-row + .seed-row { margin-top: 4px; }
+    .seed-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 46px; align-items: center; gap: 8px; font-size: 0.82rem; min-height: 26px; }
+    .seed-label { font-weight: 700; line-height: 1.15; }
+    .seed-label small { display: block; font-size: 0.64rem; font-weight: 600; color: var(--text-muted); }
+    .seed-track { height: 12px; background: var(--toggle-bg); border-radius: 4px; overflow: hidden; }
+    .seed-fill { height: 100%; background: var(--brand); border-radius: 0 4px 4px 0; transition: width 0.3s ease; }
+    .seed-fill.miss { background: var(--border-dark); }
+    .seed-val { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .seed-note { font-size: 0.74rem; color: var(--text-muted); line-height: 1.5; margin: 12px 0 0; padding-top: 10px; border-top: 1px dashed var(--border); }
+    .seed-note strong { color: var(--text); }
+    .method-card { border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); padding: 10px 12px; margin-bottom: 12px; font-size: 0.8rem; line-height: 1.5; color: var(--text); }
+    .method-card summary { font-weight: 800; cursor: pointer; color: var(--brand); }
+    .method-card p { margin: 8px 0 0; color: var(--text-muted); max-width: 65ch; }
+    .site-foot { font-size: 0.7rem; color: var(--text-muted); line-height: 1.7; padding: 2px 2px 8px; }
+    .site-foot a { color: var(--brand); font-weight: 700; text-decoration: none; }
+    .site-foot a:hover { text-decoration: underline; }
+    .share-btn { font: inherit; font-weight: 700; color: var(--brand); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+    .share-fallback { font: inherit; font-size: 0.7rem; width: 100%; margin-top: 6px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+
+    @media (max-width: 1000px) {
+      .page { grid-template-columns: minmax(0, 1fr); }
+      .sidebar { position: static; max-height: none; overflow: visible; }
+    }
+    @media (max-width: 860px) {
+      .brand-mark { width: 28px; height: 28px; }
+      .brand-name { font-size: 0.56rem; }
+      header h1 { font-size: 0.92rem; }
+      .header-inner { padding-block: 7px; gap: 6px; }
+      svg.wbar { display: none; }
+      .t-name { display: none; }
+    }
+    @media (max-width: 600px) {
+      .col-rank, .col-chg { display: none; }
+      .pp { width: 40px; font-size: 0.76rem; }
+      table.proj td { padding: 4px 1px; }
+      table.proj th { white-space: normal; font-size: 0.58rem; letter-spacing: 0.02em; padding: 4px 1px 6px; line-height: 1.15; }
+      .sort-btn { display: inline; padding: 0; }
+      .t-abbr { min-width: 2.3em; }
+      .legend { flex-wrap: wrap; row-gap: 4px; }
+      .wins-num { flex-direction: column; align-items: flex-end; gap: 0; min-width: 0; line-height: 1.1; }
+      .table-card { padding-top: 12px; }
+      .table-head { padding: 0 12px 10px; }
+      .summary-cell-stat { font-size: 0.8rem; }
+      .summary-cell-sub { font-size: 0.62rem; }
+      .seed-row { grid-template-columns: 84px minmax(0, 1fr) 42px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="gutter header-inner">
+    <div class="header-left">
+      <div class="brand-block">
+        <a class="brand-mark" href="./" aria-label="Jackson Martin Forecasts"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><defs><linearGradient id="brandGrad" gradientUnits="userSpaceOnUse" x1="15.36" y1="15.36" x2="539.47" y2="444.18"><stop offset="0" stop-color="#55145b"/><stop offset="1" stop-color="#9f1e47"/></linearGradient></defs><path d="M77.42 216.04 Q85.11 211.60 92.80 216.04 L115.87 229.36 Q123.56 233.80 123.56 242.68 L123.56 269.32 Q123.56 278.20 115.87 282.64 L92.80 295.96 Q85.11 300.40 77.42 295.96 L54.35 282.64 Q46.66 278.20 46.66 269.32 L46.66 242.68 Q46.66 233.80 54.35 229.36 Z" fill="#661656"/><path d="M120.14 290.04 Q127.83 285.60 135.52 290.04 L158.59 303.36 Q166.28 307.80 166.28 316.68 L166.28 343.32 Q166.28 352.20 158.59 356.64 L135.52 369.96 Q127.83 374.39 120.14 369.96 L97.07 356.64 Q89.38 352.20 89.38 343.32 L89.38 316.68 Q89.38 307.80 97.07 303.36 Z" fill="#731853"/><path d="M162.87 364.04 Q170.56 359.60 178.25 364.04 L201.32 377.35 Q209.01 381.79 209.01 390.67 L209.01 417.31 Q209.01 426.19 201.32 430.63 L178.25 443.95 Q170.56 448.39 162.87 443.95 L139.80 430.63 Q132.11 426.19 132.11 417.31 L132.11 390.67 Q132.11 381.79 139.80 377.35 Z" fill="#801a4f"/><path d="M120.14 142.04 Q127.83 137.61 135.52 142.04 L158.59 155.36 Q166.28 159.80 166.28 168.68 L166.28 195.32 Q166.28 204.20 158.59 208.64 L135.52 221.96 Q127.83 226.40 120.14 221.96 L97.07 208.64 Q89.38 204.20 89.38 195.32 L89.38 168.68 Q89.38 159.80 97.07 155.36 Z" fill="#621657"/><path d="M162.87 216.04 Q170.56 211.60 178.25 216.04 L201.32 229.36 Q209.01 233.80 209.01 242.68 L209.01 269.32 Q209.01 278.20 201.32 282.64 L178.25 295.96 Q170.56 300.40 162.87 295.96 L139.80 282.64 Q132.11 278.20 132.11 269.32 L132.11 242.68 Q132.11 233.80 139.80 229.36 Z" fill="#701854"/><path d="M205.59 290.04 Q213.28 285.60 220.97 290.04 L244.04 303.36 Q251.73 307.80 251.73 316.68 L251.73 343.32 Q251.73 352.20 244.04 356.64 L220.97 369.96 Q213.28 374.39 205.59 369.96 L182.52 356.64 Q174.83 352.20 174.83 343.32 L174.83 316.68 Q174.83 307.80 182.52 303.36 Z" fill="#7d1950"/><path d="M248.31 364.04 Q256.00 359.60 263.69 364.04 L286.76 377.35 Q294.45 381.79 294.45 390.67 L294.45 417.31 Q294.45 426.19 286.76 430.63 L263.69 443.95 Q256.00 448.39 248.31 443.95 L225.24 430.63 Q217.55 426.19 217.55 417.31 L217.55 390.67 Q217.55 381.79 225.24 377.35 Z" fill="#8b1b4c"/><path d="M162.87 68.05 Q170.56 63.61 178.25 68.05 L201.32 81.37 Q209.01 85.81 209.01 94.69 L209.01 121.33 Q209.01 130.21 201.32 134.65 L178.25 147.96 Q170.56 152.40 162.87 147.96 L139.80 134.65 Q132.11 130.21 132.11 121.33 L132.11 94.69 Q132.11 85.81 139.80 81.37 Z" fill="#5f1558"/><path d="M205.59 142.04 Q213.28 137.61 220.97 142.04 L244.04 155.36 Q251.73 159.80 251.73 168.68 L251.73 195.32 Q251.73 204.20 244.04 208.64 L220.97 221.96 Q213.28 226.40 205.59 221.96 L182.52 208.64 Q174.83 204.20 174.83 195.32 L174.83 168.68 Q174.83 159.80 182.52 155.36 Z" fill="#6d1755"/><path d="M248.31 216.04 Q256.00 211.60 263.69 216.04 L286.76 229.36 Q294.45 233.80 294.45 242.68 L294.45 269.32 Q294.45 278.20 286.76 282.64 L263.69 295.96 Q256.00 300.40 248.31 295.96 L225.24 282.64 Q217.55 278.20 217.55 269.32 L217.55 242.68 Q217.55 233.80 225.24 229.36 Z" fill="#7a1951"/><path d="M291.03 290.04 Q298.72 285.60 306.41 290.04 L329.48 303.36 Q337.17 307.80 337.17 316.68 L337.17 343.32 Q337.17 352.20 329.48 356.64 L306.41 369.96 Q298.72 374.39 291.03 369.96 L267.96 356.64 Q260.27 352.20 260.27 343.32 L260.27 316.68 Q260.27 307.80 267.96 303.36 Z" fill="#871b4d"/><path d="M333.75 364.04 Q341.44 359.60 349.13 364.04 L372.20 377.35 Q379.89 381.79 379.89 390.67 L379.89 417.31 Q379.89 426.19 372.20 430.63 L349.13 443.95 Q341.44 448.39 333.75 443.95 L310.68 430.63 Q302.99 426.19 302.99 417.31 L302.99 390.67 Q302.99 381.79 310.68 377.35 Z" fill="#951d4a"/><path d="M248.31 68.05 Q256.00 63.61 263.69 68.05 L286.76 81.37 Q294.45 85.81 294.45 94.69 L294.45 121.33 Q294.45 130.21 286.76 134.65 L263.69 147.96 Q256.00 152.40 248.31 147.96 L225.24 134.65 Q217.55 130.21 217.55 121.33 L217.55 94.69 Q217.55 85.81 225.24 81.37 Z" fill="#691756"/><path d="M291.03 142.04 Q298.72 137.61 306.41 142.04 L329.48 155.36 Q337.17 159.80 337.17 168.68 L337.17 195.32 Q337.17 204.20 329.48 208.64 L306.41 221.96 Q298.72 226.40 291.03 221.96 L267.96 208.64 Q260.27 204.20 260.27 195.32 L260.27 168.68 Q260.27 159.80 267.96 155.36 Z" fill="#771952"/><path d="M333.75 216.04 Q341.44 211.60 349.13 216.04 L372.20 229.36 Q379.89 233.80 379.89 242.68 L379.89 269.32 Q379.89 278.20 372.20 282.64 L349.13 295.96 Q341.44 300.40 333.75 295.96 L310.68 282.64 Q302.99 278.20 302.99 269.32 L302.99 242.68 Q302.99 233.80 310.68 229.36 Z" fill="#841a4e"/><path d="M376.48 290.04 Q384.17 285.60 391.86 290.04 L414.93 303.36 Q422.62 307.80 422.62 316.68 L422.62 343.32 Q422.62 352.20 414.93 356.64 L391.86 369.96 Q384.17 374.39 376.48 369.96 L353.41 356.64 Q345.72 352.20 345.72 343.32 L345.72 316.68 Q345.72 307.80 353.41 303.36 Z" fill="#921c4b"/><path d="M333.75 68.05 Q341.44 63.61 349.13 68.05 L372.20 81.37 Q379.89 85.81 379.89 94.69 L379.89 121.33 Q379.89 130.21 372.20 134.65 L349.13 147.96 Q341.44 152.40 333.75 147.96 L310.68 134.65 Q302.99 130.21 302.99 121.33 L302.99 94.69 Q302.99 85.81 310.68 81.37 Z" fill="#741853"/><path d="M376.48 142.04 Q384.17 137.61 391.86 142.04 L414.93 155.36 Q422.62 159.80 422.62 168.68 L422.62 195.32 Q422.62 204.20 414.93 208.64 L391.86 221.96 Q384.17 226.40 376.48 221.96 L353.41 208.64 Q345.72 204.20 345.72 195.32 L345.72 168.68 Q345.72 159.80 353.41 155.36 Z" fill="#811a4f"/><path d="M419.20 216.04 Q426.89 211.60 434.58 216.04 L457.65 229.36 Q465.34 233.80 465.34 242.68 L465.34 269.32 Q465.34 278.20 457.65 282.64 L434.58 295.96 Q426.89 300.40 419.20 295.96 L396.13 282.64 Q388.44 278.20 388.44 269.32 L388.44 242.68 Q388.44 233.80 396.13 229.36 Z" fill="#8e1c4c"/></svg></a>
+        <div>
+          <div class="brand-name">Jackson Martin Forecasts</div>
+          <h1>NFL 2026 Season<span id="updatedStamp" class="updated-stamp"></span></h1>
+        </div>
+      </div>
+      <div class="view-toggle" role="group" aria-label="Table layout">
+        <button id="btnRanked" class="toggle-btn active" type="button" data-view="ranked">Ranked</button>
+        <button id="btnDivisions" class="toggle-btn" type="button" data-view="divisions">Divisions</button>
+      </div>
+    </div>
+    <div class="legend" aria-label="Probability shading">
+      <span class="legend-title">Odds</span>
+      <span class="legend-item"><span class="legend-box b0"></span>&lt;5%</span>
+      <span class="legend-item"><span class="legend-box b1"></span>5–25%</span>
+      <span class="legend-item"><span class="legend-box b2"></span>25–50%</span>
+      <span class="legend-item"><span class="legend-box b3"></span>50–75%</span>
+      <span class="legend-item"><span class="legend-box b4"></span>75–95%</span>
+      <span class="legend-item"><span class="legend-box b5"></span>95%+</span>
+    </div>
+    <div class="top-summary-bar" id="summaryBar">
+      <button class="summary-cell" type="button" id="sumSb"><span class="summary-cell-stat">—</span><span class="summary-cell-sub">Super Bowl favorite</span></button>
+      <button class="summary-cell" type="button" id="sumAfc"><span class="summary-cell-stat">—</span><span class="summary-cell-sub">AFC favorite</span></button>
+      <button class="summary-cell" type="button" id="sumNfc"><span class="summary-cell-stat">—</span><span class="summary-cell-sub">NFC favorite</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="gutter page">
+  <section class="main-col" aria-labelledby="tableTitle">
+    <div class="card table-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="tableTitle">Season projections</h2>
+          <div class="table-sub" id="tableSub">Loading…</div>
+        </div>
+        <div class="table-controls">
+          <div class="view-toggle" role="group" aria-label="Conference">
+            <button class="toggle-btn active" type="button" data-conf="ALL">All</button>
+            <button class="toggle-btn" type="button" data-conf="AFC">AFC</button>
+            <button class="toggle-btn" type="button" data-conf="NFC">NFC</button>
+          </div>
+          <label class="mini-label" for="weekSelect">As of</label>
+          <select id="weekSelect" class="compact"></select>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="proj">
+          <caption class="sr-only">Projected wins and playoff, division, conference and Super Bowl odds for every NFL team</caption>
+          <thead>
+            <tr>
+              <th class="col-rank" scope="col">#</th>
+              <th class="col-team" scope="col" data-key="team"><button class="sort-btn" type="button" data-sort="team">Team<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="rec"><button class="sort-btn" type="button" data-sort="rec" title="Record through the selected week">Rec<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="mean"><button class="sort-btn" type="button" data-sort="mean" title="Average wins across all simulated seasons, ± one standard deviation">Proj. wins<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="poff"><button class="sort-btn" type="button" data-sort="poff">Playoffs<span class="sort-arrow"></span></button></th>
+              <th class="col-chg" scope="col" data-key="dpoff"><button class="sort-btn" type="button" data-sort="dpoff" title="Change in playoff odds since the previous week, in percentage points">Wk Δ<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="div"><button class="sort-btn" type="button" data-sort="div">Win div.<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="conf"><button class="sort-btn" type="button" data-sort="conf" title="Win the AFC or NFC and reach the Super Bowl">Win conf.<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="sb"><button class="sort-btn" type="button" data-sort="sb">Win SB<span class="sort-arrow"></span></button></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot">Win conf. means winning the AFC or NFC title game and reaching the Super Bowl. Wk Δ is the change in playoff odds from the week before, in percentage points. Select a team to see how its odds have moved.</div>
+    </div>
+  </section>
+
+  <aside class="sidebar" id="teamPanel" aria-label="Team detail">
+    <label class="control-label" for="teamSelect">Select team</label>
+    <select id="teamSelect"></select>
+
+    <div class="card" id="teamCard">
+      <div class="header-row">
+        <h2 id="teamTitle" class="team-title">—</h2>
+        <div id="teamSub" class="team-sub"></div>
+      </div>
+      <div class="result-section">
+        <div class="result-row">
+          <span class="result-title">Projected wins</span>
+          <span id="outWins" class="result-big">—</span>
+        </div>
+        <div class="meta-metrics">
+          <div class="meta-item"><span class="meta-label">Std. dev.</span><span id="outSd" class="meta-val">—</span></div>
+          <div class="meta-item mid"><span class="meta-label">Record</span><span id="outRec" class="meta-val">—</span></div>
+          <div class="meta-item end"><span class="meta-label">Playoff odds</span><span id="outPoff" class="meta-val">—</span></div>
+        </div>
+      </div>
+
+      <div class="card-tabs" role="tablist" aria-label="Team views">
+        <button class="card-tab active" type="button" role="tab" id="tabBtnTrend" aria-selected="true" aria-controls="tabTrend" data-tab="trend">Season trend</button>
+        <button class="card-tab" type="button" role="tab" id="tabBtnSeeds" aria-selected="false" aria-controls="tabSeeds" data-tab="seeds">Playoff seeding</button>
+      </div>
+
+      <div id="tabTrend" role="tabpanel" aria-labelledby="tabBtnTrend">
+        <div class="readout">Showing <strong id="readoutWeek">—</strong> · hover or drag across a chart to step through the weeks</div>
+        <figure class="chart-fig">
+          <figcaption class="chart-head"><span class="chart-label">Projected wins</span><span class="chart-val" id="valWins">—</span></figcaption>
+          <svg class="chart" id="chWins" viewBox="0 0 400 150" role="img" aria-label="Projected wins by week"></svg>
+          <p class="chart-note">Line: average projected wins. Band: ± one standard deviation. Dashed line: 8.5 wins, a .500 season.</p>
+        </figure>
+        <div class="mini-grid">
+          <figure class="chart-fig">
+            <figcaption class="chart-head"><span class="chart-label">Make playoffs</span><span class="chart-val" id="valPoff">—</span></figcaption>
+            <svg class="chart mini" id="chPoff" viewBox="0 0 200 112" role="img" aria-label="Playoff odds by week"></svg>
+          </figure>
+          <figure class="chart-fig">
+            <figcaption class="chart-head"><span class="chart-label">Win division</span><span class="chart-val" id="valDiv">—</span></figcaption>
+            <svg class="chart mini" id="chDiv" viewBox="0 0 200 112" role="img" aria-label="Division odds by week"></svg>
+          </figure>
+          <figure class="chart-fig">
+            <figcaption class="chart-head"><span class="chart-label">Win conference</span><span class="chart-val" id="valConf">—</span></figcaption>
+            <svg class="chart mini" id="chConf" viewBox="0 0 200 112" role="img" aria-label="Conference title odds by week"></svg>
+          </figure>
+          <figure class="chart-fig">
+            <figcaption class="chart-head"><span class="chart-label">Win Super Bowl</span><span class="chart-val" id="valSb">—</span></figcaption>
+            <svg class="chart mini" id="chSb" viewBox="0 0 200 112" role="img" aria-label="Super Bowl odds by week"></svg>
+          </figure>
+        </div>
+        <p class="chart-note">Conference and Super Bowl charts zoom their scale to the team's range; check the axis labels.</p>
+      </div>
+
+      <div id="tabSeeds" role="tabpanel" aria-labelledby="tabBtnSeeds" hidden>
+        <div id="seedBars"></div>
+      </div>
+    </div>
+
+    <details class="method-card">
+      <summary>How the forecast works</summary>
+      <p>Every game is decided by an Elo rating model. Ratings carry over from last season with partial reversion to the mean, update after each result based on margin of victory, and adjust each game for home field, rest, travel distance, and the starting quarterback.</p>
+      <p>After each week, the rest of the schedule is simulated many times with random variation in every team's true strength. Each percentage is the share of simulated seasons where that outcome happened, and projected wins include games already played.</p>
+    </details>
+
+    <div class="site-foot">
+      Model and site by Jackson Martin · Elo ratings and season simulations from his own NFL model<br />
+      Also forecasting: <a href="https://jacksonmartinks.github.io/2026-ks_state-house-model/" target="_blank" rel="noopener">Kansas House 2026</a><br />
+      <button class="share-btn" type="button" id="shareBtn">Copy link</button> to the team you're viewing
+      <input class="share-fallback" id="shareFallback" type="text" readonly hidden aria-label="Link to this team" />
+    </div>
+  </aside>
+</main>
+
+<script src="./forecast-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.NFL_DATA;
+  var tbody = document.getElementById("tableBody");
+  if (!D || !D.weeks || !D.weeks.length) {
+    tbody.innerHTML = '<tr><td colspan="9">Forecast data did not load. Check that forecast-data.js sits next to index.html.</td></tr>';
+    document.getElementById("tableSub").textContent = "No data";
+    return;
+  }
+
+  var TEAMS = D.teams, WEEKS = D.weeks, LAST = WEEKS.length - 1;
+  var BY = {};
+  TEAMS.forEach(function (t) { BY[t.abbr] = t; });
+  var DIVS = ["AFC East", "AFC North", "AFC South", "AFC West", "NFC East", "NFC North", "NFC South", "NFC West"];
+  var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  var state = { week: LAST, sort: "mean", dir: -1, conf: "ALL", view: "ranked", team: "KC", tab: "trend" };
+
+  function $(id) { return document.getElementById(id); }
+  function nick(t) { return t.name.split(" ").pop(); }
+  function get(a, w) {
+    var r = WEEKS[w].teams[a];
+    return { mean: r[0], sd: r[1], poff: r[2], div: r[3], conf: r[4], sb: r[5], seeds: r[6], rec: r[7] || [0, 0, 0] };
+  }
+  function pct(p) {
+    if (p >= 1) return "100%";
+    if (p >= 0.995) return ">99%";
+    if (p <= 0) return "0%";
+    if (p < 0.005) return "<1%";
+    return Math.round(p * 100) + "%";
+  }
+  function bin(p) { return p >= 0.95 ? 5 : p >= 0.75 ? 4 : p >= 0.5 ? 3 : p >= 0.25 ? 2 : p >= 0.05 ? 1 : 0; }
+  function recStr(r) { return r[0] + "-" + r[1] + (r[2] ? "-" + r[2] : ""); }
+  function weekShort(i) { return i === 0 ? "Pre" : "W" + WEEKS[i].key.replace(/\D/g, ""); }
+  function asOfText(w) { return w === 0 ? "Preseason" : "After " + WEEKS[w].label; }
+  function deltaHtml(vals, i) {
+    if (i === 0) return "";
+    var d = (vals[i] - vals[i - 1]) * 100;
+    if (Math.abs(d) < 0.5) return '<span class="chart-delta">–</span>';
+    return '<span class="chart-delta">' + (d > 0 ? "▲" : "▼") + " " + Math.abs(Math.round(d)) + "</span>";
+  }
+
+  /* ---------- Header stamp, summary ---------- */
+  $("updatedStamp").textContent = (LAST === 0 ? "Preseason" : "Through " + WEEKS[LAST].label) +
+    (D.updated ? " · Updated " + new Date(D.updated + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
+
+  function renderSummary() {
+    var w = state.week, all = TEAMS.map(function (t) { return t.abbr; });
+    function top(key, conf) {
+      return all.filter(function (a) { return !conf || BY[a].conf === conf; })
+        .reduce(function (b, a) { return get(a, w)[key] > get(b, w)[key] ? a : b; });
+    }
+    [["sumSb", "sb", null], ["sumAfc", "conf", "AFC"], ["sumNfc", "conf", "NFC"]].forEach(function (c) {
+      var a = top(c[1], c[2]), btn = $(c[0]);
+      btn.dataset.team = a;
+      btn.querySelector(".summary-cell-stat").textContent = nick(BY[a]) + " " + pct(get(a, w)[c[1]]);
+      btn.setAttribute("aria-label", btn.querySelector(".summary-cell-sub").textContent + ": " + BY[a].name + ", " + pct(get(a, w)[c[1]]) + ". Show team.");
+    });
+  }
+
+  /* ---------- Table ---------- */
+  var SORTS = {
+    team: function (a) { return BY[a].name; },
+    rec: function (a, w) { var r = get(a, w).rec, g = r[0] + r[1] + r[2]; return g ? (r[0] + 0.5 * r[2]) / g + g * 1e-4 : 0; },
+    mean: function (a, w) { return get(a, w).mean; },
+    poff: function (a, w) { return get(a, w).poff; },
+    dpoff: function (a, w) { return w > 0 ? get(a, w).poff - get(a, w - 1).poff : 0; },
+    div: function (a, w) { return get(a, w).div; },
+    conf: function (a, w) { return get(a, w).conf; },
+    sb: function (a, w) { return get(a, w).sb; }
+  };
+
+  function winsBar(m, sd) {
+    var W = 70;
+    function x(v) { return (2 + (Math.max(0, Math.min(17, v)) / 17) * (W - 4)).toFixed(1); }
+    return '<svg class="wbar" width="' + W + '" height="12" viewBox="0 0 ' + W + ' 12" aria-hidden="true">' +
+      '<line class="wbar-track" x1="2" x2="' + (W - 2) + '" y1="6" y2="6"/>' +
+      '<line class="wbar-mid" x1="' + x(8.5) + '" x2="' + x(8.5) + '" y1="1" y2="11"/>' +
+      '<rect class="wbar-band" x="' + x(m - sd) + '" y="3" width="' + (x(m + sd) - x(m - sd)).toFixed(1) + '" height="6" rx="3"/>' +
+      '<circle class="wbar-dot" cx="' + x(m) + '" cy="6" r="3.5"/></svg>';
+  }
+  function pp(p) { return '<span class="pp b' + bin(p) + '">' + pct(p) + "</span>"; }
+
+  function rowHtml(a, n) {
+    var w = state.week, r = get(a, w), t = BY[a], chg = "";
+    if (w > 0) {
+      var d = (r.poff - get(a, w - 1).poff) * 100;
+      chg = Math.abs(d) < 0.5 ? '<span class="chg flat" title="No change">–</span>'
+        : '<span class="chg" title="' + (d > 0 ? "Up " : "Down ") + Math.abs(Math.round(d)) + ' points">' + (d > 0 ? "▲" : "▼") + " " + Math.abs(Math.round(d)) + "</span>";
+    } else {
+      chg = '<span class="chg flat">–</span>';
+    }
+    return '<tr class="team-row' + (a === state.team ? " selected" : "") + '" data-team="' + a + '" tabindex="0" aria-label="' + t.name + ', show detail">' +
+      '<td class="col-rank">' + n + "</td>" +
+      '<td class="col-team"><span class="t-abbr">' + a + '</span><span class="t-name">' + nick(t) + "</span></td>" +
+      '<td class="rec">' + recStr(r.rec) + "</td>" +
+      '<td><span class="wins"><span class="wins-num"><span class="wins-mean">' + r.mean.toFixed(1) + '</span><span class="wins-sd">±' + r.sd.toFixed(1) + "</span></span>" + winsBar(r.mean, r.sd) + "</span></td>" +
+      "<td>" + pp(r.poff) + "</td>" +
+      '<td class="col-chg">' + chg + "</td>" +
+      "<td>" + pp(r.div) + "</td>" +
+      "<td>" + pp(r.conf) + "</td>" +
+      "<td>" + pp(r.sb) + "</td></tr>";
+  }
+
+  var SORT_NAMES = { team: "team name", rec: "record", mean: "projected wins", poff: "playoff odds", dpoff: "weekly change", div: "division odds", conf: "conference odds", sb: "Super Bowl odds" };
+
+  function renderTable() {
+    var w = state.week, f = SORTS[state.sort];
+    var list = TEAMS.map(function (t) { return t.abbr; })
+      .filter(function (a) { return state.conf === "ALL" || BY[a].conf === state.conf; });
+    list.sort(function (a, b) {
+      var va = f(a, w), vb = f(b, w);
+      var c = typeof va === "string" ? va.localeCompare(vb) : va - vb;
+      c *= state.dir;
+      if (c === 0) c = get(b, w).mean - get(a, w).mean;
+      if (c === 0) c = BY[a].name.localeCompare(BY[b].name);
+      return c;
+    });
+    var html = "";
+    if (state.view === "divisions") {
+      DIVS.filter(function (d) { return state.conf === "ALL" || d.indexOf(state.conf) === 0; }).forEach(function (d) {
+        html += '<tr class="group-row"><td colspan="9">' + d + "</td></tr>";
+        list.filter(function (a) { return BY[a].div === d; }).forEach(function (a, i) { html += rowHtml(a, i + 1); });
+      });
+    } else {
+      list.forEach(function (a, i) { html += rowHtml(a, i + 1); });
+    }
+    tbody.innerHTML = html;
+    document.querySelectorAll("table.proj th[data-key]").forEach(function (th) {
+      var on = th.dataset.key === state.sort;
+      if (on) th.setAttribute("aria-sort", state.dir < 0 ? "descending" : "ascending");
+      else th.removeAttribute("aria-sort");
+      th.querySelector(".sort-arrow").textContent = on ? (state.dir < 0 ? "▼" : "▲") : "";
+    });
+    $("tableSub").textContent = asOfText(w) + " · " + (state.view === "divisions" ? "by division, " : "") + "sorted by " + SORT_NAMES[state.sort];
+  }
+
+  /* ---------- Charts ---------- */
+  function niceMax(m) {
+    var steps = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1];
+    for (var i = 0; i < steps.length; i++) if (m * 1.1 <= steps[i]) return steps[i];
+    return 1;
+  }
+  function fmtPctTick(v) { var x = v * 100; return (Math.abs(x - Math.round(x)) < 1e-9 ? Math.round(x) : x.toFixed(1)) + "%"; }
+
+  function drawChart(svg, c) {
+    var w = c.w, h = c.h, pad = c.pad, n = c.values.length;
+    var pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+    function X(i) { return pad.l + (n < 2 ? pw / 2 : (i * pw) / (n - 1)); }
+    function Y(v) { return pad.t + ph - Math.max(0, Math.min(1, v / c.yMax)) * ph; }
+    function f(x) { return x.toFixed(1); }
+    var s = "";
+    c.ticks.forEach(function (t) {
+      s += '<line class="grid" x1="' + pad.l + '" x2="' + (w - pad.r) + '" y1="' + f(Y(t)) + '" y2="' + f(Y(t)) + '"/>' +
+        '<text class="ax" x="' + (pad.l - 5) + '" y="' + f(Y(t) + 3.5) + '" text-anchor="end">' + c.fmt(t) + "</text>";
+    });
+    if (c.ref != null) s += '<line class="ref" x1="' + pad.l + '" x2="' + (w - pad.r) + '" y1="' + f(Y(c.ref)) + '" y2="' + f(Y(c.ref)) + '"/>';
+    if (n > 1) {
+      if (c.lo) {
+        var band = "M" + c.hi.map(function (v, i) { return f(X(i)) + " " + f(Y(v)); }).join(" L") +
+          " L" + c.lo.map(function (v, i) { return f(X(i)) + " " + f(Y(v)); }).reverse().join(" L") + " Z";
+        s += '<path class="band" d="' + band + '"/>';
+      }
+      var line = c.values.map(function (v, i) { return f(X(i)) + " " + f(Y(v)); }).join(" L");
+      if (c.area) s += '<path class="area" d="M' + f(X(0)) + " " + f(Y(0)) + " L" + line + " L" + f(X(n - 1)) + " " + f(Y(0)) + ' Z"/>';
+      s += '<path class="line" d="M' + line + '"/>';
+    }
+    var step = n <= 7 ? 1 : n <= 12 ? 2 : 3, idx = [];
+    for (var i = 0; i < n; i += step) idx.push(i);
+    if (idx[idx.length - 1] !== n - 1) { if (idx.length > 1 && n - 1 - idx[idx.length - 1] < step) idx.pop(); idx.push(n - 1); }
+    idx.forEach(function (i) {
+      s += '<text class="ax" x="' + f(X(i)) + '" y="' + (h - 3) + '" text-anchor="middle">' + weekShort(i) + "</text>";
+    });
+    s += '<line class="xhair" x1="0" x2="0" y1="' + pad.t + '" y2="' + (pad.t + ph) + '"/>';
+    s += '<circle class="dot" r="4.5" cx="0" cy="0"/>';
+    s += '<rect class="hit" x="0" y="0" width="' + w + '" height="' + h + '"/>';
+    svg.innerHTML = s;
+    var xh = svg.querySelector(".xhair"), dot = svg.querySelector(".dot"), valEl = $(c.valEl);
+    return {
+      svg: svg,
+      set: function (i) {
+        var x = f(X(i));
+        xh.setAttribute("x1", x); xh.setAttribute("x2", x);
+        dot.setAttribute("cx", x); dot.setAttribute("cy", f(Y(c.values[i])));
+        valEl.innerHTML = c.head(i);
+      },
+      toIndex: function (clientX) {
+        var rect = svg.getBoundingClientRect();
+        var x = ((clientX - rect.left) / rect.width) * w;
+        var i = n < 2 ? 0 : Math.round(((x - pad.l) / pw) * (n - 1));
+        return Math.max(0, Math.min(n - 1, i));
+      }
+    };
+  }
+
+  var charts = {};
+  function setHover(i) {
+    Object.keys(charts).forEach(function (k) { charts[k].set(i); });
+    $("readoutWeek").textContent = WEEKS[i].label;
+  }
+
+  function renderCharts() {
+    var a = state.team;
+    function series(k) { return WEEKS.map(function (_, i) { return get(a, i)[k]; }); }
+    var means = series("mean"), sds = series("sd");
+    charts.chWins = drawChart($("chWins"), {
+      w: 400, h: 150, pad: { l: 26, r: 10, t: 10, b: 20 }, values: means,
+      lo: means.map(function (m, i) { return m - sds[i]; }), hi: means.map(function (m, i) { return m + sds[i]; }),
+      yMax: 17, ticks: [0, 5, 10, 15], fmt: String, ref: 8.5, valEl: "valWins",
+      head: function (i) { return means[i].toFixed(1) + ' <span class="chart-sub">± ' + sds[i].toFixed(1) + "</span>"; }
+    });
+    [["poff", "chPoff", "valPoff", true], ["div", "chDiv", "valDiv", true], ["conf", "chConf", "valConf", false], ["sb", "chSb", "valSb", false]].forEach(function (c) {
+      var v = series(c[0]);
+      var yMax = c[3] ? 1 : niceMax(Math.max.apply(null, v));
+      charts[c[1]] = drawChart($(c[1]), {
+        w: 200, h: 112, pad: { l: 32, r: 8, t: 8, b: 18 }, values: v, area: true,
+        yMax: yMax, ticks: [0, yMax / 2, yMax], fmt: fmtPctTick, valEl: c[2],
+        head: function (i) { return pct(v[i]) + deltaHtml(v, i); }
+      });
+    });
+    setHover(state.week);
+  }
+
+  ["chWins", "chPoff", "chDiv", "chConf", "chSb"].forEach(function (id) {
+    var svg = $(id);
+    function move(e) { if (charts[id]) setHover(charts[id].toIndex(e.clientX)); }
+    svg.addEventListener("pointermove", move);
+    svg.addEventListener("pointerdown", move);
+    svg.addEventListener("pointerleave", function (e) { if (e.pointerType !== "touch") setHover(state.week); });
+  });
+
+  /* ---------- Seeding ---------- */
+  function renderSeeds() {
+    var r = get(state.team, state.week), s = r.seeds;
+    function row(label, sub, p, miss) {
+      return '<div class="seed-row"><div class="seed-label">' + label + (sub ? "<small>" + sub + "</small>" : "") + "</div>" +
+        '<div class="seed-track" role="img" aria-label="' + label + ": " + pct(p) + '"><div class="seed-fill' + (miss ? " miss" : "") + '" style="width:' + (Math.max(0, Math.min(1, p)) * 100).toFixed(1) + '%"></div></div>' +
+        '<div class="seed-val">' + pct(p) + "</div></div>";
+    }
+    var h = '<div class="seed-group">Division winner</div>';
+    for (var i = 0; i < 4; i++) h += row("#" + (i + 1) + " seed", i === 0 ? "First-round bye" : "", s[i]);
+    h += '<div class="seed-group">Wild card</div>';
+    for (i = 4; i < 7; i++) h += row("#" + (i + 1) + " seed", "", s[i]);
+    h += '<div class="seed-group">Out</div>' + row("Miss playoffs", "", Math.max(0, 1 - r.poff), true);
+    var exp = r.poff > 0 ? s.reduce(function (acc, p, k) { return acc + (k + 1) * p; }, 0) / r.poff : null;
+    h += '<p class="seed-note">' + (exp ? "Average seed when they make it: <strong>" + exp.toFixed(1) + "</strong>. " : "") +
+      "Seeds 1–4 go to the four division winners and 5–7 to wild cards. Only the #1 seed skips the wild-card round; seeds 2–4 host a wild-card game.</p>";
+    $("seedBars").innerHTML = h;
+  }
+
+  /* ---------- Team panel ---------- */
+  function renderTeam() {
+    var a = state.team, t = BY[a], w = state.week, r = get(a, w);
+    $("teamTitle").textContent = t.name;
+    $("teamSub").innerHTML = '<span class="conf-tag">' + t.conf + "</span>" + t.div + " · " +
+      (w === 0 ? "Preseason" : recStr(r.rec) + " after " + WEEKS[w].label);
+    $("outWins").textContent = r.mean.toFixed(1);
+    $("outSd").textContent = "±" + r.sd.toFixed(1);
+    $("outRec").textContent = recStr(r.rec);
+    $("outPoff").textContent = pct(r.poff);
+    renderCharts();
+    renderSeeds();
+  }
+
+  function setTab(tab) {
+    state.tab = tab;
+    ["trend", "seeds"].forEach(function (k) {
+      var on = k === tab, btn = $(k === "trend" ? "tabBtnTrend" : "tabBtnSeeds");
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      $(k === "trend" ? "tabTrend" : "tabSeeds").hidden = !on;
+    });
+  }
+
+  function selectTeam(a, scroll) {
+    if (!BY[a]) return;
+    state.team = a;
+    $("teamSelect").value = a;
+    try { history.replaceState(null, "", "#" + a); } catch (e) { /* sandboxed frame */ }
+    renderTeam();
+    renderTable();
+    if (scroll && window.innerWidth <= 1000) {
+      $("teamPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    }
+  }
+
+  /* ---------- Controls ---------- */
+  var teamSel = $("teamSelect");
+  DIVS.forEach(function (d) {
+    var g = document.createElement("optgroup");
+    g.label = d;
+    TEAMS.filter(function (t) { return t.div === d; })
+      .sort(function (x, y) { return x.name.localeCompare(y.name); })
+      .forEach(function (t) { var o = document.createElement("option"); o.value = t.abbr; o.textContent = t.name; g.appendChild(o); });
+    teamSel.appendChild(g);
+  });
+  teamSel.addEventListener("change", function () { selectTeam(teamSel.value, false); });
+
+  var weekSel = $("weekSelect");
+  WEEKS.forEach(function (wk, i) {
+    var o = document.createElement("option");
+    o.value = i; o.textContent = i === 0 ? "Preseason" : wk.label;
+    weekSel.appendChild(o);
+  });
+  weekSel.value = String(LAST);
+  weekSel.addEventListener("change", function () {
+    state.week = +weekSel.value;
+    renderSummary(); renderTable(); renderTeam();
+  });
+
+  document.querySelectorAll("[data-view]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.view = b.dataset.view;
+      document.querySelectorAll("[data-view]").forEach(function (x) { x.classList.toggle("active", x === b); });
+      renderTable();
+    });
+  });
+  document.querySelectorAll("[data-conf]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.conf = b.dataset.conf;
+      document.querySelectorAll("[data-conf]").forEach(function (x) { x.classList.toggle("active", x === b); });
+      renderTable();
+    });
+  });
+  document.querySelectorAll(".sort-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.dataset.sort;
+      if (state.sort === k) state.dir = -state.dir;
+      else { state.sort = k; state.dir = k === "team" ? 1 : -1; }
+      renderTable();
+    });
+  });
+  tbody.addEventListener("click", function (e) {
+    var tr = e.target.closest("tr[data-team]");
+    if (tr) selectTeam(tr.dataset.team, true);
+  });
+  tbody.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var tr = e.target.closest("tr[data-team]");
+    if (tr) { e.preventDefault(); selectTeam(tr.dataset.team, true); }
+  });
+  ["sumSb", "sumAfc", "sumNfc"].forEach(function (id) {
+    $(id).addEventListener("click", function () { selectTeam($(id).dataset.team, true); });
+  });
+  $("tabBtnTrend").addEventListener("click", function () { setTab("trend"); });
+  $("tabBtnSeeds").addEventListener("click", function () { setTab("seeds"); });
+
+  $("shareBtn").addEventListener("click", function () {
+    var btn = this, url = location.href.split("#")[0] + "#" + state.team, fb = $("shareFallback");
+    function done() { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy link"; }, 1600); }
+    function fallback() { fb.hidden = false; fb.value = url; fb.focus(); fb.select(); }
+    try {
+      navigator.clipboard.writeText(url).then(done, fallback);
+    } catch (err) { fallback(); }
+  });
+
+  /* ---------- Boot ---------- */
+  var fromHash = (location.hash || "").replace("#", "").toUpperCase();
+  if (BY[fromHash]) state.team = fromHash;
+  teamSel.value = state.team;
+  renderSummary();
+  renderTable();
+  renderTeam();
+  window.addEventListener("hashchange", function () {
+    var h = (location.hash || "").replace("#", "").toUpperCase();
+    if (BY[h] && h !== state.team) selectTeam(h, false);
+  });
+})();
+</script>
+</body>
+</html>
