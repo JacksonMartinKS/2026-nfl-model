@@ -237,6 +237,38 @@
     .share-btn { font: inherit; font-weight: 700; color: var(--brand); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
     .share-fallback { font: inherit; font-size: 0.7rem; width: 100%; margin-top: 6px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
 
+    [hidden] { display: none !important; }
+    /* ---------- Games ---------- */
+    .games-card { padding: 14px 0 4px; }
+    .games-list { padding: 0 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 370px), 1fr)); gap: 12px; }
+    .day-head { grid-column: 1 / -1; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); padding: 6px 0 3px; border-bottom: 1px solid var(--border-dark); }
+    .game { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 10px 12px 6px; min-width: 0; }
+    .game-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+    .site-tag { display: inline-block; padding: 0 5px; border-radius: 4px; background: var(--brand-wash); color: var(--brand); border: 1px solid var(--brand-tint); font-weight: 800; font-size: 0.64rem; }
+    .gqi { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+    .gqi b { font-size: 0.86rem; color: var(--text); letter-spacing: 0; margin-left: 2px; font-variant-numeric: tabular-nums; }
+    .game-title { font-size: 1rem; font-weight: 800; margin: 3px 0 8px; text-wrap: balance; }
+    .wp-labels { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+    .wp-labels .fav { color: var(--text); font-weight: 800; }
+    .wp-bar { display: flex; gap: 2px; height: 10px; }
+    .wp-seg { border-radius: 4px; min-width: 4px; }
+    .wp-seg.fav { background: var(--brand); }
+    .wp-seg.dog { background: var(--brand-tint); }
+    .pick-line { font-size: 0.8rem; color: var(--text-muted); margin: 7px 0 6px; }
+    .pick-line b { color: var(--text); font-weight: 800; }
+    .elo-scroll { overflow-x: auto; }
+    table.elo { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 0.8rem; }
+    table.elo th { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: right; padding: 4px 3px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    table.elo td { text-align: right; padding: 5px 3px; border-bottom: 1px solid var(--border); white-space: nowrap; vertical-align: top; }
+    table.elo th:first-child, table.elo td:first-child { text-align: left; padding-left: 0; }
+    table.elo tr:last-child td { border-bottom: none; }
+    table.elo td small { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; line-height: 1.2; }
+    .adj.zero { color: var(--text-muted); }
+    .game-elo { font-weight: 800; }
+    .team-link { font: inherit; font-weight: 800; background: none; border: none; padding: 0; color: var(--text); cursor: pointer; text-decoration: underline; text-decoration-color: var(--chip-border); text-underline-offset: 2px; }
+    .team-link:hover { color: var(--brand); text-decoration-color: var(--brand); }
+    .home-tag { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-left: 4px; }
+
     @media (max-width: 1000px) {
       .page { grid-template-columns: minmax(0, 1fr); }
       .sidebar { position: static; max-height: none; overflow: visible; }
@@ -263,6 +295,11 @@
       .summary-cell-stat { font-size: 0.8rem; }
       .summary-cell-sub { font-size: 0.62rem; }
       .seed-row { grid-template-columns: 84px minmax(0, 1fr) 42px; }
+      .games-list { padding: 0 10px; }
+      .game { padding: 10px 10px 6px; }
+      table.elo { font-size: 0.76rem; }
+      table.elo th { white-space: normal; padding: 4px 2px; vertical-align: bottom; }
+      table.elo td { padding: 5px 2px; }
     }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; scroll-behavior: auto !important; }
@@ -281,9 +318,9 @@
           <h1>NFL 2026 Season<span id="updatedStamp" class="updated-stamp"></span></h1>
         </div>
       </div>
-      <div class="view-toggle" role="group" aria-label="Table layout">
-        <button id="btnRanked" class="toggle-btn active" type="button" data-view="ranked">Ranked</button>
-        <button id="btnDivisions" class="toggle-btn" type="button" data-view="divisions">Divisions</button>
+      <div class="view-toggle" role="group" aria-label="Page section">
+        <button id="btnPageProj" class="toggle-btn active" type="button" data-page="proj">Projections</button>
+        <button id="btnPageGames" class="toggle-btn" type="button" data-page="games">Games</button>
       </div>
     </div>
     <div class="legend" aria-label="Probability shading">
@@ -304,7 +341,7 @@
 </header>
 
 <main class="gutter page">
-  <section class="main-col" aria-labelledby="tableTitle">
+  <section class="main-col" id="projView" aria-labelledby="tableTitle">
     <div class="card table-card">
       <div class="table-head">
         <div>
@@ -316,6 +353,10 @@
             <button class="toggle-btn active" type="button" data-conf="ALL">All</button>
             <button class="toggle-btn" type="button" data-conf="AFC">AFC</button>
             <button class="toggle-btn" type="button" data-conf="NFC">NFC</button>
+          </div>
+          <div class="view-toggle" role="group" aria-label="Table layout">
+            <button class="toggle-btn active" type="button" data-view="ranked">Ranked</button>
+            <button class="toggle-btn" type="button" data-view="divisions">Divisions</button>
           </div>
           <label class="mini-label" for="weekSelect">As of</label>
           <select id="weekSelect" class="compact"></select>
@@ -341,6 +382,26 @@
         </table>
       </div>
       <div class="table-foot">Win conf. means winning the AFC or NFC title game and reaching the Super Bowl. Wk Δ is the change in playoff odds from the week before, in percentage points. Select a team to see how its odds have moved.</div>
+    </div>
+  </section>
+
+  <section class="main-col" id="gamesView" aria-labelledby="gamesTitle" hidden>
+    <div class="card games-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="gamesTitle">Next week's games</h2>
+          <div class="table-sub" id="gamesSub"></div>
+        </div>
+        <div class="table-controls">
+          <span class="mini-label">Order</span>
+          <div class="view-toggle" role="group" aria-label="Game order">
+            <button class="toggle-btn active" type="button" data-gsort="time">Kickoff</button>
+            <button class="toggle-btn" type="button" data-gsort="gqi">Game quality</button>
+          </div>
+        </div>
+      </div>
+      <div class="games-list" id="gamesList"></div>
+      <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is.</div>
     </div>
   </section>
 
@@ -776,9 +837,96 @@
     } catch (err) { fallback(); }
   });
 
+  /* ---------- Next week's games ---------- */
+  var G = D.games;
+  state.page = "proj";
+  state.gsort = "time";
+  function sgn(v) {
+    if (Math.abs(v) < 0.05) return "0";
+    var a = Math.abs(v), t = Math.abs(a - Math.round(a)) < 0.05 ? String(Math.round(a)) : a.toFixed(1);
+    return (v > 0 ? "+" : "−") + t;
+  }
+  function fmtDate(iso, opts) { return iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", opts) : ""; }
+  function adjCell(v, sub) {
+    var t = sgn(v);
+    return '<td class="adj' + (t === "0" ? " zero" : "") + '">' + t + (sub ? "<small>" + sub + "</small>" : "") + "</td>";
+  }
+  function sideRow(abbr, s, isHome, neutral) {
+    var base = s[0] - (s[2] + s[3] + s[4] + s[5]);
+    return "<tr><td>" + '<button class="team-link" type="button" data-team="' + abbr + '">' + abbr + "</button>" +
+      "<small>" + (isHome ? (neutral ? "Home* · " : "Home · ") : "") + recStr(get(abbr, LAST).rec) + "</small></td>" +
+      "<td>" + Math.round(base) + "</td>" +
+      adjCell(s[2], s[1] >= 100 ? "offseason" : s[1] + " days") + adjCell(s[3]) + adjCell(s[4]) + adjCell(s[5]) +
+      '<td class="game-elo">' + Math.round(s[0]) + "</td></tr>";
+  }
+  function gameHtml(g) {
+    var pa = g.pa, ph = 1 - pa, homeFav = ph >= pa, fav = homeFav ? g.h : g.a;
+    var title = nick(BY[g.a]) + (g.site ? " vs. " : " at ") + nick(BY[g.h]);
+    var pick = Math.abs(g.m) < 0.05 ? "<b>Even</b>" : "<b>" + nick(BY[fav]) + " by " + Math.abs(g.m).toFixed(1) + "</b>";
+    return '<article class="game">' +
+      '<div class="game-top"><span>' + fmtDate(g.d, { weekday: "short", month: "short", day: "numeric" }) +
+        (g.site ? ' · <span class="site-tag">' + g.site + "</span>" : "") + "</span>" +
+        '<span class="gqi" title="Game quality index, 0 to 100">GQI<b>' + Math.round(g.q) + "</b></span></div>" +
+      '<h3 class="game-title">' + title + "</h3>" +
+      '<div class="wp-labels"><span class="' + (homeFav ? "" : "fav") + '">' + g.a + " " + pct(pa) + '</span><span class="' + (homeFav ? "fav" : "") + '">' + pct(ph) + " " + g.h + "</span></div>" +
+      '<div class="wp-bar" role="img" aria-label="Win chance: ' + BY[g.a].name + " " + pct(pa) + ", " + BY[g.h].name + " " + pct(ph) + '">' +
+        '<span class="wp-seg ' + (homeFav ? "dog" : "fav") + '" style="flex:' + pa.toFixed(4) + '"></span>' +
+        '<span class="wp-seg ' + (homeFav ? "fav" : "dog") + '" style="flex:' + ph.toFixed(4) + '"></span></div>' +
+      '<div class="pick-line">Predicted margin: ' + pick + "</div>" +
+      '<div class="elo-scroll"><table class="elo"><thead><tr><th scope="col">Team</th><th scope="col">Elo</th><th scope="col">Rest</th><th scope="col">Field</th><th scope="col">QB</th><th scope="col">Travel</th><th scope="col">Game Elo</th></tr></thead><tbody>' +
+        sideRow(g.a, g.A, false, !!g.site) + sideRow(g.h, g.H, true, !!g.site) +
+      "</tbody></table></div></article>";
+  }
+  function renderGames() {
+    if (!G) return;
+    var list = G.list.map(function (g, i) { g._i = i; return g; });
+    list.sort(state.gsort === "gqi"
+      ? function (a, b) { return b.q - a.q || a._i - b._i; }
+      : function (a, b) { return (a.d || "").localeCompare(b.d || "") || a._i - b._i; });
+    var html = "", lastDay = null;
+    list.forEach(function (g) {
+      if (state.gsort === "time" && g.d !== lastDay) {
+        html += '<div class="day-head">' + fmtDate(g.d, { weekday: "long", month: "long", day: "numeric" }) + "</div>";
+        lastDay = g.d;
+      }
+      html += gameHtml(g);
+    });
+    $("gamesList").innerHTML = html;
+  }
+  function setPage(pg) {
+    state.page = G ? pg : "proj";
+    $("projView").hidden = state.page !== "proj";
+    $("gamesView").hidden = state.page !== "games";
+    document.querySelectorAll("[data-page]").forEach(function (b) { b.classList.toggle("active", b.dataset.page === state.page); });
+  }
+  if (G) {
+    $("btnPageGames").textContent = G.label + " games";
+    $("gamesTitle").textContent = G.label + " games";
+    $("gamesSub").textContent = "Pregame Elo after " + (LAST === 0 ? "the preseason" : WEEKS[LAST].label) + " · " + G.list.length + " games" +
+      (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "");
+    renderGames();
+  } else {
+    $("btnPageGames").hidden = true;
+  }
+  document.querySelectorAll("[data-page]").forEach(function (b) {
+    b.addEventListener("click", function () { setPage(b.dataset.page); });
+  });
+  document.querySelectorAll("[data-gsort]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.gsort = b.dataset.gsort;
+      document.querySelectorAll("[data-gsort]").forEach(function (x) { x.classList.toggle("active", x === b); });
+      renderGames();
+    });
+  });
+  $("gamesList").addEventListener("click", function (e) {
+    var b = e.target.closest(".team-link");
+    if (b) selectTeam(b.dataset.team, true);
+  });
+
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
   if (BY[fromHash]) state.team = fromHash;
+  if (fromHash === "GAMES") setPage("games");
   teamSel.value = state.team;
   renderSummary();
   renderTable();
