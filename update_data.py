@@ -18,7 +18,8 @@ What it reads
       away, home, away score, home score in columns B-E (used for W-L-T records),
       plus the pregame columns (Away/Home Win Chance, Predicted Home Team Victory
       Margin, Game Quality Index, Game ELOs, Date, rest days, Stadium Coord., and the
-      rest / field / QB / travel adjustments) for the "next week's games" view
+      rest / field / QB / travel adjustments) for the Game forecasts view, every week
+      through the upcoming one, with final scores once games are played
 
 Every week sheet that exists is included, so after Week 6 runs and its summary sheet
 is in the workbook, re-run this and push index.html + forecast-data.js.
@@ -78,9 +79,10 @@ def records_by_week(rows, abbrs, season, last_week):
     for r in rows:
         if not r:
             continue
-        m = re.match(rf"{season} Week (\d+)", str(r[0] or ""))
-        if m:
-            wk = int(m.group(1))
+        label = str(r[0] or "").strip()
+        if label:
+            m = re.match(rf"{season} Week (\d+)", label)
+            wk = int(m.group(1)) if m else None
         if wk is None or wk > last_week or len(r) < 5:
             continue
         away, home = r[1], r[2]
@@ -140,12 +142,12 @@ def excel_date(v):
         return None
 
 
-def week_games(rows, abbrs, season, week):
-    """Pregame Elo detail for every game in one week of the season sheet."""
+def season_games(rows, abbrs, season):
+    """Pregame Elo detail (plus the final score once played) for every game, keyed by week."""
     hi = next((i for i, r in enumerate(rows) if r and "Away Win Chance" in [str(c).strip() for c in r if c is not None]), None)
     if hi is None:
-        print("No 'Away Win Chance' header row found; skipping games view")
-        return None
+        print("No 'Away Win Chance' header row found; skipping game forecasts")
+        return {}
     hdr = [str(c).strip() if c is not None else "" for c in rows[hi]]
     col = lambda name, start=0: hdr.index(name, start)
     c = {
@@ -158,40 +160,53 @@ def week_games(rows, abbrs, season, week):
     c["aq"] = col("QB Mod.", c["af"])
     c["hq"] = col("QB Mod.", c["hf"])
     last_col = max(c.values())
-    games, wk = [], None
+    by_week, wk = {}, None
     for r in rows:
         if not r:
             continue
-        m = re.match(rf"{season} Week (\d+)", str(r[0] or ""))
-        if m:
-            wk = int(m.group(1))
-        if wk != week or len(r) <= last_col:
+        label = str(r[0] or "").strip()
+        if label:
+            m = re.match(rf"{season} Week (\d+)", label)
+            wk = int(m.group(1)) if m else None
+        if wk is None or len(r) <= last_col:
             continue
         a, h = r[1], r[2]
         if a not in abbrs or h not in abbrs:
             continue
         try:
             f = lambda k, nd=2: round(float(r[c[k]]), nd)
-            games.append({
+            g = {
                 "d": excel_date(r[c["d"]]), "a": a, "h": h,
                 "pa": f("pa", 4), "m": f("m"), "q": f("q", 1),
                 # [game Elo, rest days, rest adj, field adv, QB adj, travel adj]
                 "A": [f("ae", 1), int(float(r[c["ard"]])), f("ar"), f("af"), f("aq"), f("at")],
                 "H": [f("he", 1), int(float(r[c["hrd"]])), f("hr"), f("hf"), f("hq"), f("ht")],
                 "site": site_name(r[c["site"]]),
-            })
+            }
         except (TypeError, ValueError):
             continue
-    if not games:
-        print(f"No pregame rows for Week {week}; skipping games view")
-        return None
-    full_hfa = max(g["H"][3] for g in games)
-    for g in games:
-        if not g["site"] and g["H"][3] < full_hfa:
-            g["site"] = "Neutral site"
-    played = {t for g in games for t in (g["a"], g["h"])}
-    print(f"Week {week} games: {len(games)}, byes: {sorted(abbrs - played)}")
-    return {"week": week, "label": f"Week {week}", "list": games, "byes": sorted(abbrs - played)}
+        try:
+            g["s"] = [int(float(r[3])), int(float(r[4]))]  # final score, away-home
+        except (TypeError, ValueError):
+            pass
+        by_week.setdefault(wk, []).append(g)
+    full_hfa = max((g["H"][3] for gl in by_week.values() for g in gl), default=0)
+    for gl in by_week.values():
+        for g in gl:
+            if not g["site"] and g["H"][3] < full_hfa:
+                g["site"] = "Neutral site"
+    return by_week
+
+
+def next_game_elo(by_week, team, after_week):
+    """[base Elo, QB adj] going into the team's first game after `after_week` (skips byes)."""
+    for w in sorted(k for k in by_week if k > after_week):
+        for g in by_week[w]:
+            side = "A" if g["a"] == team else "H" if g["h"] == team else None
+            if side:
+                s = g[side]
+                return [round(s[0] - (s[2] + s[3] + s[4] + s[5]), 1), round(s[4], 1)]
+    return [None, None]
 
 
 def main():
@@ -224,17 +239,24 @@ def main():
     elo_rows = sheet_rows(elo[yy])
     recs, per_week = records_by_week(elo_rows, abbrs, season, last_week)
     print("games with scores per week:", per_week)
-    games = week_games(elo_rows, abbrs, season, last_week + 1) if last_week < 18 else None
+    by_week = season_games(elo_rows, abbrs, season)
+    games = []
+    for w in range(1, min(last_week + 1, 18) + 1):
+        if by_week.get(w):
+            played = {t for g in by_week[w] for t in (g["a"], g["h"])}
+            games.append({"week": w, "label": f"Week {w}", "list": by_week[w], "byes": sorted(abbrs - played)})
+    print("game forecast weeks:", [g["week"] for g in games])
 
     for wk in weeks:
         n = 0 if wk["key"] == "pre" else int(wk["key"][2:])
         for a, row in wk["teams"].items():
             row.append(recs.get(n, recs[0])[a])
+            row.extend(next_game_elo(by_week, a, n))  # [base Elo, QB adj] for the next game
 
     data = {
         "season": season,
         "updated": dt.date.today().isoformat(),
-        "fields": FIELDS + ["p_seed1..7", "record_wlt"],
+        "fields": FIELDS + ["p_seed1..7", "record_wlt", "next_base_elo", "next_qb_adj"],
         "teams": teams,
         "weeks": weeks,
         "games": games,

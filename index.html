@@ -59,7 +59,7 @@
     }
     :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
     .gutter {
-      max-width: 1280px;
+      max-width: 1360px;
       margin: 0 auto;
       padding-left: max(16px, env(safe-area-inset-left, 0px));
       padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -244,6 +244,15 @@
     .share-fallback { font: inherit; font-size: 0.7rem; width: 100%; margin-top: 6px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
 
     [hidden] { display: none !important; }
+    .elo-cell { line-height: 1.1; }
+    .elo-base { font-weight: 700; }
+    .elo-cell small { display: block; font-size: 0.64rem; color: var(--text-muted); font-weight: 600; margin-top: 1px; }
+    .final-line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: var(--text-muted); margin: -2px 0 7px; }
+    .final-line b { color: var(--text); font-weight: 800; }
+    .res { font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--text-muted); background: var(--subtle); }
+    .res.ok { color: var(--text); }
+    .res.miss { color: var(--brand); border-color: var(--brand-tint); background: var(--brand-wash); }
+    @media (max-width: 1320px) { svg.wbar { display: none; } }
     /* ---------- Games ---------- */
     .games-card { padding: 14px 0 4px; }
     .games-list { padding: 0 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 370px), 1fr)); gap: 12px; }
@@ -325,7 +334,7 @@
       </div>
       <div class="view-toggle" role="group" aria-label="Page section">
         <button id="btnPageProj" class="toggle-btn active" type="button" data-page="proj">Projections</button>
-        <button id="btnPageGames" class="toggle-btn" type="button" data-page="games">Games</button>
+        <button id="btnPageGames" class="toggle-btn" type="button" data-page="games">Game forecasts</button>
       </div>
     </div>
     <div class="legend" aria-label="Probability shading">
@@ -375,6 +384,7 @@
               <th class="col-rank" scope="col">#</th>
               <th class="col-team" scope="col" data-key="team"><button class="sort-btn" type="button" data-sort="team">Team<span class="sort-arrow"></span></button></th>
               <th scope="col" data-key="rec"><button class="sort-btn" type="button" data-sort="rec" title="Record through the selected week">Rec<span class="sort-arrow"></span></button></th>
+              <th scope="col" data-key="elo"><button class="sort-btn" type="button" data-sort="elo" title="Elo rating going into the team's next game, including the starting-quarterback adjustment">Elo<span class="sort-arrow"></span></button></th>
               <th scope="col" data-key="mean"><button class="sort-btn" type="button" data-sort="mean" title="Average wins across all simulated seasons, ± one standard deviation">Proj. wins<span class="sort-arrow"></span></button></th>
               <th scope="col" data-key="poff"><button class="sort-btn" type="button" data-sort="poff">Playoffs<span class="sort-arrow"></span></button></th>
               <th class="col-chg" scope="col" data-key="dpoff"><button class="sort-btn" type="button" data-sort="dpoff" title="Change in playoff odds since the previous week, in percentage points">Wk Δ<span class="sort-arrow"></span></button></th>
@@ -386,7 +396,7 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-      <div class="table-foot">Win conf. means winning the AFC or NFC title game and reaching the Super Bowl. Wk Δ is the change in playoff odds from the week before, in percentage points. Select a team to see how its odds have moved.</div>
+      <div class="table-foot">Elo is each team's rating going into its next game, including the adjustment for that game's starting quarterback (hover for the breakdown). Win conf. means winning the AFC or NFC title game and reaching the Super Bowl. Wk Δ is the change in playoff odds from the week before, in percentage points. Select a team to see how its odds have moved.</div>
     </div>
   </section>
 
@@ -394,10 +404,12 @@
     <div class="card games-card">
       <div class="table-head">
         <div>
-          <h2 class="table-title" id="gamesTitle">Next week's games</h2>
+          <h2 class="table-title" id="gamesTitle">Game forecasts</h2>
           <div class="table-sub" id="gamesSub"></div>
         </div>
         <div class="table-controls">
+          <label class="mini-label" for="gameWeekSelect">Week</label>
+          <select id="gameWeekSelect" class="compact"></select>
           <span class="mini-label">Order</span>
           <div class="view-toggle" role="group" aria-label="Game order">
             <button class="toggle-btn active" type="button" data-gsort="time">Kickoff</button>
@@ -406,7 +418,7 @@
         </div>
       </div>
       <div class="games-list" id="gamesList"></div>
-      <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is.</div>
+      <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is. Past weeks show each game as forecast before kickoff, with the final score and whether the favorite won.</div>
     </div>
   </section>
 
@@ -491,7 +503,7 @@
   var D = window.NFL_DATA;
   var tbody = document.getElementById("tableBody");
   if (!D || !D.weeks || !D.weeks.length) {
-    tbody.innerHTML = '<tr><td colspan="9">Forecast data did not load. Check that forecast-data.js sits next to index.html.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10">Forecast data did not load. Check that forecast-data.js sits next to index.html.</td></tr>';
     document.getElementById("tableSub").textContent = "No data";
     return;
   }
@@ -515,7 +527,7 @@
   function nick(t) { return t.name.split(" ").pop(); }
   function get(a, w) {
     var r = WEEKS[w].teams[a];
-    return { mean: r[0], sd: r[1], poff: r[2], div: r[3], conf: r[4], sb: r[5], seeds: r[6], rec: r[7] || [0, 0, 0] };
+    return { mean: r[0], sd: r[1], poff: r[2], div: r[3], conf: r[4], sb: r[5], seeds: r[6], rec: r[7] || [0, 0, 0], elo: r[8], qb: r[9] };
   }
   function pct(p) {
     if (p >= 1) return "100%";
@@ -557,6 +569,7 @@
   var SORTS = {
     team: function (a) { return BY[a].name; },
     rec: function (a, w) { var r = get(a, w).rec, g = r[0] + r[1] + r[2]; return g ? (r[0] + 0.5 * r[2]) / g + g * 1e-4 : 0; },
+    elo: function (a, w) { var r = get(a, w); return r.elo == null ? -1 : r.elo + (r.qb || 0); },
     mean: function (a, w) { return get(a, w).mean; },
     poff: function (a, w) { return get(a, w).poff; },
     dpoff: function (a, w) { return w > 0 ? get(a, w).poff - get(a, w - 1).poff : 0; },
@@ -589,6 +602,7 @@
       '<td class="col-rank">' + n + "</td>" +
       '<td class="col-team">' + chip(a) + '<span class="t-name">' + nick(t) + "</span></td>" +
       '<td class="rec">' + recStr(r.rec) + "</td>" +
+      '<td class="elo-cell"' + (r.elo != null ? ' title="Base ' + Math.round(r.elo) + ", QB " + sgn(r.qb || 0) + '"><span class="elo-base">' + Math.round(r.elo + (r.qb || 0)) + "</span>" : ">—") + "</td>" +
       '<td><span class="wins"><span class="wins-num"><span class="wins-mean">' + r.mean.toFixed(1) + '</span><span class="wins-sd">±' + r.sd.toFixed(1) + "</span></span>" + winsBar(r.mean, r.sd) + "</span></td>" +
       "<td>" + pp(r.poff) + "</td>" +
       '<td class="col-chg">' + chg + "</td>" +
@@ -597,7 +611,7 @@
       "<td>" + pp(r.sb) + "</td></tr>";
   }
 
-  var SORT_NAMES = { team: "team name", rec: "record", mean: "projected wins", poff: "playoff odds", dpoff: "weekly change", div: "division odds", conf: "conference odds", sb: "Super Bowl odds" };
+  var SORT_NAMES = { team: "team name", rec: "record", elo: "Elo", mean: "projected wins", poff: "playoff odds", dpoff: "weekly change", div: "division odds", conf: "conference odds", sb: "Super Bowl odds" };
 
   function renderTable() {
     var w = state.week, f = SORTS[state.sort];
@@ -614,7 +628,7 @@
     var html = "";
     if (state.view === "divisions") {
       DIVS.filter(function (d) { return state.conf === "ALL" || d.indexOf(state.conf) === 0; }).forEach(function (d) {
-        html += '<tr class="group-row"><td colspan="9">' + d + "</td></tr>";
+        html += '<tr class="group-row"><td colspan="10">' + d + "</td></tr>";
         list.filter(function (a) { return BY[a].div === d; }).forEach(function (a, i) { html += rowHtml(a, i + 1); });
       });
     } else {
@@ -850,13 +864,14 @@
   });
 
   /* ---------- Next week's games ---------- */
-  var G = D.games;
+  var GW = Array.isArray(D.games) ? D.games : (D.games ? [D.games] : []);
+  var G = GW.length ? GW[GW.length - 1] : null;
+  state.gweek = GW.length - 1;
   state.page = "proj";
   state.gsort = "time";
   function sgn(v) {
-    if (Math.abs(v) < 0.05) return "0";
-    var a = Math.abs(v), t = Math.abs(a - Math.round(a)) < 0.05 ? String(Math.round(a)) : a.toFixed(1);
-    return (v > 0 ? "+" : "−") + t;
+    var r = Math.round(v);
+    return r === 0 ? "0" : (r > 0 ? "+" : "\u2212") + Math.abs(r);
   }
   function fmtDate(iso, opts) { return iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-US", opts) : ""; }
   function adjCell(v, sub) {
@@ -866,7 +881,7 @@
   function sideRow(abbr, s, isHome, neutral) {
     var base = s[0] - (s[2] + s[3] + s[4] + s[5]);
     return "<tr><td>" + '<button class="team-link" type="button" data-team="' + abbr + '" aria-label="' + BY[abbr].name + ', show detail">' + chip(abbr) + "</button>" +
-      "<small>" + (isHome ? (neutral ? "Home* · " : "Home · ") : "") + recStr(get(abbr, LAST).rec) + "</small></td>" +
+      "<small>" + (isHome ? (neutral ? "Home* · " : "Home · ") : "") + recStr(get(abbr, Math.max(0, Math.min(G.week - 1, LAST))).rec) + "</small></td>" +
       "<td>" + Math.round(base) + "</td>" +
       adjCell(s[2], s[1] >= 100 ? "offseason" : s[1] + " days") + adjCell(s[3]) + adjCell(s[4]) + adjCell(s[5]) +
       '<td class="game-elo">' + Math.round(s[0]) + "</td></tr>";
@@ -886,13 +901,35 @@
       '<div class="wp-bar" role="img" aria-label="Win chance: ' + BY[g.a].name + " " + pct(pa) + ", " + BY[g.h].name + " " + pct(ph) + '">' +
         '<span class="wp-seg" style="flex:' + pa.toFixed(4) + ";background:" + ca + '"></span>' +
         '<span class="wp-seg" style="flex:' + ph.toFixed(4) + ";background:" + ch + '"></span></div>' +
-      '<div class="pick-line">Predicted margin: ' + pick + "</div>" +
+      '<div class="pick-line">Predicted margin: ' + pick + "</div>" + resultHtml(g, homeFav) +
       '<div class="elo-scroll"><table class="elo"><thead><tr><th scope="col">Team</th><th scope="col">Elo</th><th scope="col">Rest</th><th scope="col">Field</th><th scope="col">QB</th><th scope="col">Travel</th><th scope="col">Game Elo</th></tr></thead><tbody>' +
         sideRow(g.a, g.A, false, !!g.site) + sideRow(g.h, g.H, true, !!g.site) +
       "</tbody></table></div></article>";
   }
+  function resultHtml(g, homeFav) {
+    if (!g.s) return "";
+    var as = g.s[0], hs = g.s[1];
+    if (as === hs) return '<div class="final-line">Final: <b>Tie, ' + as + "–" + hs + '</b><span class="res">Tie</span></div>';
+    var homeWon = hs > as, w = homeWon ? g.h : g.a;
+    return '<div class="final-line">Final: <b>' + nick(BY[w]) + " win " + Math.max(as, hs) + "–" + Math.min(as, hs) + "</b>" +
+      (homeWon === homeFav ? '<span class="res ok">✓ Favorite won</span>' : '<span class="res miss">✗ Upset</span>') + "</div>";
+  }
+  function weekSummary(gw) {
+    var done = gw.list.filter(function (g) { return g.s; }), right = 0, wrong = 0, brier = 0;
+    done.forEach(function (g) {
+      var ph = 1 - g.pa, out = g.s[1] > g.s[0] ? 1 : g.s[1] < g.s[0] ? 0 : 0.5;
+      if (out !== 0.5) { if ((out === 1) === (ph >= g.pa)) right++; else wrong++; }
+      brier += Math.pow(ph - out, 2);
+    });
+    if (!done.length) return "";
+    return " · Favorites " + right + "–" + wrong + (done.length < gw.list.length ? " so far" : "") + " · Brier " + (brier / done.length).toFixed(3);
+  }
   function renderGames() {
     if (!G) return;
+    var upcoming = G.list.some(function (g) { return !g.s; });
+    $("gamesTitle").textContent = G.label + (upcoming ? " forecasts" : " forecasts and results");
+    $("gamesSub").textContent = "Pregame Elo after " + (G.week <= 1 ? "the preseason" : "Week " + (G.week - 1)) + " · " + G.list.length + " games" +
+      (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "") + weekSummary(G);
     var list = G.list.map(function (g, i) { g._i = i; return g; });
     list.sort(state.gsort === "gqi"
       ? function (a, b) { return b.q - a.q || a._i - b._i; }
@@ -914,10 +951,15 @@
     document.querySelectorAll("[data-page]").forEach(function (b) { b.classList.toggle("active", b.dataset.page === state.page); });
   }
   if (G) {
-    $("btnPageGames").textContent = G.label + " games";
-    $("gamesTitle").textContent = G.label + " games";
-    $("gamesSub").textContent = "Pregame Elo after " + (LAST === 0 ? "the preseason" : WEEKS[LAST].label) + " · " + G.list.length + " games" +
-      (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "");
+    var gws = $("gameWeekSelect");
+    GW.forEach(function (gw, i) {
+      var o = document.createElement("option");
+      o.value = i;
+      o.textContent = gw.label + (gw.list.some(function (g) { return !g.s; }) ? " (upcoming)" : "");
+      gws.appendChild(o);
+    });
+    gws.value = String(state.gweek);
+    gws.addEventListener("change", function () { state.gweek = +gws.value; G = GW[state.gweek]; renderGames(); });
     renderGames();
   } else {
     $("btnPageGames").hidden = true;
