@@ -246,6 +246,7 @@
     [hidden] { display: none !important; }
     .elo-cell { line-height: 1.1; }
     .elo-base { font-weight: 700; }
+    .tier-tag { font-weight: 800; color: var(--text); }
     .elo-cell small { display: block; font-size: 0.64rem; color: var(--text-muted); font-weight: 600; margin-top: 1px; }
     .final-line { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: var(--text-muted); margin: -2px 0 7px; }
     .final-line b { color: var(--text); font-weight: 800; }
@@ -396,7 +397,7 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-      <div class="table-foot">Elo is each team's rating going into its next game, including the adjustment for that game's starting quarterback (hover for the breakdown). Win conf. means winning the AFC or NFC title game and reaching the Super Bowl. Wk Δ is the change in playoff odds from the week before, in percentage points. Select a team to see how its odds have moved.</div>
+      <div class="table-foot">Elo is each team's rating going into its next game, including the adjustment for that game's starting quarterback (hover for the breakdown). Tiers by Elo: <span id="tierLegend"></span>. Win conf. means winning the AFC or NFC title game and reaching the Super Bowl. Wk Δ is the change in playoff odds from the week before, in percentage points. Select a team to see how its odds have moved.</div>
     </div>
   </section>
 
@@ -418,7 +419,7 @@
         </div>
       </div>
       <div class="games-list" id="gamesList"></div>
-      <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is. Past weeks show each game as forecast before kickoff, with the final score and whether the favorite won.</div>
+      <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is. The tier under each team uses its Elo with the QB adjustment: <span id="tierLegend2"></span>. Past weeks show each game as forecast before kickoff, with the final score and whether the favorite won.</div>
     </div>
   </section>
 
@@ -522,6 +523,17 @@
     var c = TC[a] || ["#475569", "#FFFFFF", "#475569"];
     return '<span class="tchip" style="--tc:' + c[0] + ";--tf:" + c[1] + ";--ts:" + c[2] + '">' + a + "</span>";
   }
+  var TIERS = D.tiers || [[1656.93, "Dominant"], [1605.02, "Elite"], [1530.5, "Good"], [1468.06, "Average"], [1398.73, "Bad"], [1346.27, "Horrible"], [null, "Atrocious"]];
+  function tier(elo) {
+    var e = Math.round(elo);
+    for (var i = 0; i < TIERS.length; i++) if (TIERS[i][0] == null || e >= Math.ceil(TIERS[i][0])) return TIERS[i][1];
+    return "";
+  }
+  function tierLegend() {
+    return TIERS.map(function (t, i) {
+      return t[0] == null ? t[1] + " below " + Math.ceil(TIERS[i - 1][0]) : t[1] + " " + Math.ceil(t[0]) + "+";
+    }).join(", ");
+  }
   function rgb(h) { return [1, 3, 5].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
   function colorDist(x, y) { var a = rgb(x), b = rgb(y); return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); }
   function nick(t) { return t.name.split(" ").pop(); }
@@ -539,7 +551,18 @@
   function bin(p) { return p >= 0.95 ? 5 : p >= 0.75 ? 4 : p >= 0.5 ? 3 : p >= 0.25 ? 2 : p >= 0.05 ? 1 : 0; }
   function recStr(r) { return r[0] + "-" + r[1] + (r[2] ? "-" + r[2] : ""); }
   function weekShort(i) { return i === 0 ? "Pre" : "W" + WEEKS[i].key.replace(/\D/g, ""); }
-  function asOfText(w) { return w === 0 ? "Preseason" : "After " + WEEKS[w].label; }
+  function wkName(i) { return WEEKS[i].label.replace(/ \(in progress\)$/, ""); }
+  function weekNum(i) { return WEEKS[i].key === "pre" ? 0 : +WEEKS[i].key.replace(/\D/g, ""); }
+  function idxAfterWeek(n) { /* latest finished snapshot at or before "after week n" */
+    for (var i = WEEKS.length - 1; i >= 0; i--) if (!WEEKS[i].live && weekNum(i) <= n) return i;
+    return 0;
+  }
+  function asOfText(w) {
+    var wk = WEEKS[w];
+    if (wk.key === "pre") return "Preseason";
+    if (wk.live) return "During " + wkName(w) + (wk.total ? " (" + wk.final + " of " + wk.total + " games final)" : "");
+    return "After " + wk.label;
+  }
   function deltaHtml(vals, i) {
     if (i === 0) return "";
     var d = (vals[i] - vals[i - 1]) * 100;
@@ -548,7 +571,7 @@
   }
 
   /* ---------- Header stamp, summary ---------- */
-  $("updatedStamp").textContent = (LAST === 0 ? "Preseason" : "Through " + WEEKS[LAST].label) +
+  $("updatedStamp").textContent = (WEEKS[LAST].live ? wkName(LAST) + " in progress" : WEEKS[LAST].key === "pre" ? "Preseason" : "Through " + wkName(LAST)) +
     (D.updated ? " · Updated " + new Date(D.updated + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
 
   function renderSummary() {
@@ -602,7 +625,7 @@
       '<td class="col-rank">' + n + "</td>" +
       '<td class="col-team">' + chip(a) + '<span class="t-name">' + nick(t) + "</span></td>" +
       '<td class="rec">' + recStr(r.rec) + "</td>" +
-      '<td class="elo-cell"' + (r.elo != null ? ' title="Base ' + Math.round(r.elo) + ", QB " + sgn(r.qb || 0) + '"><span class="elo-base">' + Math.round(r.elo + (r.qb || 0)) + "</span>" : ">—") + "</td>" +
+      '<td class="elo-cell"' + (r.elo != null ? ' title="Base ' + Math.round(r.elo) + ", QB " + sgn(r.qb || 0) + '"><span class="elo-base">' + Math.round(r.elo + (r.qb || 0)) + "</span><small>" + tier(r.elo + (r.qb || 0)) + "</small>" : ">—") + "</td>" +
       '<td><span class="wins"><span class="wins-num"><span class="wins-mean">' + r.mean.toFixed(1) + '</span><span class="wins-sd">±' + r.sd.toFixed(1) + "</span></span>" + winsBar(r.mean, r.sd) + "</span></td>" +
       "<td>" + pp(r.poff) + "</td>" +
       '<td class="col-chg">' + chg + "</td>" +
@@ -762,7 +785,8 @@
     var a = state.team, t = BY[a], w = state.week, r = get(a, w);
     $("teamTitle").innerHTML = chip(a) + t.name;
     $("teamSub").innerHTML = '<span class="conf-tag">' + t.conf + "</span>" + t.div + " · " +
-      (w === 0 ? "Preseason" : recStr(r.rec) + " after " + WEEKS[w].label);
+      (WEEKS[w].key === "pre" ? "Preseason" : recStr(r.rec) + (WEEKS[w].live ? " during " : " after ") + wkName(w)) +
+      (r.elo != null ? ' · <span class="tier-tag">' + tier(r.elo + (r.qb || 0)) + "</span>" : "");
     $("outWins").textContent = r.mean.toFixed(1);
     $("outSd").textContent = "±" + r.sd.toFixed(1);
     $("outRec").textContent = recStr(r.rec);
@@ -881,7 +905,7 @@
   function sideRow(abbr, s, isHome, neutral) {
     var base = s[0] - (s[2] + s[3] + s[4] + s[5]);
     return "<tr><td>" + '<button class="team-link" type="button" data-team="' + abbr + '" aria-label="' + BY[abbr].name + ', show detail">' + chip(abbr) + "</button>" +
-      "<small>" + (isHome ? (neutral ? "Home* · " : "Home · ") : "") + recStr(get(abbr, Math.max(0, Math.min(G.week - 1, LAST))).rec) + "</small></td>" +
+      "<small>" + (isHome ? (neutral ? "Home* · " : "Home · ") : "") + recStr(get(abbr, idxAfterWeek(G.week - 1)).rec) + "</small><small>" + tier(base + s[4]) + "</small></td>" +
       "<td>" + Math.round(base) + "</td>" +
       adjCell(s[2], s[1] >= 100 ? "offseason" : s[1] + " days") + adjCell(s[3]) + adjCell(s[4]) + adjCell(s[5]) +
       '<td class="game-elo">' + Math.round(s[0]) + "</td></tr>";
@@ -926,8 +950,8 @@
   }
   function renderGames() {
     if (!G) return;
-    var upcoming = G.list.some(function (g) { return !g.s; });
-    $("gamesTitle").textContent = G.label + (upcoming ? " forecasts" : " forecasts and results");
+    var anyFinal = G.list.some(function (g) { return g.s; });
+    $("gamesTitle").textContent = G.label + (anyFinal ? " forecasts and results" : " forecasts");
     $("gamesSub").textContent = "Pregame Elo after " + (G.week <= 1 ? "the preseason" : "Week " + (G.week - 1)) + " · " + G.list.length + " games" +
       (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "") + weekSummary(G);
     var list = G.list.map(function (g, i) { g._i = i; return g; });
@@ -955,7 +979,8 @@
     GW.forEach(function (gw, i) {
       var o = document.createElement("option");
       o.value = i;
-      o.textContent = gw.label + (gw.list.some(function (g) { return !g.s; }) ? " (upcoming)" : "");
+      var open = gw.list.filter(function (g) { return !g.s; }).length;
+      o.textContent = gw.label + (!open ? "" : open === gw.list.length ? " (upcoming)" : " (in progress)");
       gws.appendChild(o);
     });
     gws.value = String(state.gweek);
@@ -978,6 +1003,9 @@
     var b = e.target.closest(".team-link");
     if (b) selectTeam(b.dataset.team, true);
   });
+
+  $("tierLegend").textContent = tierLegend();
+  $("tierLegend2").textContent = tierLegend();
 
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
