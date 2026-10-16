@@ -202,6 +202,7 @@
     .card-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
     .readout { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
     .readout strong { color: var(--text); font-weight: 800; }
+    .readout-hint { display: block; }
     figure.chart-fig { margin: 0; min-width: 0; }
     .chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-bottom: 2px; }
     .chart-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
@@ -450,7 +451,7 @@
       </div>
 
       <div id="tabTrend" role="tabpanel" aria-labelledby="tabBtnTrend">
-        <div class="readout">Showing <strong id="readoutWeek">—</strong> · hover or drag across a chart to step through the weeks</div>
+        <div class="readout">Showing <strong id="readoutWeek">—</strong><span class="readout-hint">Hover or drag across a chart to step through the weeks</span></div>
         <figure class="chart-fig">
           <figcaption class="chart-head"><span class="chart-label">Projected wins</span><span class="chart-val" id="valWins">—</span></figcaption>
           <svg class="chart" id="chWins" viewBox="0 0 400 150" role="img" aria-label="Projected wins by week"></svg>
@@ -550,7 +551,7 @@
   }
   function bin(p) { return p >= 0.95 ? 5 : p >= 0.75 ? 4 : p >= 0.5 ? 3 : p >= 0.25 ? 2 : p >= 0.05 ? 1 : 0; }
   function recStr(r) { return r[0] + "-" + r[1] + (r[2] ? "-" + r[2] : ""); }
-  function weekShort(i) { return i === 0 ? "Pre" : "W" + WEEKS[i].key.replace(/\D/g, ""); }
+  function weekShort(i) { return WEEKS[i].key === "pre" ? "Pre" : "W" + WEEKS[i].key.replace(/\D/g, ""); }
   function wkName(i) { return WEEKS[i].label.replace(/ \(in progress\)$/, ""); }
   function weekNum(i) { return WEEKS[i].key === "pre" ? 0 : +WEEKS[i].key.replace(/\D/g, ""); }
   function idxAfterWeek(n) { /* latest finished snapshot at or before "after week n" */
@@ -832,7 +833,7 @@
   var weekSel = $("weekSelect");
   WEEKS.forEach(function (wk, i) {
     var o = document.createElement("option");
-    o.value = i; o.textContent = i === 0 ? "Preseason" : wk.label;
+    o.value = i; o.textContent = wk.key === "pre" ? "Preseason" : wk.label;
     weekSel.appendChild(o);
   });
   weekSel.value = String(LAST);
