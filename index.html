@@ -165,7 +165,7 @@
     .wbar-mid { stroke: var(--border-dark); stroke-width: 1; }
     .wbar-band { fill: var(--brand-tint); }
     .wbar-dot { fill: var(--brand); stroke: var(--card-bg); stroke-width: 1.5; }
-    .pp { display: block; margin: 0 auto; width: 48px; padding: 4px 0; border-radius: 4px; font-weight: 700; font-size: 0.8rem; line-height: 1.25; }
+    .pp { display: block; margin: 0 auto; width: 54px; padding: 4px 0; border-radius: 4px; font-weight: 700; font-size: 0.78rem; line-height: 1.25; }
     .b0 { background: transparent; color: var(--text-muted); font-weight: 600; }
     .b1 { background: var(--p1); color: var(--text); }
     .b2 { background: var(--p2); color: var(--text); }
@@ -285,6 +285,78 @@
     .team-link:hover .tchip { outline: 2px solid var(--brand); outline-offset: 1px; }
     .home-tag { font-size: 0.56rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-left: 4px; }
 
+    /* ---------- What-if, rooting guide, draft ---------- */
+    .page-toggle { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+    .page-toggle::-webkit-scrollbar { display: none; }
+    .dl { font-size: 0.74rem; font-weight: 700; color: var(--text); white-space: nowrap; }
+    .dl.flat { color: var(--text-muted); font-weight: 600; }
+    .wi-list { padding: 0 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 8px; }
+    .wi-game { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 8px 10px; min-width: 0; }
+    .wi-game.changed { border-color: var(--brand); background: var(--brand-wash); }
+    .wi-info { display: flex; justify-content: space-between; gap: 8px; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; font-variant-numeric: tabular-nums; }
+    .wi-seg { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; }
+    .wi-seg button { font: inherit; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px; cursor: pointer; }
+    .wi-seg button .tchip { opacity: 0.65; }
+    .wi-seg button.on .tchip, .wi-seg button.won .tchip { opacity: 1; }
+    .wi-seg button.on { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); color: var(--text); background: var(--surface); }
+    .wi-seg button.mid.on { box-shadow: none; border-color: var(--border-dark); background: var(--toggle-bg); }
+    .wi-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .wi-run { display: flex; align-items: center; gap: 10px; }
+    .wi-status { font-size: 0.76rem; color: var(--text-muted); font-weight: 600; }
+    .run-btn { font: inherit; font-weight: 800; font-size: 0.86rem; color: var(--on-dark); background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+    .run-btn:disabled { opacity: 0.6; cursor: progress; }
+    .link-btn { font: inherit; background: none; border: none; padding: 0; color: var(--brand); font-weight: 700; cursor: pointer; }
+    .link-btn:disabled { color: var(--text-muted); cursor: default; }
+    .wi-table td .wi-v { display: block; font-weight: 700; }
+    .wi-table td .dl { display: block; font-size: 0.66rem; }
+    tr.involved td { background: var(--brand-wash); }
+    .met-row { padding: 0 14px 10px; }
+    .met-toggle { display: inline-flex; flex-wrap: wrap; }
+    .root-cur { padding: 0 14px 10px; font-size: 0.86rem; color: var(--text-muted); }
+    .root-cur b { color: var(--text); }
+    .root-table .at { color: var(--text-muted); font-size: 0.7rem; margin: 0 2px; }
+    .root-table td.kick { font-size: 0.74rem; color: var(--text-muted); }
+    .root-table td.swing { font-weight: 800; }
+    .root-table tr.mine td { background: var(--brand-wash); }
+    .sp-legend { display: flex; gap: 16px; flex-wrap: wrap; padding: 0 14px 8px; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+    .sp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .sp-legend .sp-dot { position: relative; top: auto; margin: 0; display: inline-block; }
+    .sp-chart { padding: 0 14px 10px; }
+    .sp-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) 104px; align-items: center; gap: 10px; min-height: 32px; border-bottom: 1px solid var(--border); }
+    .sp-row.sp-axis { min-height: 18px; border-bottom: none; }
+    .sp-ticks { position: relative; height: 14px; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
+    .sp-ticks span { position: absolute; transform: translateX(-50%); }
+    .sp-track { position: relative; height: 22px; background: linear-gradient(to right, var(--border) 1px, transparent 1px) 0 0 / 25% 100% repeat-x; border-right: 1px solid var(--border); }
+    .sp-range { position: absolute; top: 10px; height: 2px; background: var(--border-dark); }
+    .sp-dot { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; box-sizing: border-box; }
+    .sp-dot.cur { background: var(--text); width: 12px; height: 12px; margin: -6px 0 0 -6px; border: 2px solid var(--surface); z-index: 1; }
+    .sp-dot.win { background: var(--brand); border-radius: 2px; transform: rotate(45deg); }
+    .sp-dot.lose { background: var(--surface); border: 2px solid var(--brand); }
+    .sp-val { font-size: 0.8rem; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; line-height: 1.15; }
+    .sp-val small { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
+    .dcell { text-align: left !important; }
+    .dpick { display: inline-flex; flex-direction: column; align-items: center; margin: 0 8px 0 0; line-height: 1.1; vertical-align: middle; }
+    .dpick b { font-weight: 800; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+    .dpick small, .dnone small { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
+    .dnone { display: inline-block; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; line-height: 1.1; }
+    .dist-wrap { padding: 0 14px 12px; display: grid; gap: 16px; }
+    .dist-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+    .dist-bars { display: flex; align-items: flex-end; gap: 2px; height: 72px; border-bottom: 1px solid var(--border-dark); }
+    .dist-bars span { flex: 1; min-height: 1px; background: var(--brand-tint); border-radius: 2px 2px 0 0; }
+    .dist-bars span.t10 { background: var(--p3); }
+    .dist-bars span.t5 { background: var(--brand); }
+    .dist-axis { position: relative; height: 14px; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+    .dist-axis span { position: absolute; transform: translateX(-50%); }
+    .order-list { list-style: none; margin: 0; padding: 0 14px 12px; columns: 2 230px; column-gap: 24px; }
+    .order-list li { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--border); break-inside: avoid; font-size: 0.8rem; }
+    .ord { width: 1.6em; text-align: right; color: var(--text-muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .ord-lab { flex: 1; color: var(--text-muted); font-size: 0.7rem; }
+    .ord-avg { font-weight: 700; font-variant-numeric: tabular-nums; }
+    @media (max-width: 600px) {
+      .sp-row { grid-template-columns: 44px minmax(0, 1fr) 80px; gap: 6px; }
+      .wi-bar { padding: 10px 12px; }
+    }
+
     @media (max-width: 1000px) {
       .page { grid-template-columns: minmax(0, 1fr); }
       .sidebar { position: static; max-height: none; overflow: visible; }
@@ -299,7 +371,7 @@
     }
     @media (max-width: 600px) {
       .col-rank, .col-chg { display: none; }
-      .pp { width: 40px; font-size: 0.76rem; }
+      .pp { width: 44px; font-size: 0.68rem; }
       table.proj td { padding: 4px 1px; }
       table.proj th { white-space: normal; font-size: 0.58rem; letter-spacing: 0.02em; padding: 4px 1px 6px; line-height: 1.15; }
       .sort-btn { display: inline; padding: 0; }
@@ -334,9 +406,12 @@
           <h1>NFL 2026 Season<span id="updatedStamp" class="updated-stamp"></span></h1>
         </div>
       </div>
-      <div class="view-toggle" role="group" aria-label="Page section">
+      <div class="view-toggle page-toggle" role="group" aria-label="Page section">
         <button id="btnPageProj" class="toggle-btn active" type="button" data-page="proj">Projections</button>
         <button id="btnPageGames" class="toggle-btn" type="button" data-page="games">Game forecasts</button>
+        <button id="btnPageWhatif" class="toggle-btn" type="button" data-page="whatif">What-if</button>
+        <button id="btnPageRoot" class="toggle-btn" type="button" data-page="root">Rooting guide</button>
+        <button id="btnPageDraft" class="toggle-btn" type="button" data-page="draft">Draft</button>
       </div>
     </div>
     <div class="legend" aria-label="Probability shading">
@@ -424,6 +499,117 @@
     </div>
   </section>
 
+  <section class="main-col" id="whatifView" aria-labelledby="wiTitle" hidden>
+    <div class="card games-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="wiTitle">What-if</h2>
+          <div class="table-sub">Pick the winner of any game, past or future, then simulate the rest of the season again.</div>
+        </div>
+        <div class="table-controls">
+          <label class="mini-label" for="wiWeek">Week</label>
+          <select id="wiWeek" class="compact"></select>
+        </div>
+      </div>
+      <div class="wi-list" id="wiGames"></div>
+      <div class="wi-bar">
+        <div class="wi-status"><span id="wiChanged">No games changed</span> · <button type="button" class="link-btn" id="wiReset">Reset all</button></div>
+        <div class="wi-run"><span class="wi-status" id="wiStatus" aria-live="polite"></span><button type="button" class="run-btn" id="wiRun">Run simulations</button></div>
+      </div>
+      <div class="table-head">
+        <div>
+          <h3 class="table-title">Results</h3>
+          <div class="table-sub" id="wiResSub">Pick some winners, then run the simulations.</div>
+        </div>
+        <div class="view-toggle" role="group" aria-label="Conference">
+          <button class="toggle-btn active" type="button" data-wiconf="ALL">All</button>
+          <button class="toggle-btn" type="button" data-wiconf="AFC">AFC</button>
+          <button class="toggle-btn" type="button" data-wiconf="NFC">NFC</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="proj wi-table">
+          <thead><tr><th class="col-team" scope="col">Team</th><th scope="col">Playoffs</th><th scope="col">Win div.</th><th scope="col">#1 seed</th><th scope="col">Win SB</th><th scope="col">Proj. wins</th></tr></thead>
+          <tbody id="wiBody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot">Each run locks in your picks and simulates the rest of the season with the same model as the main forecast. The arrows compare it with the same number of seasons and the same random draws without your picks, so they show the effect of the picks rather than noise. Picking a future winner also counts as evidence about how good the two teams are: seasons where that result was more likely count for more, the same way the rooting guide works, so the more games you pick, the fewer seasons effectively count. Changing a past result changes the standings, not the Elo ratings that came after it.</div>
+    </div>
+  </section>
+
+  <section class="main-col" id="rootView" aria-labelledby="rootTitle" hidden>
+    <div class="card games-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="rootTitle">Rooting guide</h2>
+          <div class="table-sub" id="rootSub"></div>
+        </div>
+        <div class="table-controls">
+          <label class="mini-label" for="rootTeam">Team</label>
+          <select id="rootTeam" class="compact"></select>
+        </div>
+      </div>
+      <div class="met-row"><div class="view-toggle met-toggle" role="group" aria-label="Odds to show" id="rootMet"></div></div>
+      <div class="root-cur" id="rootCur"></div>
+      <div class="table-scroll">
+        <table class="proj root-table">
+          <thead><tr><th class="col-team" scope="col">Game</th><th scope="col">Root for</th><th scope="col">If they win</th><th scope="col">If they lose</th><th scope="col">Swing</th><th scope="col">Kickoff</th></tr></thead>
+          <tbody id="rootBody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot">Root for is the result that helps the selected team more. The arrows show how far that team's odds move from where they are now, in percentage points, and Swing is the gap between the two results. Only games not yet played are listed.</div>
+    </div>
+    <div class="card games-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="spTitle">Win or lose</h2>
+          <div class="table-sub">Each team's odds now, with a win, and with a loss in its game this week. Teams on a bye or already finished show one dot.</div>
+        </div>
+        <div class="view-toggle" role="group" aria-label="Conference">
+          <button class="toggle-btn active" type="button" data-spconf="ALL">All</button>
+          <button class="toggle-btn" type="button" data-spconf="AFC">AFC</button>
+          <button class="toggle-btn" type="button" data-spconf="NFC">NFC</button>
+        </div>
+      </div>
+      <div class="sp-legend"><span><i class="sp-dot lose"></i>With a loss</span><span><i class="sp-dot cur"></i>Now</span><span><i class="sp-dot win"></i>With a win</span></div>
+      <div class="sp-chart" id="spChart"></div>
+    </div>
+  </section>
+
+  <section class="main-col" id="draftView" aria-labelledby="draftTitle" hidden>
+    <div class="card games-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="draftTitle">Draft projection</h2>
+          <div class="table-sub" id="draftSub"></div>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="proj draft-table">
+          <thead><tr>
+            <th class="col-team" scope="col">Team</th>
+            <th scope="col" data-dk="wins"><button class="sort-btn" type="button" data-dsort="wins">Proj. wins<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-dk="avg"><button class="sort-btn" type="button" data-dsort="avg" title="Average draft slot of each first-round pick the team owns">1st-round pick<span class="sort-arrow"></span></button></th>
+            <th scope="col" title="Average overall pick number">2nd-round pick</th>
+            <th scope="col" data-dk="p1"><button class="sort-btn" type="button" data-dsort="p1">#1 pick<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-dk="p5"><button class="sort-btn" type="button" data-dsort="p5" title="Chance of owning at least one top-5 pick">Top 5<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-dk="p10"><button class="sort-btn" type="button" data-dsort="p10" title="Chance of owning at least one top-10 pick">Top 10<span class="sort-arrow"></span></button></th>
+          </tr></thead>
+          <tbody id="draftBody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot" id="draftFoot"></div>
+    </div>
+    <div class="card games-card">
+      <div class="table-head"><div><h2 class="table-title" id="distTitle">Pick distribution</h2><div class="table-sub">Share of simulated seasons the pick lands in each slot. Dark bars are top 5, medium bars 6–10.</div></div></div>
+      <div class="dist-wrap" id="distWrap"></div>
+    </div>
+    <div class="card games-card">
+      <div class="table-head"><div><h2 class="table-title">Projected first round</h2><div class="table-sub">Every first-round pick, ordered by average draft slot.</div></div></div>
+      <ol class="order-list" id="orderList"></ol>
+    </div>
+  </section>
+
   <aside class="sidebar" id="teamPanel" aria-label="Team detail">
     <label class="control-label" for="teamSelect">Select team</label>
     <select id="teamSelect"></select>
@@ -498,6 +684,236 @@
   </aside>
 </main>
 
+<script>
+/* Season simulator for the What-if tab: a JavaScript port of NFL_SIMULATOR's season,
+   tiebreaker and playoff logic. m = {teams, conf, div, games:[[wk, a, h, aElo, hElo, fixed, draws]],
+   poElo, params, nSims, seed}; fixed is 1 home win, 0 away win, 0.5 tie, -1 simulate.
+   Every originally unplayed game consumes one random draw (draws = 1) even when forced,
+   so a baseline and a what-if run with the same seed share their random numbers.
+   A forced future result is also evidence about team strength: each simulated season is
+   weighted by how likely the forced results were given that season's strength draws, which
+   matches conditioning the main simulation on those results (as the rooting guide does). */
+function nflEngine(m, progress) {
+  "use strict";
+  var n = m.teams.length, P = m.params, N = m.nSims || 10000;
+  var sa = 0x9e3779b9, sb = 0x243f6a88, sc = 0xb7e15162, sd = (m.seed >>> 0) || 1;
+  function rnd() {
+    sa >>>= 0; sb >>>= 0; sc >>>= 0; sd >>>= 0;
+    var t = (sa + sb) | 0;
+    sa = sb ^ (sb >>> 9); sb = (sc + (sc << 3)) | 0; sc = (sc << 21) | (sc >>> 11);
+    sd = (sd + 1) | 0; t = (t + sd) | 0; sc = (sc + t) | 0;
+    return (t >>> 0) / 4294967296;
+  }
+  for (var w0 = 0; w0 < 20; w0++) rnd();
+  function normal() { var u = rnd() || 1e-12, v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+  var conf = m.conf, div = m.div, poElo = m.poElo;
+  var opp = new Uint8Array(n * n);
+  var mk = function () { return new Float64Array(n); };
+  var bW = mk(), bL = mk(), bT = mk(), bCW = mk(), bCL = mk(), bCT = mk(), bDW = mk(), bDL = mk(), bDT = mk(), bHH = new Float64Array(n * n);
+  var W = mk(), L = mk(), T = mk(), CW = mk(), CL = mk(), CT = mk(), DW = mk(), DL = mk(), DT = mk(), HH = new Float64Array(n * n);
+  function add(R, a, h, r, c, d) {
+    if (r === 1 || r === 0) {
+      var w = r === 1 ? h : a, l = r === 1 ? a : h;
+      R[0][w]++; R[1][l]++;
+      if (c) { R[3][w]++; R[4][l]++; }
+      if (d) { R[6][w]++; R[7][l]++; }
+      R[9][w * n + l] += 1;
+    } else {
+      R[2][a]++; R[2][h]++;
+      if (c) { R[5][a]++; R[5][h]++; }
+      if (d) { R[8][a]++; R[8][h]++; }
+      R[9][a * n + h] += 0.5; R[9][h * n + a] += 0.5;
+    }
+  }
+  var BASE = [bW, bL, bT, bCW, bCL, bCT, bDW, bDL, bDT, bHH], CUR = [W, L, T, CW, CL, CT, DW, DL, DT, HH];
+  var simG = [], maxWk = 0;
+  m.games.forEach(function (g) {
+    var wk = g[0], a = g[1], h = g[2], c = conf[a] === conf[h], d = c && div[a] === div[h];
+    if (wk > maxWk) maxWk = wk;
+    opp[a * n + h] = 1; opp[h * n + a] = 1;
+    if (g[6]) simG.push({ a: a, h: h, c: c, d: d, fixed: g[5], diff: g[4] - g[3] + (P.rsHfa || 0), w: P.width + Math.max(0, wk - P.cw) * P.pen });
+    else add(BASE, a, h, g[5], c, d);
+  });
+  var mult = P.cw <= P.full ? 1 : P.cw >= P.zero ? 0 : (P.zero - P.cw) / Math.max(1, P.zero - P.full);
+  var poWidth = P.width + Math.max(0, maxWk + 1 - P.cw) * P.pen;
+  var DIVS = ["East", "North", "South", "West"], confTeams = { AFC: [], NFC: [] }, divTeams = {};
+  for (var i = 0; i < n; i++) {
+    confTeams[conf[i]].push(i);
+    (divTeams[conf[i] + " " + div[i]] = divTeams[conf[i] + " " + div[i]] || []).push(i);
+  }
+  var off = mk();
+
+  function pctOf(w, l, t) { var g = w + l + t; return g > 0 ? (w + 0.5 * t) / g : 0; }
+  function tot(i) { return pctOf(W[i], L[i], T[i]); }
+  function scoped(i, key) { return key === "div" ? pctOf(DW[i], DL[i], DT[i]) : pctOf(CW[i], CL[i], CT[i]); }
+  function sov(i) {
+    var num = 0, den = 0;
+    for (var j = 0; j < n; j++) if (HH[i * n + j] > 0) { num += W[j] + 0.5 * T[j]; den += W[j] + L[j] + T[j]; }
+    return den > 0 ? num / den : 0;
+  }
+  function sos(i) {
+    var num = 0, den = 0;
+    for (var j = 0; j < n; j++) if (opp[i * n + j]) { num += W[j] + 0.5 * T[j]; den += W[j] + L[j] + T[j]; }
+    return den > 0 ? num / den : 0;
+  }
+  function commPct(i, common) {
+    var w = 0, g = 0;
+    for (var k = 0; k < common.length; k++) { w += HH[i * n + common[k]]; g += HH[common[k] * n + i]; }
+    g += w;
+    return g >= 4 ? w / g : null;
+  }
+  function rankTB(idxs, useDiv) {
+    if (!idxs.length) return [];
+    var buckets = {}, keys = [];
+    idxs.forEach(function (i) { var p = tot(i); if (!buckets[p]) { buckets[p] = []; keys.push(p); } buckets[p].push(i); });
+    keys.sort(function (x, y) { return y - x; });
+    var out = [], scope = useDiv ? "division" : "conference";
+    keys.forEach(function (k) { var g = buckets[k]; if (g.length === 1) out.push(g[0]); else Array.prototype.push.apply(out, resolveGroup(g, scope)); });
+    return out;
+  }
+  function resolveGroup(group, scope) {
+    var rem = group.slice(), ranked = [];
+    while (rem.length) {
+      if (rem.length === 1) { ranked.push(rem[0]); break; }
+      var w = findWinner(rem, scope);
+      ranked.push(w); rem.splice(rem.indexOf(w), 1);
+    }
+    return ranked;
+  }
+  function findWinner(group, scope) {
+    var cands;
+    if (scope === "conference") {
+      var byDiv = {}, order = [];
+      group.forEach(function (i) { var k = div[i]; if (!byDiv[k]) { byDiv[k] = []; order.push(k); } byDiv[k].push(i); });
+      cands = order.map(function (k) { var d = byDiv[k]; return d.length === 1 ? d[0] : resolveGroup(d, "division")[0]; });
+    } else cands = group;
+    if (cands.length === 1) return cands[0];
+    if (cands.length === 2) return twoWay(cands[0], cands[1], scope);
+    return multiWay(cands, scope);
+  }
+  function twoWay(a, b, scope) {
+    if (HH[a * n + b] > HH[b * n + a]) return a;
+    if (HH[b * n + a] > HH[a * n + b]) return b;
+    var key = scope === "division" ? "div" : "conf", pa = scoped(a, key), pb = scoped(b, key);
+    if (pa > pb) return a;
+    if (pb > pa) return b;
+    var common = [];
+    for (var j = 0; j < n; j++) if (j !== a && j !== b && opp[a * n + j] && opp[b * n + j]) common.push(j);
+    if (common.length) {
+      var ca = commPct(a, common), cb = commPct(b, common);
+      if (ca !== null && cb !== null) { if (ca > cb) return a; if (cb > ca) return b; }
+    }
+    if (scope === "division") { pa = scoped(a, "conf"); pb = scoped(b, "conf"); if (pa > pb) return a; if (pb > pa) return b; }
+    var x = sov(a), y = sov(b);
+    if (x > y) return a;
+    if (y > x) return b;
+    x = sos(a); y = sos(b);
+    if (x > y) return a;
+    if (y > x) return b;
+    return rnd() > 0.5 ? a : b;
+  }
+  function bestStat(group, key) {
+    var bp = -1, c = [];
+    group.forEach(function (t) { var p = scoped(t, key); if (p > bp) { bp = p; c = [t]; } else if (p === bp) c.push(t); });
+    return c;
+  }
+  function resolveCommon(group) {
+    var common = [];
+    for (var j = 0; j < n; j++) {
+      if (group.indexOf(j) >= 0) continue;
+      var all = true;
+      for (var k = 0; k < group.length; k++) if (!opp[group[k] * n + j]) { all = false; break; }
+      if (all) common.push(j);
+    }
+    if (!common.length) return null;
+    var mx = -1, ws = [];
+    for (var q = 0; q < group.length; q++) {
+      var p = commPct(group[q], common);
+      if (p === null) return null;
+      if (p > mx) { mx = p; ws = [group[q]]; } else if (p === mx) ws.push(group[q]);
+    }
+    return ws.length === 1 ? ws[0] : null;
+  }
+  function multiWay(group, scope) {
+    var t, o, x, y;
+    if (scope === "division") {
+      var bestP = -1, bestT = [];
+      for (x = 0; x < group.length; x++) {
+        t = group[x];
+        var w = 0, g = 0;
+        for (y = 0; y < group.length; y++) { o = group[y]; if (o !== t) { w += HH[t * n + o]; g += HH[o * n + t]; } }
+        g += w;
+        var p = g > 0 ? w / g : 0;
+        if (p > bestP) { bestP = p; bestT = [t]; } else if (p === bestP) bestT.push(t);
+      }
+      if (bestT.length === 1) return bestT[0];
+    } else {
+      for (x = 0; x < group.length; x++) {
+        t = group[x];
+        var sweep = true;
+        for (y = 0; y < group.length; y++) { o = group[y]; if (o !== t && !(HH[o * n + t] === 0 && HH[t * n + o] > 0)) { sweep = false; break; } }
+        if (sweep) return t;
+      }
+    }
+    var key = scope === "division" ? "div" : "conf", best = bestStat(group, key);
+    if (best.length === 1) return best[0];
+    if (best.length < group.length) return findWinner(best, scope);
+    var cg = resolveCommon(group);
+    if (cg !== null) return cg;
+    if (scope === "division") {
+      best = bestStat(group, "conf");
+      if (best.length === 1) return best[0];
+      if (best.length < group.length) return findWinner(best, scope);
+    }
+    var fns = [sov, sos];
+    for (var f = 0; f < 2; f++) {
+      var mxv = -Infinity, ws = [];
+      for (x = 0; x < group.length; x++) { var v = fns[f](group[x]); if (v > mxv) { mxv = v; ws = [group[x]]; } else if (v === mxv) ws.push(group[x]); }
+      if (ws.length === 1) return ws[0];
+    }
+    return group[0];
+  }
+  function poGame(h, a, neutral) {
+    var diff = ((poElo[h] + off[h]) - (poElo[a] + off[a])) * P.poMult + (neutral ? 0 : P.poHfa);
+    return rnd() < 1 / (1 + Math.pow(10, -diff / poWidth)) ? h : a;
+  }
+
+  var made = mk(), dwin = mk(), seed1 = mk(), confW = mk(), sbW = mk(), wins = mk(), wsum = 0, w2 = 0, wt = 1;
+  for (var s = 0; s < N; s++) {
+    for (i = 0; i < n; i++) off[i] = (mult > 0 && (P.sd > 0 || P.rev > 0)) ? mult * (-(P.rev || 0) * (poElo[i] - 1500) + (P.sd > 0 ? P.sd * normal() : 0)) : 0;
+    for (var r = 0; r < 10; r++) CUR[r].set(BASE[r]);
+    wt = 1;
+    for (var k = 0; k < simG.length; k++) {
+      var g = simG[k], u = rnd(), res, ph = 1 / (1 + Math.pow(10, -(g.diff + off[g.h] - off[g.a]) / g.w));
+      if (g.fixed >= 0) { res = g.fixed; wt *= res === 1 ? ph : 1 - ph; }
+      else res = u < ph ? 1 : 0;
+      add(CUR, g.a, g.h, res, g.c, g.d);
+    }
+    var champ = {};
+    ["AFC", "NFC"].forEach(function (cf) {
+      var dws = DIVS.map(function (d) { return rankTB(divTeams[cf + " " + d], true)[0]; });
+      var others = confTeams[cf].filter(function (t) { return dws.indexOf(t) < 0; });
+      var seeds = rankTB(dws, false).concat(rankTB(others, false)).slice(0, 7), pos = {};
+      seeds.forEach(function (t, q) { pos[t] = q; made[t] += wt; if (q < 4) dwin[t] += wt; });
+      seed1[seeds[0]] += wt;
+      var wc = [poGame(seeds[1], seeds[6]), poGame(seeds[2], seeds[5]), poGame(seeds[3], seeds[4])];
+      var surv = [seeds[0]].concat(wc).sort(function (x, y) { return pos[x] - pos[y]; });
+      var d1 = poGame(surv[0], surv[3]), d2 = poGame(surv[1], surv[2]);
+      var cw = pos[d1] < pos[d2] ? poGame(d1, d2) : poGame(d2, d1);
+      confW[cw] += wt;
+      champ[cf] = cw;
+    });
+    sbW[poGame(champ.AFC, champ.NFC, true)] += wt;
+    for (i = 0; i < n; i++) wins[i] += wt * (W[i] + 0.5 * T[i]);
+    wsum += wt; w2 += wt * wt;
+    if (progress && (s + 1) % 1000 === 0) progress(s + 1);
+  }
+  var fr = function (a) { return Array.prototype.map.call(a, function (v) { return v / wsum; }); };
+  return { poff: fr(made), div: fr(dwin), seed1: fr(seed1), conf: fr(confW), sb: fr(sbW), wins: fr(wins), n: N, ess: Math.round(wsum * wsum / w2) };
+}
+if (typeof module !== "undefined") module.exports = nflEngine;
+</script>
 <script src="./forecast-data.js"></script>
 <script>
 (function () {
@@ -543,11 +959,12 @@
     return { mean: r[0], sd: r[1], poff: r[2], div: r[3], conf: r[4], sb: r[5], seeds: r[6], rec: r[7] || [0, 0, 0], elo: r[8], qb: r[9] };
   }
   function pct(p) {
+    if (p == null || isNaN(p)) return "—";
     if (p >= 1) return "100%";
-    if (p >= 0.995) return ">99%";
+    if (p >= 0.9995) return ">99.9%";
     if (p <= 0) return "0%";
-    if (p < 0.005) return "<1%";
-    return Math.round(p * 100) + "%";
+    if (p < 0.0005) return "<0.1%";
+    return (p * 100).toFixed(1) + "%";
   }
   function bin(p) { return p >= 0.95 ? 5 : p >= 0.75 ? 4 : p >= 0.5 ? 3 : p >= 0.25 ? 2 : p >= 0.05 ? 1 : 0; }
   function recStr(r) { return r[0] + "-" + r[1] + (r[2] ? "-" + r[2] : ""); }
@@ -567,8 +984,8 @@
   function deltaHtml(vals, i) {
     if (i === 0) return "";
     var d = (vals[i] - vals[i - 1]) * 100;
-    if (Math.abs(d) < 0.5) return '<span class="chart-delta">–</span>';
-    return '<span class="chart-delta">' + (d > 0 ? "▲" : "▼") + " " + Math.abs(Math.round(d)) + "</span>";
+    if (Math.abs(d) < 0.05) return '<span class="chart-delta">–</span>';
+    return '<span class="chart-delta">' + (d > 0 ? "▲" : "▼") + " " + Math.abs(d).toFixed(1) + "</span>";
   }
 
   /* ---------- Header stamp, summary ---------- */
@@ -617,8 +1034,8 @@
     var w = state.week, r = get(a, w), t = BY[a], chg = "";
     if (w > 0) {
       var d = (r.poff - get(a, w - 1).poff) * 100;
-      chg = Math.abs(d) < 0.5 ? '<span class="chg flat" title="No change">–</span>'
-        : '<span class="chg" title="' + (d > 0 ? "Up " : "Down ") + Math.abs(Math.round(d)) + ' points">' + (d > 0 ? "▲" : "▼") + " " + Math.abs(Math.round(d)) + "</span>";
+      chg = Math.abs(d) < 0.05 ? '<span class="chg flat" title="No change">–</span>'
+        : '<span class="chg" title="' + (d > 0 ? "Up " : "Down ") + Math.abs(d).toFixed(1) + ' points">' + (d > 0 ? "▲" : "▼") + " " + Math.abs(d).toFixed(1) + "</span>";
     } else {
       chg = '<span class="chg flat">–</span>';
     }
@@ -813,6 +1230,8 @@
     try { history.replaceState(null, "", "#" + a); } catch (e) { /* sandboxed frame */ }
     renderTeam();
     renderTable();
+    if (state.page === "root") renderRoot();
+    if (state.page === "draft") renderDraft();
     if (scroll && window.innerWidth <= 1000) {
       $("teamPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     }
@@ -856,7 +1275,7 @@
       renderTable();
     });
   });
-  document.querySelectorAll(".sort-btn").forEach(function (b) {
+  document.querySelectorAll(".sort-btn[data-sort]").forEach(function (b) {
     b.addEventListener("click", function () {
       var k = b.dataset.sort;
       if (state.sort === k) state.dir = -state.dir;
@@ -890,8 +1309,9 @@
 
   /* ---------- Next week's games ---------- */
   var GW = Array.isArray(D.games) ? D.games : (D.games ? [D.games] : []);
-  var G = GW.length ? GW[GW.length - 1] : null;
-  state.gweek = GW.length - 1;
+  var gwCur = GW.findIndex(function (gw) { return gw.list.some(function (g) { return !g.s; }); });
+  state.gweek = gwCur >= 0 ? gwCur : GW.length - 1;
+  var G = GW.length ? GW[state.gweek] : null;
   state.page = "proj";
   state.gsort = "time";
   function sgn(v) {
@@ -953,7 +1373,9 @@
     if (!G) return;
     var anyFinal = G.list.some(function (g) { return g.s; });
     $("gamesTitle").textContent = G.label + (anyFinal ? " forecasts and results" : " forecasts");
-    $("gamesSub").textContent = "Pregame Elo after " + (G.week <= 1 ? "the preseason" : "Week " + (G.week - 1)) + " · " + G.list.length + " games" +
+    var hz = G.list.reduce(function (mx, g) { return Math.max(mx, g.hz || 0); }, 0);
+    $("gamesSub").textContent = (hz ? "Current ratings, " + hz + (hz === 1 ? " week" : " weeks") + " out, so the odds use a wider Elo curve"
+      : "Pregame Elo after " + (G.week <= 1 ? "the preseason" : "Week " + (G.week - 1))) + " · " + G.list.length + " games" +
       (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "") + weekSummary(G);
     var list = G.list.map(function (g, i) { g._i = i; return g; });
     list.sort(state.gsort === "gqi"
@@ -969,11 +1391,15 @@
     });
     $("gamesList").innerHTML = html;
   }
+  var VIEWS = { proj: "projView", games: "gamesView", whatif: "whatifView", root: "rootView", draft: "draftView" };
   function setPage(pg) {
-    state.page = G ? pg : "proj";
-    $("projView").hidden = state.page !== "proj";
-    $("gamesView").hidden = state.page !== "games";
+    var btn = document.querySelector('[data-page="' + pg + '"]');
+    state.page = btn && !btn.hidden ? pg : "proj";
+    Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = state.page !== k; });
     document.querySelectorAll("[data-page]").forEach(function (b) { b.classList.toggle("active", b.dataset.page === state.page); });
+    if (state.page === "whatif") renderWhatIf();
+    if (state.page === "root") renderRoot();
+    if (state.page === "draft") renderDraft();
   }
   if (G) {
     var gws = $("gameWeekSelect");
@@ -1008,10 +1434,278 @@
   $("tierLegend").textContent = tierLegend();
   $("tierLegend2").textContent = tierLegend();
 
+  /* ---------- Shared helpers for the new tabs ---------- */
+  var ABBR = TEAMS.map(function (t) { return t.abbr; });
+  var TIDX = {};
+  ABBR.forEach(function (a, i) { TIDX[a] = i; });
+  function ptsHtml(d) {
+    var v = d * 100;
+    if (Math.abs(v) < 0.05) return '<span class="dl flat">–</span>';
+    return '<span class="dl">' + (v > 0 ? "▲" : "▼") + " " + Math.abs(v).toFixed(1) + "</span>";
+  }
+  function gameDate(week, a, h) {
+    var gw = GW.filter(function (x) { return x.week === week; })[0];
+    var g = gw && gw.list.filter(function (x) { return x.a === a && x.h === h; })[0];
+    return g ? fmtDate(g.d, { weekday: "short", month: "short", day: "numeric" }) : "";
+  }
+  function bindToggle(attr, key, after) {
+    document.querySelectorAll("[data-" + attr + "]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state[key] = b.dataset[attr];
+        document.querySelectorAll("[data-" + attr + "]").forEach(function (x) { x.classList.toggle("active", x === b); });
+        after();
+      });
+    });
+  }
+  function rowPick(id) {
+    $(id).addEventListener("click", function (e) { var tr = e.target.closest("tr[data-team]"); if (tr) selectTeam(tr.dataset.team, true); });
+  }
+
+  /* ---------- Rooting guide + win-or-lose chart ---------- */
+  var F = D.focus && D.focus.games && D.focus.games.length ? D.focus : null;
+  var METS = [["poff", "Playoffs"], ["div", "Division"], ["seed1", "#1 seed"], ["conf", "Win conf."], ["sb", "Win SB"], ["pick1", "#1 pick"], ["top5", "Top-5 pick"]];
+  state.rmet = "poff"; state.spConf = "ALL";
+  function metName(k) { return METS.filter(function (x) { return x[0] === k; })[0][1]; }
+  function renderRoot() {
+    if (!F) return;
+    var t = state.team, mi = F.metrics.indexOf(state.rmet), base = F.base[t][mi];
+    $("rootTeam").value = t;
+    $("rootTitle").textContent = "Week " + F.week + " rooting guide";
+    $("rootSub").textContent = "How each remaining Week " + F.week + " game moves one team's odds" + (D.nSims ? " · from " + D.nSims.toLocaleString("en-US") + " simulated seasons" : "");
+    $("rootCur").innerHTML = chip(t) + " <b>" + BY[t].name + "</b> · " + metName(state.rmet) + " odds now: <b>" + pct(base) + "</b>";
+    var rows = F.games.map(function (g) {
+      var ph = g.hw[t][mi], pa = g.aw[t][mi], hi = Math.max(ph, pa), lo = Math.min(ph, pa);
+      return { g: g, root: ph >= pa ? g.h : g.a, hi: hi, lo: lo, swing: hi - lo };
+    }).sort(function (x, y) { return y.swing - x.swing; });
+    $("rootBody").innerHTML = rows.map(function (r) {
+      var even = r.swing < 0.0005;
+      return '<tr class="' + (r.g.a === t || r.g.h === t ? "mine" : "") + '"><td class="col-team">' + chip(r.g.a) + '<span class="at">@</span>' + chip(r.g.h) + "</td>" +
+        "<td>" + (even ? '<span class="dl flat">Either</span>' : chip(r.root)) + "</td>" +
+        '<td title="' + pct(r.hi) + '">' + ptsHtml(even ? 0 : r.hi - base) + "</td>" +
+        '<td title="' + pct(r.lo) + '">' + ptsHtml(even ? 0 : r.lo - base) + "</td>" +
+        '<td class="swing">' + (even ? "–" : (r.swing * 100).toFixed(1) + " pts") + "</td>" +
+        '<td class="kick">' + gameDate(F.week, r.g.a, r.g.h) + "</td></tr>";
+    }).join("");
+    renderSpread();
+  }
+  function renderSpread() {
+    var mi = F.metrics.indexOf(state.rmet);
+    $("spTitle").textContent = "Week " + F.week + ": " + metName(state.rmet) + " odds with a win or a loss";
+    var X = function (p) { return (Math.max(0, Math.min(1, p)) * 100).toFixed(2) + "%"; };
+    var rows = ABBR.filter(function (t) { return state.spConf === "ALL" || BY[t].conf === state.spConf; }).map(function (t) {
+      var g = F.games.filter(function (x) { return x.a === t || x.h === t; })[0], r = { t: t, base: F.base[t][mi], win: null, lose: null };
+      if (g) { r.win = (g.h === t ? g.hw : g.aw)[t][mi]; r.lose = (g.h === t ? g.aw : g.hw)[t][mi]; }
+      return r;
+    }).sort(function (x, y) { return y.base - x.base; });
+    $("spChart").innerHTML = '<div class="sp-row sp-axis"><span></span><div class="sp-ticks">' +
+      [0, 25, 50, 75, 100].map(function (v) { return '<span style="left:' + v + '%">' + v + "%</span>"; }).join("") + "</div><span></span></div>" +
+      rows.map(function (r) {
+        var h = '<div class="sp-row"><span class="sp-team">' + chip(r.t) + '</span><div class="sp-track">';
+        if (r.win != null) {
+          var lo = Math.min(r.win, r.lose), hi = Math.max(r.win, r.lose);
+          h += '<span class="sp-range" style="left:' + X(lo) + ";width:" + ((hi - lo) * 100).toFixed(2) + '%"></span>' +
+            '<span class="sp-dot lose" style="left:' + X(r.lose) + '" title="With a loss: ' + pct(r.lose) + '"></span>' +
+            '<span class="sp-dot win" style="left:' + X(r.win) + '" title="With a win: ' + pct(r.win) + '"></span>';
+        }
+        return h + '<span class="sp-dot cur" style="left:' + X(r.base) + '" title="Now: ' + pct(r.base) + '"></span></div>' +
+          '<span class="sp-val">' + pct(r.base) + "<small>" + (r.win != null ? pct(r.lose) + " to " + pct(r.win) : "No game left") + "</small></span></div>";
+      }).join("");
+  }
+
+  /* ---------- Draft projection ---------- */
+  var DR = D.draft && D.draft.picks ? D.draft : null;
+  state.dsort = "avg";
+  function meanSlot(h) { var s = 0, m = 0; for (var i = 0; i < h.length; i++) { s += h[i]; m += (i + 1) * h[i]; } return s ? m / s : 0; }
+  function topK(h, k) { var s = 0; for (var i = 0; i < k && i < h.length; i++) s += h[i]; return s; }
+  function pickLabel(e) {
+    if (e.mode === "own") return e.orig[0] === e.owner ? "Own" : "via " + e.orig[0];
+    return (e.mode === "earlier" ? "Earlier of " : "Later of ") + e.orig.join("/");
+  }
+  function renderDraft() {
+    if (!DR) return;
+    var rows = ABBR.map(function (t) {
+      var ents = DR.picks.filter(function (e) { return e.owner === t; }).map(function (e) { return { e: e, m: meanSlot(e.hist) }; }).sort(function (x, y) { return x.m - y.m; });
+      var r2 = ABBR.filter(function (o) { return (DR.r2[o] || o) === t; }).map(function (o) { return { o: o, m: 32 + meanSlot(DR.own[o]) }; });
+      var gone = DR.picks.filter(function (e) { return e.owner !== t && e.orig.indexOf(t) >= 0; }).map(function (e) { return e.owner; });
+      return { t: t, ents: ents, r2: r2, gone: gone, st: DR.owner[t] || [0, 0, 0, 0], best: ents.length ? ents[0].m : 99, wins: get(t, LAST).mean };
+    });
+    var k = state.dsort, asc = k === "avg" || k === "wins";
+    var key = { avg: function (r) { return r.best; }, wins: function (r) { return r.wins; }, p1: function (r) { return -r.st[0]; }, p5: function (r) { return -r.st[1]; }, p10: function (r) { return -r.st[2]; } }[k];
+    rows.sort(function (x, y) { return key(x) - key(y) || x.best - y.best; });
+    $("draftTitle").textContent = (DR.year || "") + " draft projection";
+    $("draftSub").textContent = "Where each team's picks land" + (D.nSims ? " across " + D.nSims.toLocaleString("en-US") + " simulated seasons" : "") + ", following pick trades";
+    $("draftBody").innerHTML = rows.map(function (r) {
+      var r1 = r.ents.length ? r.ents.map(function (x) { return '<span class="dpick"><b>' + x.m.toFixed(1) + "</b><small>" + pickLabel(x.e) + "</small></span>"; }).join("")
+        : '<span class="dnone">None' + (r.gone.length ? "<small>own pick to " + r.gone.join("/") + "</small>" : "") + "</span>";
+      var r2 = r.r2.length ? r.r2.map(function (x) { return '<span class="dpick"><b>' + x.m.toFixed(1) + "</b><small>" + (x.o === r.t ? "Own" : "via " + x.o) + "</small></span>"; }).join("") : '<span class="dnone">None</span>';
+      return '<tr class="team-row' + (r.t === state.team ? " selected" : "") + '" data-team="' + r.t + '" tabindex="0"><td class="col-team">' + chip(r.t) + '<span class="t-name">' + nick(BY[r.t]) + "</span></td>" +
+        "<td>" + r.wins.toFixed(1) + '</td><td class="dcell">' + r1 + '</td><td class="dcell">' + r2 + "</td><td>" + pp(r.st[0]) + "</td><td>" + pp(r.st[1]) + "</td><td>" + pp(r.st[2]) + "</td></tr>";
+    }).join("");
+    document.querySelectorAll("#draftView th[data-dk]").forEach(function (th) {
+      var on = th.dataset.dk === k;
+      th.querySelector(".sort-arrow").textContent = on ? (asc ? "▲" : "▼") : "";
+      if (on) th.setAttribute("aria-sort", asc ? "ascending" : "descending"); else th.removeAttribute("aria-sort");
+    });
+    var t = state.team, mine = DR.picks.filter(function (e) { return e.owner === t; });
+    var shown = mine.length ? mine.map(function (e) { return { h: e.hist, label: pickLabel(e) + " pick" }; })
+      : [{ h: DR.own[t], label: "Own pick, which belongs to " + DR.picks.filter(function (e) { return e.orig.indexOf(t) >= 0; }).map(function (e) { return e.owner; }).join("/") }];
+    var mx = 0;
+    shown.forEach(function (x) { x.h.forEach(function (v) { if (v > mx) mx = v; }); });
+    $("distTitle").innerHTML = chip(t) + " " + BY[t].name + ": first-round pick distribution";
+    $("distWrap").innerHTML = shown.map(function (x) {
+      var bars = x.h.map(function (v, i) { return '<span class="' + (i < 5 ? "t5" : i < 10 ? "t10" : "") + '" style="height:' + (mx ? (v / mx * 100).toFixed(1) : 0) + '%" title="Pick ' + (i + 1) + ": " + pct(v) + '"></span>'; }).join("");
+      var axis = [1, 8, 16, 24, 32].map(function (v) { return '<span style="left:' + ((v - 0.5) / 32 * 100).toFixed(2) + '%">' + v + "</span>"; }).join("");
+      return '<div class="dist"><div class="dist-head"><span>' + x.label + "</span><span>Average slot " + meanSlot(x.h).toFixed(1) + " · top 5 " + pct(topK(x.h, 5)) + " · top 10 " + pct(topK(x.h, 10)) + '</span></div><div class="dist-bars">' + bars + '</div><div class="dist-axis">' + axis + "</div></div>";
+    }).join("");
+    var order = DR.picks.map(function (e) { return { e: e, m: meanSlot(e.hist) }; }).sort(function (x, y) { return x.m - y.m; });
+    $("orderList").innerHTML = order.map(function (x, i) {
+      return '<li><span class="ord">' + (i + 1) + "</span>" + chip(x.e.owner) + '<span class="ord-lab">' + (x.e.mode === "own" && x.e.orig[0] === x.e.owner ? "" : pickLabel(x.e)) + '</span><span class="ord-avg">' + x.m.toFixed(1) + "</span></li>";
+    }).join("");
+    var trades = DR.picks.filter(function (e) { return e.mode !== "own" || e.orig[0] !== e.owner; }).map(function (e) { return pickLabel(e).replace("via ", "") + " pick to " + e.owner; });
+    $("draftFoot").textContent = "First-round numbers are the average draft slot; second-round numbers are the average overall pick. Draft order: non-playoff teams by record (worst first), then playoff teams by the round they're knocked out, with ties broken by strength of schedule. Traded firsts: " + trades.join("; ") + ". " +
+      (Object.keys(DR.r2).every(function (o) { return DR.r2[o] === o; }) ? "No second-round picks have been traded. " : "") + (DR.source ? DR.source + "." : "");
+  }
+
+  /* ---------- What-if ---------- */
+  var EN = D.engine && D.engine.games && D.engine.poElo && typeof nflEngine === "function" ? D.engine : null;
+  state.wiPick = {}; state.wiConf = "ALL";
+  var wiBase = null, wiLast = null, wiWorker = null, wiBusy = false, WI_SEED = 20261, wiCur = 18;
+  if (EN) { wiCur = 99; EN.games.forEach(function (g) { if (g[5] == null && g[0] < wiCur) wiCur = g[0]; }); if (wiCur === 99) wiCur = 18; }
+  state.wiWeek = wiCur;
+  function actualWinner(g) { return g[5] == null ? null : g[6] > g[5] ? "H" : g[5] > g[6] ? "A" : "T"; }
+  function wiMsg(picks) {
+    return {
+      teams: ABBR, conf: TEAMS.map(function (t) { return t.conf; }), div: TEAMS.map(function (t) { return t.div.split(" ")[1]; }),
+      poElo: ABBR.map(function (a) { return EN.poElo[a]; }), params: EN.params, nSims: EN.params.nSims || 10000, seed: WI_SEED,
+      games: EN.games.map(function (g, i) {
+        var played = g[5] != null, f = picks[i], res;
+        if (f) res = f === "H" ? 1 : 0;
+        else res = played ? (g[6] > g[5] ? 1 : g[6] < g[5] ? 0 : 0.5) : -1;
+        return [g[0], TIDX[g[1]], TIDX[g[2]], g[3], g[4], res, played ? 0 : 1];
+      })
+    };
+  }
+  function runEngine(msg, onProg) {
+    return new Promise(function (resolve) {
+      var sync = function () { setTimeout(function () { resolve(nflEngine(msg, onProg)); }, 20); };
+      try {
+        if (!wiWorker) {
+          var src = nflEngine.toString() + "\nself.onmessage=function(e){var r=nflEngine(e.data,function(d){self.postMessage({p:d});});self.postMessage({r:r});};";
+          wiWorker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" })));
+        }
+        wiWorker.onmessage = function (e) { if (e.data.r) resolve(e.data.r); else onProg(e.data.p); };
+        wiWorker.onerror = function (e) { if (e && e.preventDefault) e.preventDefault(); wiWorker = null; sync(); };
+        wiWorker.postMessage(msg);
+      } catch (err) { wiWorker = null; sync(); }
+    });
+  }
+  function renderWhatIf() {
+    if (!EN) return;
+    var wp = EN.params, html = "";
+    EN.games.forEach(function (g, i) {
+      if (g[0] !== state.wiWeek) return;
+      var a = g[1], h = g[2], played = g[5] != null, f = state.wiPick[i] || "", aw = played ? actualWinner(g) : null, info;
+      if (played) info = "Final: " + (aw === "H" ? h + " " + g[6] + "–" + g[5] : aw === "A" ? a + " " + g[5] + "–" + g[6] : "tie " + g[5] + "–" + g[6]);
+      else {
+        var hz = Math.max(0, g[0] - wp.cw), ph = 1 / (1 + Math.pow(10, -(g[4] - g[3] + (wp.rsHfa || 0)) / (wp.width + hz * wp.pen)));
+        info = "Model: " + (ph >= 0.5 ? h + " " + pct(ph) : a + " " + pct(1 - ph));
+      }
+      var cls = function (v) { return (f === v ? "on" : "") + (!f && aw === v ? " won" : ""); };
+      html += '<div class="wi-game' + (f ? " changed" : "") + '"><div class="wi-info"><span>' + gameDate(g[0], a, h) + "</span><span>" + info + "</span></div>" +
+        '<div class="wi-seg" role="group" aria-label="' + BY[a].name + " at " + BY[h].name + '">' +
+        '<button type="button" data-g="' + i + '" data-v="A" class="' + cls("A") + '" aria-pressed="' + (f === "A") + '">' + chip(a) + "</button>" +
+        '<button type="button" data-g="' + i + '" data-v="" class="mid' + (!f ? " on" : "") + '" aria-pressed="' + !f + '">' + (played ? "Actual" : "Simulate") + "</button>" +
+        '<button type="button" data-g="' + i + '" data-v="H" class="' + cls("H") + '" aria-pressed="' + (f === "H") + '">' + chip(h) + "</button></div></div>";
+    });
+    $("wiGames").innerHTML = html;
+    var n = Object.keys(state.wiPick).length;
+    $("wiChanged").textContent = n ? n + (n === 1 ? " game changed" : " games changed") : "No games changed";
+    $("wiReset").disabled = !n;
+    renderWiResults();
+  }
+  function renderWiResults() {
+    if (!wiLast) { $("wiResSub").textContent = "Pick some winners, then run the simulations."; $("wiBody").innerHTML = ""; return; }
+    var R = wiLast.res, B = wiBase, involved = {}, nCh = Object.keys(wiLast.picks).length;
+    Object.keys(wiLast.picks).forEach(function (i) { var g = EN.games[i]; involved[g[1]] = involved[g[2]] = 1; });
+    $("wiResSub").textContent = (wiLast.key !== JSON.stringify(state.wiPick) ? "Your picks changed since this run, so run it again to update. " : "") +
+      (nCh ? nCh + (nCh === 1 ? " changed game" : " changed games") : "No changes") + " · " + R.n.toLocaleString("en-US") + " simulated seasons" +
+      (R.ess && R.ess < 0.8 * R.n ? " (worth about " + R.ess.toLocaleString("en-US") + " after weighting)" : "") + " · arrows compare with no changes";
+    var idx = ABBR.map(function (a, i) { return i; }).filter(function (i) { return state.wiConf === "ALL" || TEAMS[i].conf === state.wiConf; })
+      .sort(function (x, y) { return R.poff[y] - R.poff[x] || R.wins[y] - R.wins[x]; });
+    $("wiBody").innerHTML = idx.map(function (i) {
+      var a = ABBR[i], dw = R.wins[i] - B.wins[i];
+      var cell = function (k) { return '<td><span class="wi-v">' + pct(R[k][i]) + "</span>" + ptsHtml(R[k][i] - B[k][i]) + "</td>"; };
+      return '<tr class="team-row' + (involved[a] ? " involved" : "") + '" data-team="' + a + '"><td class="col-team">' + chip(a) + '<span class="t-name">' + nick(BY[a]) + "</span></td>" +
+        cell("poff") + cell("div") + cell("seed1") + cell("sb") +
+        '<td><span class="wi-v">' + R.wins[i].toFixed(1) + "</span>" + (Math.abs(dw) < 0.05 ? '<span class="dl flat">–</span>' : '<span class="dl">' + (dw > 0 ? "▲" : "▼") + " " + Math.abs(dw).toFixed(1) + "</span>") + "</td></tr>";
+    }).join("");
+  }
+
+  /* ---------- Wire up the new tabs ---------- */
+  if (EN) {
+    var wsel = $("wiWeek"), maxW = 0;
+    EN.games.forEach(function (g) { if (g[0] > maxW) maxW = g[0]; });
+    for (var wk = 1; wk <= maxW; wk++) { var o = document.createElement("option"); o.value = wk; o.textContent = "Week " + wk + (wk === wiCur ? " (current)" : ""); wsel.appendChild(o); }
+    wsel.value = String(state.wiWeek);
+    wsel.addEventListener("change", function () { state.wiWeek = +wsel.value; renderWhatIf(); });
+    $("wiRun").textContent = "Run " + (EN.params.nSims || 10000).toLocaleString("en-US") + " simulations";
+    $("wiGames").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-g]");
+      if (!b) return;
+      var i = +b.dataset.g, v = b.dataset.v, g = EN.games[i];
+      if (!v || (g[5] != null && actualWinner(g) === v)) delete state.wiPick[i]; else state.wiPick[i] = v;
+      renderWhatIf();
+    });
+    $("wiReset").addEventListener("click", function () { state.wiPick = {}; renderWhatIf(); });
+    $("wiRun").addEventListener("click", function () {
+      if (wiBusy) return;
+      wiBusy = true;
+      var btn = this, N = EN.params.nSims || 10000, picks = JSON.parse(JSON.stringify(state.wiPick)), steps = wiBase ? 1 : 2, done = 0;
+      var prog = function (d) { $("wiStatus").textContent = "Simulating… " + Math.round((done * N + d) / (steps * N) * 100) + "%"; };
+      btn.disabled = true; prog(0);
+      (wiBase ? Promise.resolve(wiBase) : runEngine(wiMsg({}), prog).then(function (r) { wiBase = r; done = 1; return r; }))
+        .then(function () { return runEngine(wiMsg(picks), prog); })
+        .then(function (r) {
+          wiLast = { res: r, picks: picks, key: JSON.stringify(picks) };
+          wiBusy = false; btn.disabled = false; $("wiStatus").textContent = "";
+          renderWiResults();
+        });
+    });
+    bindToggle("wiconf", "wiConf", renderWiResults);
+    rowPick("wiBody");
+  } else {
+    $("btnPageWhatif").hidden = true;
+  }
+  if (F) {
+    var rsel = $("rootTeam");
+    DIVS.forEach(function (d) {
+      var og = document.createElement("optgroup");
+      og.label = d;
+      TEAMS.filter(function (t) { return t.div === d; }).sort(function (x, y) { return x.name.localeCompare(y.name); })
+        .forEach(function (t) { var o = document.createElement("option"); o.value = t.abbr; o.textContent = t.name; og.appendChild(o); });
+      rsel.appendChild(og);
+    });
+    rsel.addEventListener("change", function () { selectTeam(rsel.value, false); renderRoot(); });
+    $("rootMet").innerHTML = METS.filter(function (x) { return F.metrics.indexOf(x[0]) >= 0; }).map(function (x) {
+      return '<button type="button" class="toggle-btn' + (x[0] === state.rmet ? " active" : "") + '" data-rmet="' + x[0] + '">' + x[1] + "</button>";
+    }).join("");
+    bindToggle("rmet", "rmet", renderRoot);
+    bindToggle("spconf", "spConf", renderSpread);
+  } else {
+    $("btnPageRoot").hidden = true;
+  }
+  if (DR) {
+    document.querySelectorAll("[data-dsort]").forEach(function (b) { b.addEventListener("click", function () { state.dsort = b.dataset.dsort; renderDraft(); }); });
+    rowPick("draftBody");
+  } else {
+    $("btnPageDraft").hidden = true;
+  }
+
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
   if (BY[fromHash]) state.team = fromHash;
-  if (fromHash === "GAMES") setPage("games");
+  var PAGEHASH = { GAMES: "games", WHATIF: "whatif", ROOT: "root", DRAFT: "draft" };
+  if (PAGEHASH[fromHash]) setPage(PAGEHASH[fromHash]);
   teamSel.value = state.team;
   renderSummary();
   renderTable();
