@@ -334,8 +334,8 @@
     .sp-dot.lose { background: var(--surface); border: 2px solid var(--brand); }
     .sp-val { font-size: 0.8rem; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; line-height: 1.15; }
     .sp-val small { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
-    .dcell { text-align: left !important; }
-    .dpick { display: inline-flex; flex-direction: column; align-items: center; margin: 0 8px 0 0; line-height: 1.1; vertical-align: middle; }
+    .dcell { text-align: center !important; }
+    .dpick { display: inline-flex; flex-direction: column; align-items: center; margin: 0 5px; line-height: 1.1; vertical-align: middle; }
     .dpick b { font-weight: 800; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
     .dpick small, .dnone small { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
     .dnone { display: inline-block; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; line-height: 1.1; }
@@ -590,7 +590,6 @@
             <th class="col-team" scope="col">Team</th>
             <th scope="col" data-dk="wins"><button class="sort-btn" type="button" data-dsort="wins">Proj. wins<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="avg"><button class="sort-btn" type="button" data-dsort="avg" title="Average draft slot of each first-round pick the team owns">1st-round pick<span class="sort-arrow"></span></button></th>
-            <th scope="col" title="Average overall pick number">2nd-round pick</th>
             <th scope="col" data-dk="p1"><button class="sort-btn" type="button" data-dsort="p1">#1 pick<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="p5"><button class="sort-btn" type="button" data-dsort="p5" title="Chance of owning at least one top-5 pick">Top 5<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="p10"><button class="sort-btn" type="button" data-dsort="p10" title="Chance of owning at least one top-10 pick">Top 10<span class="sort-arrow"></span></button></th>
@@ -1537,9 +1536,8 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     $("draftBody").innerHTML = rows.map(function (r) {
       var r1 = r.ents.length ? r.ents.map(function (x) { return '<span class="dpick"><b>' + x.m.toFixed(1) + "</b><small>" + pickLabel(x.e) + "</small></span>"; }).join("")
         : '<span class="dnone">None' + (r.gone.length ? "<small>own pick to " + r.gone.join("/") + "</small>" : "") + "</span>";
-      var r2 = r.r2.length ? r.r2.map(function (x) { return '<span class="dpick"><b>' + x.m.toFixed(1) + "</b><small>" + (x.o === r.t ? "Own" : "via " + x.o) + "</small></span>"; }).join("") : '<span class="dnone">None</span>';
       return '<tr class="team-row' + (r.t === state.team ? " selected" : "") + '" data-team="' + r.t + '" tabindex="0"><td class="col-team">' + chip(r.t) + '<span class="t-name">' + nick(BY[r.t]) + "</span></td>" +
-        "<td>" + r.wins.toFixed(1) + '</td><td class="dcell">' + r1 + '</td><td class="dcell">' + r2 + "</td><td>" + pp(r.st[0]) + "</td><td>" + pp(r.st[1]) + "</td><td>" + pp(r.st[2]) + "</td></tr>";
+        "<td>" + r.wins.toFixed(1) + '</td><td class="dcell">' + r1 + "</td><td>" + pp(r.st[0]) + "</td><td>" + pp(r.st[1]) + "</td><td>" + pp(r.st[2]) + "</td></tr>";
     }).join("");
     document.querySelectorAll("#draftView th[data-dk]").forEach(function (th) {
       var on = th.dataset.dk === k;
@@ -1562,8 +1560,8 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       return '<li><span class="ord">' + (i + 1) + "</span>" + chip(x.e.owner) + '<span class="ord-lab">' + (x.e.mode === "own" && x.e.orig[0] === x.e.owner ? "" : pickLabel(x.e)) + '</span><span class="ord-avg">' + x.m.toFixed(1) + "</span></li>";
     }).join("");
     var trades = DR.picks.filter(function (e) { return e.mode !== "own" || e.orig[0] !== e.owner; }).map(function (e) { return pickLabel(e).replace("via ", "") + " pick to " + e.owner; });
-    $("draftFoot").textContent = "First-round numbers are the average draft slot; second-round numbers are the average overall pick. Draft order: non-playoff teams by record (worst first), then playoff teams by the round they're knocked out, with ties broken by strength of schedule. Traded firsts: " + trades.join("; ") + ". " +
-      (Object.keys(DR.r2).every(function (o) { return DR.r2[o] === o; }) ? "No second-round picks have been traded. " : "") + (DR.source ? DR.source + "." : "");
+    $("draftFoot").textContent = "Pick numbers are the average draft slot of each first-round pick. Draft order: non-playoff teams by record (worst first), then playoff teams by the round they're knocked out, with ties broken by strength of schedule. Traded firsts: " + trades.join("; ") + ". " +
+      (DR.source ? DR.source + "." : "");
   }
 
   /* ---------- What-if ---------- */
