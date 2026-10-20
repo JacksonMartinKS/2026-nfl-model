@@ -336,8 +336,9 @@
     .sp-val small { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
     .dcell { text-align: center !important; }
     .qb-name { font-weight: 700; color: var(--text); }
-    .qb-tag { display: block; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
-    .qb-tag.st { color: var(--brand); }
+    .qb-st { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); white-space: nowrap; }
+    .qb-st.starter { color: var(--brand); }
+    .qb-st.ir { border: 1px dashed currentColor; border-radius: 4px; padding: 1px 5px; }
     td.col-team .qb-name { margin-left: 2px; }
     .qb-yr { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-left: 3px; }
     .qb-elo { font-weight: 800; }
@@ -594,12 +595,6 @@
           <h2 class="table-title" id="qbTitle">Quarterback Elo</h2>
           <div class="table-sub" id="qbSub"></div>
         </div>
-        <div class="table-controls">
-          <div class="view-toggle" role="group" aria-label="Quarterbacks shown">
-            <button class="toggle-btn active" type="button" data-qbview="starters">Starters</button>
-            <button class="toggle-btn" type="button" data-qbview="all">All QBs</button>
-          </div>
-        </div>
       </div>
       <div class="table-scroll">
         <table class="proj qb-table">
@@ -607,11 +602,13 @@
             <th class="col-rank" scope="col">#</th>
             <th class="col-team" scope="col" data-qk="n"><button class="sort-btn" type="button" data-qsort="n">Quarterback<span class="sort-arrow"></span></button></th>
             <th scope="col" data-qk="t"><button class="sort-btn" type="button" data-qsort="t">Team<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-qk="s"><button class="sort-btn" type="button" data-qsort="s">Status<span class="sort-arrow"></span></button></th>
             <th scope="col" data-qk="e"><button class="sort-btn" type="button" data-qsort="e">QB Elo<span class="sort-arrow"></span></button></th>
             <th class="col-chg" scope="col">2026 trend</th>
             <th scope="col" data-qk="a"><button class="sort-btn" type="button" data-qsort="a" title="QB Elo minus his team's rolling QB baseline: the QB adjustment the game model applies when he starts">vs. team QB<span class="sort-arrow"></span></button></th>
             <th scope="col" data-qk="d"><button class="sort-btn" type="button" data-qsort="d">Since preseason<span class="sort-arrow"></span></button></th>
             <th scope="col" data-qk="g"><button class="sort-btn" type="button" data-qsort="g">2026 games<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-qk="gs"><button class="sort-btn" type="button" data-qsort="gs">Starts<span class="sort-arrow"></span></button></th>
             <th scope="col">Last game</th>
           </tr></thead>
           <tbody id="qbBody"></tbody>
@@ -1022,6 +1019,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   function asOfText(w) {
     var wk = WEEKS[w];
     if (wk.key === "pre") return "Preseason";
+    if (wk.live && !wk.final) return "Entering " + wkName(w);
     if (wk.live) return "During " + wkName(w) + (wk.total ? " (" + wk.final + " of " + wk.total + " games final)" : "");
     return "After " + wk.label;
   }
@@ -1033,7 +1031,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   }
 
   /* ---------- Header stamp, summary ---------- */
-  $("updatedStamp").textContent = (WEEKS[LAST].live ? wkName(LAST) + " in progress" : WEEKS[LAST].key === "pre" ? "Preseason" : "Through " + wkName(LAST)) +
+  $("updatedStamp").textContent = (WEEKS[LAST].live ? wkName(LAST) + (WEEKS[LAST].final ? " in progress" : "") : WEEKS[LAST].key === "pre" ? "Preseason" : "Through " + wkName(LAST)) +
     (D.updated ? " · Updated " + new Date(D.updated + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
 
   function renderSummary() {
@@ -1247,7 +1245,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     var a = state.team, t = BY[a], w = state.week, r = get(a, w);
     $("teamTitle").innerHTML = chip(a) + t.name;
     $("teamSub").innerHTML = '<span class="conf-tag">' + t.conf + "</span>" + t.div + " · " +
-      (WEEKS[w].key === "pre" ? "Preseason" : recStr(r.rec) + (WEEKS[w].live ? " during " : " after ") + wkName(w)) +
+      (WEEKS[w].key === "pre" ? "Preseason" : recStr(r.rec) + (WEEKS[w].live ? (WEEKS[w].final ? " during " : " entering ") : " after ") + wkName(w)) +
       (r.elo != null ? ' · <span class="tier-tag">' + tier(r.elo + (r.qb || 0)) + "</span>" : "");
     $("outWins").textContent = r.mean.toFixed(1);
     $("outSd").textContent = "±" + r.sd.toFixed(1);
@@ -1452,7 +1450,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       var o = document.createElement("option");
       o.value = i;
       var open = gw.list.filter(function (g) { return !g.s; }).length;
-      o.textContent = gw.label + (!open ? "" : open === gw.list.length ? " (upcoming)" : " (in progress)");
+      o.textContent = gw.label + (!open ? "" : i === gwCur ? (open === gw.list.length ? " (current)" : " (in progress)") : " (upcoming)");
       gws.appendChild(o);
     });
     gws.value = String(state.gweek);
@@ -1747,21 +1745,20 @@ if (typeof module !== "undefined") module.exports = nflEngine;
 
   /* ---------- QB Elo ---------- */
   var QB = D.qb && D.qb.list && D.qb.list.length ? D.qb : null;
-  state.qbView = "starters"; state.qbSort = "e"; state.qbDir = -1;
-  function sgn1(v) { return v == null ? "—" : Math.abs(v) < 0.05 ? "0.0" : (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1); }
+  state.qbSort = "e"; state.qbDir = -1;
+  function sgn1(v) { if (v == null) return "—"; var r = Math.round(v); return r === 0 ? "0" : (r > 0 ? "+" : "−") + Math.abs(r); }
   function qSpark(x) {
     if (!x || x.length < 2) return "";
     var W = 64, H = 18, lo = Math.min.apply(null, x), hi = Math.max.apply(null, x), rg = hi - lo || 1;
     var px = function (i) { return (i * W / (x.length - 1)).toFixed(1); }, py = function (v) { return (H - 2 - (v - lo) / rg * (H - 4)).toFixed(1); };
     var d = x.map(function (v, i) { return (i ? "L" : "M") + px(i) + " " + py(v); }).join(" ");
-    return '<svg class="qspark" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + QB.weeks[0] + " " + x[0].toFixed(1) + " to " + QB.weeks[x.length - 1] + " " + x[x.length - 1].toFixed(1) + '"><path d="' + d + '"/><circle r="2.2" cx="' + px(x.length - 1) + '" cy="' + py(x[x.length - 1]) + '"/></svg>';
+    return '<svg class="qspark" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + QB.weeks[0] + " " + Math.round(x[0]) + " to " + QB.weeks[x.length - 1] + " " + Math.round(x[x.length - 1]) + '"><path d="' + d + '"/><circle r="2.2" cx="' + px(x.length - 1) + '" cy="' + py(x[x.length - 1]) + '"/></svg>';
   }
-  var QTAG = { starter: "Starter", backup: "Backup", rookie: "Rookie", prior: "No 2026 snaps" };
+  var QTAG = { starter: "Starter", backup: "Backup", ir: "Injured Reserve" }, QORD = { starter: 0, backup: 1, ir: 2 };
   function renderQB() {
     if (!QB) return;
-    var all = state.qbView === "all";
-    var list = QB.list.filter(function (q) { return all || q.s === "starter"; }).map(function (q) { return Object.assign({ d: q.e - q.p }, q); });
-    var k = state.qbSort, dir = state.qbDir;
+    var list = QB.list.map(function (q) { return Object.assign({ d: q.e - q.p, so: q.s in QORD ? QORD[q.s] : 3 }, q); });
+    var k = state.qbSort === "s" ? "so" : state.qbSort, dir = state.qbDir;
     list.sort(function (x, y) {
       var a = x[k], b = y[k];
       if (a == null && b == null) return y.e - x.e;
@@ -1770,36 +1767,36 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       var c = typeof a === "string" ? a.localeCompare(b) : a - b;
       return c * dir || y.e - x.e;
     });
-    $("qbSub").textContent = (all ? "Every QB who could play this year" : "The QB with the most snaps in each team's latest game") + " · QB ELO v2 through " + QB.through;
+    $("qbSub").textContent = "Starters and notable backups · QB ELO v2 through " + QB.through;
     $("qbBody").innerHTML = list.map(function (q, i) {
       var team = q.t ? chip(q.t) + (q.y && QB.list[0] && q.y !== +QB.through.slice(0, 4) ? '<span class="qb-yr">’' + String(q.y).slice(2) + "</span>" : "") : '<span class="dl flat">—</span>';
-      return '<tr class="team-row' + (q.t === state.team && q.s === "starter" ? " selected" : "") + '"' + (q.t ? ' data-team="' + q.t + '"' : "") + ">" +
+      return '<tr class="team-row' + (q.t === state.team ? " selected" : "") + '"' + (q.t ? ' data-team="' + q.t + '"' : "") + ">" +
         '<td class="col-rank">' + (i + 1) + "</td>" +
-        '<td class="col-team"><span class="qb-name">' + q.n + "</span>" + (all ? '<span class="qb-tag' + (q.s === "starter" ? " st" : "") + '">' + QTAG[q.s] + "</span>" : "") + "</td>" +
+        '<td class="col-team"><span class="qb-name">' + q.n + "</span></td>" +
         "<td>" + team + "</td>" +
-        '<td class="qb-elo">' + q.e.toFixed(1) + "</td>" +
+        '<td><span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span></td>" +
+        '<td class="qb-elo">' + Math.round(q.e) + "</td>" +
         '<td class="col-chg">' + qSpark(q.x) + "</td>" +
         "<td>" + sgn1(q.a) + "</td>" +
         "<td>" + sgn1(q.d) + "</td>" +
         "<td>" + q.g + "</td>" +
+        "<td>" + (q.gs != null ? q.gs : "—") + "</td>" +
         '<td class="qb-last">' + q.lg + "</td></tr>";
     }).join("");
     document.querySelectorAll("#qbView th[data-qk]").forEach(function (th) {
-      var on = th.dataset.qk === k;
+      var on = th.dataset.qk === state.qbSort;
       th.querySelector(".sort-arrow").textContent = on ? (dir < 0 ? "▼" : "▲") : "";
       if (on) th.setAttribute("aria-sort", dir < 0 ? "descending" : "ascending"); else th.removeAttribute("aria-sort");
     });
     $("qbFoot").textContent = "QB Elo is the QB ELO v2 rating (3.3 × the rolling QB value) after the latest week in the sheet. " +
       "“vs. team QB” is his Elo minus his team's rolling QB baseline, which is the QB adjustment the game model applies when he starts" +
-      (QB.scale !== 1 ? " (scaled by " + QB.scale + ")" : "") + ". Starters are whoever took the most snaps in each team's latest game. " +
-      "All QBs also lists everyone else with a 2026 snap, 2026 rookies, and QBs who last played in 2025 (with that team marked ’25).";
+      (QB.scale !== 1 ? " (scaled by " + QB.scale + ")" : "") + ". The list covers every QB who has started a 2026 game, plus current starters who haven't yet; status follows the current depth chart.";
   }
   if (QB) {
-    bindToggle("qbview", "qbView", renderQB);
     document.querySelectorAll("[data-qsort]").forEach(function (b) {
       b.addEventListener("click", function () {
         var k = b.dataset.qsort;
-        if (state.qbSort === k) state.qbDir = -state.qbDir; else { state.qbSort = k; state.qbDir = k === "n" || k === "t" ? 1 : -1; }
+        if (state.qbSort === k) state.qbDir = -state.qbDir; else { state.qbSort = k; state.qbDir = k === "n" || k === "t" || k === "s" ? 1 : -1; }
         renderQB();
       });
     });
