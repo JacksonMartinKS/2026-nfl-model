@@ -335,6 +335,16 @@
     .sp-val { font-size: 0.8rem; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; line-height: 1.15; }
     .sp-val small { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
     .dcell { text-align: center !important; }
+    .qb-name { font-weight: 700; color: var(--text); }
+    .qb-tag { display: block; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .qb-tag.st { color: var(--brand); }
+    td.col-team .qb-name { margin-left: 2px; }
+    .qb-yr { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-left: 3px; }
+    .qb-elo { font-weight: 800; }
+    .qb-last { font-size: 0.74rem; color: var(--text-muted); }
+    svg.qspark { display: block; margin: 0 auto; overflow: visible; }
+    svg.qspark path { fill: none; stroke: var(--brand); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+    svg.qspark circle { fill: var(--brand); }
     .dpick { display: inline-flex; flex-direction: column; align-items: center; margin: 0 5px; line-height: 1.1; vertical-align: middle; }
     .dpick b { font-weight: 800; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
     .dpick small, .dnone small { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
@@ -412,6 +422,7 @@
         <button id="btnPageWhatif" class="toggle-btn" type="button" data-page="whatif">What-if</button>
         <button id="btnPageRoot" class="toggle-btn" type="button" data-page="root">Rooting guide</button>
         <button id="btnPageDraft" class="toggle-btn" type="button" data-page="draft">Draft</button>
+        <button id="btnPageQb" class="toggle-btn" type="button" data-page="qb">QB Elo</button>
       </div>
     </div>
     <div class="legend" aria-label="Probability shading">
@@ -573,6 +584,40 @@
       </div>
       <div class="sp-legend"><span><i class="sp-dot lose"></i>With a loss</span><span><i class="sp-dot cur"></i>Now</span><span><i class="sp-dot win"></i>With a win</span></div>
       <div class="sp-chart" id="spChart"></div>
+    </div>
+  </section>
+
+  <section class="main-col" id="qbView" aria-labelledby="qbTitle" hidden>
+    <div class="card table-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="qbTitle">Quarterback Elo</h2>
+          <div class="table-sub" id="qbSub"></div>
+        </div>
+        <div class="table-controls">
+          <div class="view-toggle" role="group" aria-label="Quarterbacks shown">
+            <button class="toggle-btn active" type="button" data-qbview="starters">Starters</button>
+            <button class="toggle-btn" type="button" data-qbview="all">All QBs</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="proj qb-table">
+          <thead><tr>
+            <th class="col-rank" scope="col">#</th>
+            <th class="col-team" scope="col" data-qk="n"><button class="sort-btn" type="button" data-qsort="n">Quarterback<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-qk="t"><button class="sort-btn" type="button" data-qsort="t">Team<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-qk="e"><button class="sort-btn" type="button" data-qsort="e">QB Elo<span class="sort-arrow"></span></button></th>
+            <th class="col-chg" scope="col">2026 trend</th>
+            <th scope="col" data-qk="a"><button class="sort-btn" type="button" data-qsort="a" title="QB Elo minus his team's rolling QB baseline: the QB adjustment the game model applies when he starts">vs. team QB<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-qk="d"><button class="sort-btn" type="button" data-qsort="d">Since preseason<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-qk="g"><button class="sort-btn" type="button" data-qsort="g">2026 games<span class="sort-arrow"></span></button></th>
+            <th scope="col">Last game</th>
+          </tr></thead>
+          <tbody id="qbBody"></tbody>
+        </table>
+      </div>
+      <div class="table-foot" id="qbFoot"></div>
     </div>
   </section>
 
@@ -1390,7 +1435,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     });
     $("gamesList").innerHTML = html;
   }
-  var VIEWS = { proj: "projView", games: "gamesView", whatif: "whatifView", root: "rootView", draft: "draftView" };
+  var VIEWS = { proj: "projView", games: "gamesView", whatif: "whatifView", root: "rootView", draft: "draftView", qb: "qbView" };
   function setPage(pg) {
     var btn = document.querySelector('[data-page="' + pg + '"]');
     state.page = btn && !btn.hidden ? pg : "proj";
@@ -1399,6 +1444,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (state.page === "whatif") renderWhatIf();
     if (state.page === "root") renderRoot();
     if (state.page === "draft") renderDraft();
+    if (state.page === "qb") renderQB();
   }
   if (G) {
     var gws = $("gameWeekSelect");
@@ -1699,10 +1745,73 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     $("btnPageDraft").hidden = true;
   }
 
+  /* ---------- QB Elo ---------- */
+  var QB = D.qb && D.qb.list && D.qb.list.length ? D.qb : null;
+  state.qbView = "starters"; state.qbSort = "e"; state.qbDir = -1;
+  function sgn1(v) { return v == null ? "—" : Math.abs(v) < 0.05 ? "0.0" : (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1); }
+  function qSpark(x) {
+    if (!x || x.length < 2) return "";
+    var W = 64, H = 18, lo = Math.min.apply(null, x), hi = Math.max.apply(null, x), rg = hi - lo || 1;
+    var px = function (i) { return (i * W / (x.length - 1)).toFixed(1); }, py = function (v) { return (H - 2 - (v - lo) / rg * (H - 4)).toFixed(1); };
+    var d = x.map(function (v, i) { return (i ? "L" : "M") + px(i) + " " + py(v); }).join(" ");
+    return '<svg class="qspark" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + QB.weeks[0] + " " + x[0].toFixed(1) + " to " + QB.weeks[x.length - 1] + " " + x[x.length - 1].toFixed(1) + '"><path d="' + d + '"/><circle r="2.2" cx="' + px(x.length - 1) + '" cy="' + py(x[x.length - 1]) + '"/></svg>';
+  }
+  var QTAG = { starter: "Starter", backup: "Backup", rookie: "Rookie", prior: "No 2026 snaps" };
+  function renderQB() {
+    if (!QB) return;
+    var all = state.qbView === "all";
+    var list = QB.list.filter(function (q) { return all || q.s === "starter"; }).map(function (q) { return Object.assign({ d: q.e - q.p }, q); });
+    var k = state.qbSort, dir = state.qbDir;
+    list.sort(function (x, y) {
+      var a = x[k], b = y[k];
+      if (a == null && b == null) return y.e - x.e;
+      if (a == null) return 1;
+      if (b == null) return -1;
+      var c = typeof a === "string" ? a.localeCompare(b) : a - b;
+      return c * dir || y.e - x.e;
+    });
+    $("qbSub").textContent = (all ? "Every QB who could play this year" : "The QB with the most snaps in each team's latest game") + " · QB ELO v2 through " + QB.through;
+    $("qbBody").innerHTML = list.map(function (q, i) {
+      var team = q.t ? chip(q.t) + (q.y && QB.list[0] && q.y !== +QB.through.slice(0, 4) ? '<span class="qb-yr">’' + String(q.y).slice(2) + "</span>" : "") : '<span class="dl flat">—</span>';
+      return '<tr class="team-row' + (q.t === state.team && q.s === "starter" ? " selected" : "") + '"' + (q.t ? ' data-team="' + q.t + '"' : "") + ">" +
+        '<td class="col-rank">' + (i + 1) + "</td>" +
+        '<td class="col-team"><span class="qb-name">' + q.n + "</span>" + (all ? '<span class="qb-tag' + (q.s === "starter" ? " st" : "") + '">' + QTAG[q.s] + "</span>" : "") + "</td>" +
+        "<td>" + team + "</td>" +
+        '<td class="qb-elo">' + q.e.toFixed(1) + "</td>" +
+        '<td class="col-chg">' + qSpark(q.x) + "</td>" +
+        "<td>" + sgn1(q.a) + "</td>" +
+        "<td>" + sgn1(q.d) + "</td>" +
+        "<td>" + q.g + "</td>" +
+        '<td class="qb-last">' + q.lg + "</td></tr>";
+    }).join("");
+    document.querySelectorAll("#qbView th[data-qk]").forEach(function (th) {
+      var on = th.dataset.qk === k;
+      th.querySelector(".sort-arrow").textContent = on ? (dir < 0 ? "▼" : "▲") : "";
+      if (on) th.setAttribute("aria-sort", dir < 0 ? "descending" : "ascending"); else th.removeAttribute("aria-sort");
+    });
+    $("qbFoot").textContent = "QB Elo is the QB ELO v2 rating (3.3 × the rolling QB value) after the latest week in the sheet. " +
+      "“vs. team QB” is his Elo minus his team's rolling QB baseline, which is the QB adjustment the game model applies when he starts" +
+      (QB.scale !== 1 ? " (scaled by " + QB.scale + ")" : "") + ". Starters are whoever took the most snaps in each team's latest game. " +
+      "All QBs also lists everyone else with a 2026 snap, 2026 rookies, and QBs who last played in 2025 (with that team marked ’25).";
+  }
+  if (QB) {
+    bindToggle("qbview", "qbView", renderQB);
+    document.querySelectorAll("[data-qsort]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var k = b.dataset.qsort;
+        if (state.qbSort === k) state.qbDir = -state.qbDir; else { state.qbSort = k; state.qbDir = k === "n" || k === "t" ? 1 : -1; }
+        renderQB();
+      });
+    });
+    rowPick("qbBody");
+  } else {
+    $("btnPageQb").hidden = true;
+  }
+
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
   if (BY[fromHash]) state.team = fromHash;
-  var PAGEHASH = { GAMES: "games", WHATIF: "whatif", ROOT: "root", DRAFT: "draft" };
+  var PAGEHASH = { GAMES: "games", WHATIF: "whatif", ROOT: "root", DRAFT: "draft", QB: "qb" };
   if (PAGEHASH[fromHash]) setPage(PAGEHASH[fromHash]);
   teamSel.value = state.team;
   renderSummary();
