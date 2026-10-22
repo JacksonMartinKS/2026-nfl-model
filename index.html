@@ -346,6 +346,37 @@
     svg.qspark { display: block; margin: 0 auto; overflow: visible; }
     svg.qspark path { fill: none; stroke: var(--brand); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
     svg.qspark circle { fill: var(--brand); }
+    svg.qspark line { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 2; }
+    .sidebar [hidden] { display: none !important; }
+    .qb-avg td { position: relative; padding: 0 !important; height: 26px; text-align: center !important; background: transparent; }
+    .qb-avg td::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px dashed var(--text-muted); }
+    .qb-avg span { position: relative; background: var(--card-bg); padding: 0 10px; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+    .qp-fig { margin: 14px 0 0; }
+    .qp-sec { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin: 16px 0 4px; }
+    .bd-row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 0.8rem; min-height: 25px; border-bottom: 1px solid var(--border); }
+    .bd-bar { position: relative; height: 10px; }
+    .bd-bar::before { content: ""; position: absolute; left: var(--o, 50%); top: -5px; bottom: -5px; border-left: 1px solid var(--text-muted); }
+    .bd-bar i { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--brand); }
+    .bd-bar i.neg { background: var(--text-muted); opacity: 0.6; }
+    .bd-val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .bd-bar i.s1, .bd-bar i.s2, .bd-bar i.s3 { border-radius: 0; box-shadow: inset -1px 0 0 var(--card-bg); }
+    .bd-bar i.s1, .bd-leg i.s1 { background: #7a1951; }
+    .bd-bar i.s2, .bd-leg i.s2 { background: #b6819f; }
+    .bd-bar i.s3, .bd-leg i.s3 { background: #dabfce; }
+    .bd-leg { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 0.68rem; color: var(--text-muted); margin-top: -1px; }
+    .bd-leg i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+    .bd-lab small { display: block; font-size: 0.66rem; line-height: 1.3; color: var(--text-muted); font-weight: 500; }
+    .bd-row { padding: 4px 0; }
+    .bd-row.total { border-bottom: 0; border-top: 2px solid var(--text); font-weight: 800; }
+    .qp-stat { font-size: 0.8rem; margin: 2px 0 0; line-height: 1.5; font-variant-numeric: tabular-nums; }
+    .qp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 40px; gap: 8px; align-items: center; font-size: 0.8rem; min-height: 32px; border-bottom: 1px solid var(--border); }
+    button.qp-row { width: 100%; background: none; border: 0; border-bottom: 1px solid var(--border); font: inherit; font-size: 0.8rem; color: inherit; text-align: left; cursor: pointer; padding: 0; }
+    button.qp-row:hover b { text-decoration: underline; }
+    .qp-mut { color: var(--text-muted); font-size: 0.74rem; }
+    .qp-num { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+    svg .ref-dash { fill: none; stroke: var(--text-muted); stroke-width: 1.3; stroke-dasharray: 5 4; }
+    svg .ref-lab { font-size: 9.5px; font-weight: 700; fill: var(--text-muted); }
+    @media (max-width: 860px) { .qb-avg td { text-align: left !important; } .qb-avg span { position: sticky; left: 8px; } }
     .dpick { display: inline-flex; flex-direction: column; align-items: center; margin: 0 5px; line-height: 1.1; vertical-align: middle; }
     .dpick b { font-weight: 800; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
     .dpick small, .dnone small { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
@@ -595,22 +626,17 @@
           <h2 class="table-title" id="qbTitle">Quarterback Elo</h2>
           <div class="table-sub" id="qbSub"></div>
         </div>
+        <div class="table-controls">
+          <div class="view-toggle" role="group" aria-label="QB Elo views">
+            <button class="toggle-btn active" type="button" data-qbtab="qb">Quarterbacks</button>
+            <button class="toggle-btn" type="button" data-qbtab="team">Team QB</button>
+            <button class="toggle-btn" type="button" data-qbtab="def">Defense</button>
+          </div>
+        </div>
       </div>
       <div class="table-scroll">
         <table class="proj qb-table">
-          <thead><tr>
-            <th class="col-rank" scope="col">#</th>
-            <th class="col-team" scope="col" data-qk="n"><button class="sort-btn" type="button" data-qsort="n">Quarterback<span class="sort-arrow"></span></button></th>
-            <th scope="col" data-qk="t"><button class="sort-btn" type="button" data-qsort="t">Team<span class="sort-arrow"></span></button></th>
-            <th scope="col" data-qk="s"><button class="sort-btn" type="button" data-qsort="s">Status<span class="sort-arrow"></span></button></th>
-            <th scope="col" data-qk="e"><button class="sort-btn" type="button" data-qsort="e">QB Elo<span class="sort-arrow"></span></button></th>
-            <th class="col-chg" scope="col">2026 trend</th>
-            <th scope="col" data-qk="a"><button class="sort-btn" type="button" data-qsort="a" title="QB Elo minus his team's rolling QB baseline: the QB adjustment the game model applies when he starts">vs. team QB<span class="sort-arrow"></span></button></th>
-            <th scope="col" data-qk="d"><button class="sort-btn" type="button" data-qsort="d">Since preseason<span class="sort-arrow"></span></button></th>
-            <th scope="col" data-qk="g"><button class="sort-btn" type="button" data-qsort="g">2026 games<span class="sort-arrow"></span></button></th>
-            <th scope="col" data-qk="gs"><button class="sort-btn" type="button" data-qsort="gs">Starts<span class="sort-arrow"></span></button></th>
-            <th scope="col">Last game</th>
-          </tr></thead>
+          <thead id="qbHead"></thead>
           <tbody id="qbBody"></tbody>
         </table>
       </div>
@@ -708,6 +734,25 @@
       <div id="tabSeeds" role="tabpanel" aria-labelledby="tabBtnSeeds" hidden>
         <div id="seedBars"></div>
       </div>
+    </div>
+
+    <div class="card" id="qbPane" hidden>
+      <div class="header-row">
+        <h2 id="qpTitle" class="team-title">—</h2>
+        <div id="qpSub" class="team-sub"></div>
+      </div>
+      <div class="result-section">
+        <div class="result-row">
+          <span class="result-title" id="qpBigLabel">QB Elo</span>
+          <span id="qpBig" class="result-big">—</span>
+        </div>
+        <div class="meta-metrics" id="qpMeta"></div>
+      </div>
+      <figure class="chart-fig qp-fig">
+        <figcaption class="chart-head"><span class="chart-label" id="qpChartLabel">QB Elo since 2023</span><span class="chart-val" id="qpChartVal">—</span></figcaption>
+        <svg class="chart" id="qpChart" viewBox="0 0 400 180" role="img" aria-label="Elo history since 2023"></svg>
+      </figure>
+      <div id="qpBody"></div>
     </div>
 
     <details class="method-card">
@@ -1274,6 +1319,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     renderTable();
     if (state.page === "root") renderRoot();
     if (state.page === "draft") renderDraft();
+    if (state.page === "qb") renderQB();
     if (scroll && window.innerWidth <= 1000) {
       $("teamPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     }
@@ -1442,7 +1488,12 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (state.page === "whatif") renderWhatIf();
     if (state.page === "root") renderRoot();
     if (state.page === "draft") renderDraft();
-    if (state.page === "qb") renderQB();
+    var onQ = state.page === "qb" && !!QB;
+    ["teamCard", "teamSelect"].forEach(function (id) { $(id).hidden = onQ; });
+    var tsl = document.querySelector('label[for="teamSelect"]');
+    if (tsl) tsl.hidden = onQ;
+    $("qbPane").hidden = !onQ;
+    if (onQ) renderQB();
   }
   if (G) {
     var gws = $("gameWeekSelect");
@@ -1744,63 +1795,299 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   }
 
   /* ---------- QB Elo ---------- */
-  var QB = D.qb && D.qb.list && D.qb.list.length ? D.qb : null;
-  state.qbSort = "e"; state.qbDir = -1;
-  function sgn1(v) { if (v == null) return "—"; var r = Math.round(v); return r === 0 ? "0" : (r > 0 ? "+" : "−") + Math.abs(r); }
-  function qSpark(x) {
-    if (!x || x.length < 2) return "";
-    var W = 64, H = 18, lo = Math.min.apply(null, x), hi = Math.max.apply(null, x), rg = hi - lo || 1;
-    var px = function (i) { return (i * W / (x.length - 1)).toFixed(1); }, py = function (v) { return (H - 2 - (v - lo) / rg * (H - 4)).toFixed(1); };
-    var d = x.map(function (v, i) { return (i ? "L" : "M") + px(i) + " " + py(v); }).join(" ");
-    return '<svg class="qspark" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + QB.weeks[0] + " " + Math.round(x[0]) + " to " + QB.weeks[x.length - 1] + " " + Math.round(x[x.length - 1]) + '"><path d="' + d + '"/><circle r="2.2" cx="' + px(x.length - 1) + '" cy="' + py(x[x.length - 1]) + '"/></svg>';
-  }
+  var QB = D.qb && D.qb.list && D.qb.list.length && D.qb.cols ? D.qb : null;
+  var QLO = 26, QHI = 300;
   var QTAG = { starter: "Starter", backup: "Backup", ir: "Injured Reserve" }, QORD = { starter: 0, backup: 1, ir: 2 };
+  var QSORT = { qb: ["e", -1], team: ["e", -1], def: ["e", 1] };
+  var QTITLE = { qb: "Quarterback Elo", team: "Team QB Elo", def: "Pass Defense Elo" };
+  state.qbTab = "qb"; state.qbSel = null;
+  function sgn1(v) { if (v == null) return "—"; var r = Math.round(v); return r === 0 ? "0" : (r > 0 ? "+" : "−") + Math.abs(r); }
+  function rnd(v) { if (v == null) return "—"; var r = Math.round(v); return (r < 0 ? "−" : "") + Math.abs(r); }
+  function lastVal(h) { for (var i = h.length - 1; i >= 0; i--) if (h[i] != null) return h[i]; return null; }
+  var preIdx = 0, defAvgNow = 167, QYEAR = "";
+  if (QB) {
+    QB.cols.forEach(function (c, i) { if (/ Pre$/.test(c)) preIdx = i; });
+    defAvgNow = QB.defAvg ? lastVal(QB.defAvg) : 167;
+    QYEAR = QB.through.slice(0, 4);
+  }
+  function atPre(h) { return h[preIdx] != null ? h[preIdx] : null; }
+  function wkLab(i) { return QB.cols[i]; }
+  function qbByName(n) { for (var i = 0; i < QB.list.length; i++) if (QB.list[i].n === n) return QB.list[i]; return null; }
+  function starterOf(t) { for (var i = 0; i < QB.list.length; i++) if (QB.list[i].t === t && QB.list[i].s === "starter") return QB.list[i]; return null; }
+  function spark(pts, mid) {
+    if (!pts || !pts.length) return "";
+    var W = 84, Hh = 22, N = 20, m = pts.length;
+    var px = function (j) { return ((N - m + j) * W / (N - 1)).toFixed(1); };
+    var py = function (v) { v = Math.max(QLO, Math.min(QHI, v)); return (Hh - 1 - (v - QLO) / (QHI - QLO) * (Hh - 2)).toFixed(1); };
+    var a = pts[0], b = pts[m - 1];
+    var lab = "Last " + m + (m === 1 ? " game: " : " games: ") + Math.round(a[1]) + " (" + wkLab(a[0]) + ") to " + Math.round(b[1]) + " (" + wkLab(b[0]) + ")";
+    return '<svg class="qspark" width="' + W + '" height="' + Hh + '" viewBox="0 0 ' + W + " " + Hh + '" role="img" aria-label="' + lab + '"><title>' + lab + "</title>" +
+      '<line x1="0" x2="' + W + '" y1="' + py(mid) + '" y2="' + py(mid) + '"/>' +
+      (m > 1 ? '<path d="' + pts.map(function (p, j) { return (j ? "L" : "M") + px(j) + " " + py(p[1]); }).join(" ") + '"/>' : "") +
+      '<circle r="2.2" cx="' + px(m - 1) + '" cy="' + py(b[1]) + '"/></svg>';
+  }
+  var QCOLS = {
+    qb: [["n", "Quarterback", "col-team"], ["t", "Team"], ["s", "Status"], ["e", "QB Elo"], ["sp", "Last 20 games", "col-chg", "", 1],
+      ["a", "vs. team QB", "", "QB Elo minus his team’s rolling QB baseline: the QB adjustment the game model applies when he starts"],
+      ["d", "Season Δ", "", "Change since the preseason"], ["g", "GP", "", "Games played this season"], ["gs", "GS", "", "Games started this season"], ["lg", "Last game", "", "", 1]],
+    team: [["t", "Team", "col-team"], ["e", "Team QB Elo"], ["sp", "Last 20 games", "col-chg", "", 1], ["d", "Season Δ", "", "Change since the preseason"],
+      ["sn", "Starter"], ["se", "Starter Elo"], ["a", "Starter vs. team", "", "The starter’s QB Elo minus the team baseline: the QB adjustment in the game model"]],
+    def: [["t", "Team", "col-team"], ["e", "Defense Elo", "", "Rolling QB value this defense allows per game, on the QB Elo scale. Lower is tougher."],
+      ["sp", "Last 20 games", "col-chg", "", 1], ["v", "vs. league avg"], ["d", "Season Δ", "", "Change since the preseason"],
+      ["lg", "Last game", "", "Opposing QB play in its latest game, on the QB Elo scale", 1]]
+  };
+  var QFOOT = {
+    qb: function () {
+      return "QB Elo is the QB ELO v2 rating (3.3 × the rolling QB value) after the latest week in the sheet. “vs. team QB” is his Elo minus his team’s rolling QB baseline, which is the QB adjustment the game model applies when he starts" +
+        (QB.scale !== 1 ? " (scaled by " + QB.scale + ")" : "") + ". Last 20 games plots his QB Elo after each of his last 20 games on a fixed " + QLO + "–" + QHI +
+        " scale; the dashed line is " + QB.avg + ", an average starter. The list covers every QB who has started a " + QYEAR + " game, plus current starters who haven’t yet.";
+    },
+    team: function () {
+      return "Team QB Elo is each team’s rolling QB baseline: a slow-moving average of the QB play it has gotten, weighted by play share, that reverts toward " + QB.avg +
+        " each offseason. The game model’s QB adjustment is the starter’s QB Elo minus this baseline, so a team gets a boost or a penalty only when its starter is better or worse than what it usually gets.";
+    },
+    def: function () {
+      return "Defense Elo is the rolling QB value a defense allows per game, on the QB Elo scale (× " + QB.mult + "). Lower is tougher. “vs. league avg” is the matchup adjustment in the QB model: " +
+        "a QB’s game against a defense 20 below average is graded 20 higher on this scale, and the reverse against a soft defense.";
+    }
+  };
+  function qbData(tab) {
+    if (tab === "qb") return QB.list.map(function (q) {
+      return { q: q, n: q.n, t: q.t, s: QORD[q.s] != null ? QORD[q.s] : 3, e: q.e, a: q.a, d: q.e - q.p, g: q.g, gs: q.gs };
+    });
+    var src = tab === "team" ? QB.team : QB.def;
+    return Object.keys(src).filter(function (t) { return BY[t]; }).map(function (t) {
+      var r = src[t], e = lastVal(r.h), p = atPre(r.h), o = { t: t, e: e, d: p == null || e == null ? null : e - p, r: r };
+      if (tab === "team") { var st = starterOf(t); o.sn = st ? st.n : null; o.se = st ? st.e : null; o.a = st ? st.a : null; }
+      else o.v = e == null ? null : e - defAvgNow;
+      return o;
+    });
+  }
+  function qbCell(tab, k, r) {
+    var q = r.q;
+    switch (k) {
+      case "n": return '<span class="qb-name">' + q.n + "</span>";
+      case "t":
+        if (tab !== "qb") return chip(r.t) + '<span class="t-name">' + nick(BY[r.t]) + "</span>";
+        return q.t ? chip(q.t) + (q.y && String(q.y) !== QYEAR ? '<span class="qb-yr">’' + String(q.y).slice(2) + "</span>" : "") : '<span class="dl flat">—</span>';
+      case "s": return '<span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span>";
+      case "e": return '<span class="qb-elo">' + rnd(r.e) + "</span>";
+      case "sp": return tab === "qb" ? spark(q.l20, QB.avg) : spark(r.r.g, tab === "def" ? defAvgNow : QB.avg);
+      case "a": case "d": case "v": return sgn1(r[k]);
+      case "g": case "gs": return r[k] == null ? "—" : String(r[k]);
+      case "sn": return r.sn || "—";
+      case "se": return rnd(r.se);
+      case "lg":
+        if (tab === "qb") return '<span class="qb-last">' + q.lg + "</span>";
+        var L = r.r.log[r.r.log.length - 1];
+        return L ? '<span class="qb-last">' + wkLab(L[0]).replace(/^\d+ /, "") + " vs " + L[1] + (L[3] != null ? " · " + rnd(L[3]) : "") + "</span>" : "—";
+    }
+    return "";
+  }
   function renderQB() {
     if (!QB) return;
-    var list = QB.list.map(function (q) { return Object.assign({ d: q.e - q.p, so: q.s in QORD ? QORD[q.s] : 3 }, q); });
-    var k = state.qbSort === "s" ? "so" : state.qbSort, dir = state.qbDir;
+    var tab = state.qbTab, cols = QCOLS[tab], so = QSORT[tab], k = so[0], dir = so[1], list = qbData(tab);
+    var tie = tab === "def" ? function (x, y) { return x.e - y.e; } : function (x, y) { return y.e - x.e; };
     list.sort(function (x, y) {
       var a = x[k], b = y[k];
-      if (a == null && b == null) return y.e - x.e;
+      if (a == null && b == null) return tie(x, y);
       if (a == null) return 1;
       if (b == null) return -1;
       var c = typeof a === "string" ? a.localeCompare(b) : a - b;
-      return c * dir || y.e - x.e;
+      return c * dir || tie(x, y);
     });
-    $("qbSub").textContent = "Starters and notable backups · QB ELO v2 through " + QB.through;
-    $("qbBody").innerHTML = list.map(function (q, i) {
-      var team = q.t ? chip(q.t) + (q.y && QB.list[0] && q.y !== +QB.through.slice(0, 4) ? '<span class="qb-yr">’' + String(q.y).slice(2) + "</span>" : "") : '<span class="dl flat">—</span>';
-      return '<tr class="team-row' + (q.t === state.team ? " selected" : "") + '"' + (q.t ? ' data-team="' + q.t + '"' : "") + ">" +
-        '<td class="col-rank">' + (i + 1) + "</td>" +
-        '<td class="col-team"><span class="qb-name">' + q.n + "</span></td>" +
-        "<td>" + team + "</td>" +
-        '<td><span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span></td>" +
-        '<td class="qb-elo">' + Math.round(q.e) + "</td>" +
-        '<td class="col-chg">' + qSpark(q.x) + "</td>" +
-        "<td>" + sgn1(q.a) + "</td>" +
-        "<td>" + sgn1(q.d) + "</td>" +
-        "<td>" + q.g + "</td>" +
-        "<td>" + (q.gs != null ? q.gs : "—") + "</td>" +
-        '<td class="qb-last">' + q.lg + "</td></tr>";
-    }).join("");
-    document.querySelectorAll("#qbView th[data-qk]").forEach(function (th) {
-      var on = th.dataset.qk === state.qbSort;
-      th.querySelector(".sort-arrow").textContent = on ? (dir < 0 ? "▼" : "▲") : "";
-      if (on) th.setAttribute("aria-sort", dir < 0 ? "descending" : "ascending"); else th.removeAttribute("aria-sort");
+    if (!qbByName(state.qbSel)) { var st0 = starterOf(state.team); state.qbSel = st0 ? st0.n : QB.list.slice().sort(function (x, y) { return y.e - x.e; })[0].n; }
+    $("qbTitle").textContent = QTITLE[tab];
+    $("qbSub").textContent = { qb: "Starters and notable backups", team: "Each team’s rolling QB baseline", def: "QB play allowed by each defense" }[tab] + " · QB ELO v2 through " + QB.through;
+    $("qbHead").innerHTML = '<tr><th class="col-rank" scope="col">#</th>' + cols.map(function (c) {
+      var lab = c[1], on = c[0] === k;
+      var inner = c[4] ? lab : '<button class="sort-btn" type="button" data-qsort="' + c[0] + '"' + (c[3] ? ' title="' + c[3] + '"' : "") + ">" + lab +
+        '<span class="sort-arrow">' + (on ? (dir < 0 ? "▼" : "▲") : "") + "</span></button>";
+      return '<th scope="col"' + (c[2] ? ' class="' + c[2] + '"' : "") + (on ? ' aria-sort="' + (dir < 0 ? "descending" : "ascending") + '"' : "") +
+        (c[4] && c[3] ? ' title="' + c[3] + '"' : "") + ">" + inner + "</th>";
+    }).join("") + "</tr>";
+    var thr = tab === "def" ? defAvgNow : QB.avg, cut = -1;
+    if (k === "e") { cut = list.findIndex(function (r) { return r.e != null && (dir < 0 ? r.e < thr : r.e > thr); }); if (cut < 0) cut = list.length; }
+    var line = '<tr class="qb-avg"><td colspan="' + (cols.length + 1) + '"><span>' + (tab === "def" ? "League average defense" : "Average Starting Quarterback") + "</span></td></tr>";
+    var html = "";
+    list.forEach(function (r, i) {
+      if (i === cut) html += line;
+      var sel = tab === "qb" ? r.n === state.qbSel : r.t === state.team;
+      html += '<tr class="team-row' + (sel ? " selected" : "") + '"' + (tab === "qb" ? ' data-qb="' + r.n + '"' : ' data-team="' + r.t + '"') + '><td class="col-rank">' + (i + 1) + "</td>" +
+        cols.map(function (c) { return "<td" + (c[2] ? ' class="' + c[2] + '"' : "") + ">" + qbCell(tab, c[0], r) + "</td>"; }).join("") + "</tr>";
     });
-    $("qbFoot").textContent = "QB Elo is the QB ELO v2 rating (3.3 × the rolling QB value) after the latest week in the sheet. " +
-      "“vs. team QB” is his Elo minus his team's rolling QB baseline, which is the QB adjustment the game model applies when he starts" +
-      (QB.scale !== 1 ? " (scaled by " + QB.scale + ")" : "") + ". The list covers every QB who has started a 2026 game, plus current starters who haven't yet; status follows the current depth chart.";
+    if (cut === list.length) html += line;
+    $("qbBody").innerHTML = html;
+    $("qbFoot").textContent = QFOOT[tab]();
+    renderQBPane();
   }
+  var BDESC = { "Passing": "Every dropback: yards, TDs, first downs, INTs, sacks", "Rushing": "Designed runs, scrambles, sneaks",
+    "Defenses faced": "Adjustment for the pass defenses he played" };
+  var BD_LO = -20, BD_HI = 250;  // one locked axis for every QB's breakdown
+  if (QB) QB.list.forEach(function (q) {
+    if (!q.bd) return;
+    var v = {};
+    q.bd.forEach(function (x) { v[x[0]] = x[1] || 0; });
+    [[v["Passing"], v["Receiver adjustment"], v["Defensive penalties"]], [v["Rushing"]], [v["Defenses faced"]]].forEach(function (seg) {
+      var p = 0, n = 0;
+      seg.forEach(function (x) { x = x || 0; if (x > 0) p += x; else n += x; });
+      if (p > BD_HI) BD_HI = Math.ceil(p / 25) * 25;
+      if (n < BD_LO) BD_LO = Math.floor(n / 10) * 10;
+    });
+  });
+  function qbBreakdown(q) {
+    var s = "";
+    if (q.bd && q.bd.length) {
+      var val = {}, y1 = Number(QB.cols[0].slice(0, 4)) + 1;
+      q.bd.forEach(function (x) { val[x[0]] = x[1]; });
+      var rows = [
+        { lab: "Passing", segs: [["Passing", val["Passing"] || 0, "s1"], ["Receiver adjustment", val["Receiver adjustment"] || 0, "s2"], ["Defensive penalties", val["Defensive penalties"] || 0, "s3"]] },
+        { lab: "Rushing", segs: [["Rushing", val["Rushing"] || 0, "s1"]] },
+        { lab: "Defenses faced", segs: [["Defenses faced", val["Defenses faced"] || 0, "s1"]] }
+      ];
+      var rng = BD_HI - BD_LO, origin = -BD_LO / rng * 100;
+      s += '<div class="qp-sec">Where his QB Elo comes from</div>' + rows.map(function (r) {
+        var pos = origin, neg = origin, bars = "", tot = 0;
+        r.segs.forEach(function (g) {
+          var w = Math.abs(g[1]) / rng * 100;
+          w = g[1] >= 0 ? Math.min(w, 100 - pos) : Math.min(w, neg);
+          tot += g[1];
+          if (g[1] >= 0) { bars += '<i class="' + g[2] + '" style="left:' + pos.toFixed(1) + "%;width:" + w.toFixed(1) + '%"></i>'; pos += w; }
+          else { neg -= w; bars += '<i class="' + g[2] + '" style="left:' + neg.toFixed(1) + "%;width:" + w.toFixed(1) + '%"></i>'; }
+        });
+        var leg = r.segs.length > 1 ? '<div class="bd-leg">' + r.segs.map(function (g) { return '<span><i class="' + g[2] + '"></i>' + g[0] + " " + sgn1(g[1]) + "</span>"; }).join("") + "</div>" : "";
+        return '<div class="bd-row"><span class="bd-lab">' + r.lab + (BDESC[r.lab] ? "<small>" + BDESC[r.lab] + "</small>" : "") + '</span><span class="bd-bar" style="--o:' + origin.toFixed(1) + '%" aria-hidden="true">' + bars + '</span><span class="bd-val">' + sgn1(tot) + "</span>" + leg + "</div>";
+      }).join("") + '<div class="bd-row total"><span class="bd-lab">QB Elo</span><span></span><span class="bd-val">' + rnd(q.e) + "</span></div>" +
+        '<p class="chart-note">Elo points from each part of his game, with recent games weighted most. The model charges a fixed baseline for every game played; that baseline and his rating from before ' +
+        y1 + " (or his draft-slot prior) are split between passing and rushing by his mix of dropbacks and runs, so the lines add up to his QB Elo, give or take rounding.</p>" +
+        '<p class="chart-note">The lighter parts of the passing bar are two add-ons. <b>Receiver adjustment:</b> dropped passes are credited back to him as catches, with estimated yards, first downs and TDs, so the rating grades the throw rather than the catch. ' +
+        "Receiver quality isn’t a QB stat; good or bad receivers show up in the team’s Elo instead. <b>Defensive penalties:</b> pass interference he draws counts as a completion and first down, plus the spot yards.</p>";
+    }
+    var st = q.st;
+    if (st && q.g) s += '<div class="qp-sec">' + QYEAR + ' season</div><p class="qp-stat">' + st.cmp + "/" + st.att + ", " + st.yds.toLocaleString("en-US") + " yds, " + st.td + " TD, " + st.int + " INT, " +
+      st.sk + " sacks · Rushing " + st.ryd + " yds, " + st.rtd + " TD · " + q.g + (q.g === 1 ? " game" : " games") + "</p>";
+    return s;
+  }
+  function renderQBPane() {
+    if (!QB) return;
+    var tab = state.qbTab, t, r, e, h, ref, refLab, meta, title, sub, big, bigLab, chartLab, body = "", since = " since " + QB.cols[0].slice(0, 4);
+    function rankOf(vals, v, asc) { return 1 + vals.filter(function (x) { return x != null && (asc ? x < v : x > v); }).length; }
+    if (tab === "qb") {
+      var q = qbByName(state.qbSel) || QB.list[0];
+      title = q.n;
+      sub = (q.t ? chip(q.t) + BY[q.t].name : "No team") + ' · <span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span>";
+      bigLab = "QB Elo"; big = rnd(q.e); h = q.h; ref = QB.avg; refLab = "Avg starter"; chartLab = "QB Elo" + since;
+      meta = [["Rank", "#" + rankOf(QB.list.map(function (x) { return x.e; }), q.e) + " of " + QB.list.length], ["vs. team QB", sgn1(q.a)], ["Since preseason", sgn1(q.e - q.p)]];
+      body = qbBreakdown(q);
+    } else {
+      var src = tab === "team" ? QB.team : QB.def;
+      t = state.team; r = src[t];
+      if (!r) return;
+      e = lastVal(r.h); h = r.h;
+      var all = Object.keys(src).map(function (x) { return lastVal(src[x].h); }), p = atPre(h);
+      title = chip(t) + BY[t].name;
+      if (tab === "team") {
+        var st = starterOf(t);
+        sub = "Team QB Elo · #" + rankOf(all, e) + " of " + all.length;
+        bigLab = "Team QB Elo"; big = rnd(e); ref = QB.avg; refLab = "Avg starter"; chartLab = "Team QB Elo" + since;
+        meta = [["Starter", st ? st.n : "—"], ["Starter Elo", st ? rnd(st.e) : "—"], ["QB adj.", st ? sgn1(st.a) : "—"]];
+        var qs = QB.list.filter(function (x) { return x.t === t; }).sort(function (x, y) { return y.e - x.e; });
+        body = '<div class="qp-sec">' + nick(BY[t]) + " quarterbacks</div>" + qs.map(function (x) {
+          return '<button type="button" class="qp-row" data-qbgo="' + x.n + '"><span><b>' + x.n + '</b> <span class="qb-st ' + x.s + '">' + (QTAG[x.s] || x.s) + '</span></span><span class="qp-mut">' +
+            x.gs + (x.gs === 1 ? " start" : " starts") + '</span><span class="qp-num">' + rnd(x.e) + "</span></button>";
+        }).join("") + '<p class="chart-note">Pick a quarterback to see where his rating comes from.</p>';
+      } else {
+        sub = "Pass defense · #" + rankOf(all, e, true) + " of " + all.length + " (1 = toughest)";
+        bigLab = "Defense Elo"; big = rnd(e); ref = QB.defAvg || defAvgNow; refLab = "League avg"; chartLab = "Defense Elo" + since;
+        meta = [["vs. league avg", sgn1(e - defAvgNow)], ["Since preseason", p == null ? "—" : sgn1(e - p)], ["League avg", rnd(defAvgNow)]];
+        body = '<div class="qp-sec">Last ' + r.log.length + " games</div>" + r.log.slice().reverse().map(function (L) {
+          return '<div class="qp-row"><span><b>' + wkLab(L[0]) + "</b> vs " + L[1] + '<span class="qp-mut"> · ' + (L[2] || "—") + '</span></span><span class="qp-mut">allowed</span><span class="qp-num">' + rnd(L[3]) + "</span></div>";
+        }).join("") + '<p class="chart-note">Lower is tougher. Allowed is the opposing QB play in that game on the QB Elo scale, before any matchup adjustment.</p>';
+      }
+    }
+    $("qpTitle").innerHTML = title; $("qpSub").innerHTML = sub; $("qpBigLabel").textContent = bigLab; $("qpBig").textContent = big;
+    $("qpMeta").innerHTML = meta.map(function (m, i) {
+      return '<div class="meta-item' + (i === 1 ? " mid" : i === 2 ? " end" : "") + '"><span class="meta-label">' + m[0] + '</span><span class="meta-val">' + m[1] + "</span></div>";
+    }).join("");
+    $("qpChartLabel").textContent = chartLab;
+    drawHist($("qpChart"), h, ref, refLab);
+    $("qpBody").innerHTML = body;
+  }
+  function drawHist(svg, vals, ref, refLab) {
+    var w = 400, hh = 180, pad = { l: 30, r: 10, t: 12, b: 20 }, n = vals.length, lo = QLO, hi = QHI;
+    vals.concat(Array.isArray(ref) ? ref : []).forEach(function (v) { if (v != null) { if (v < lo) lo = Math.floor(v / 25) * 25; if (v > hi) hi = Math.ceil(v / 25) * 25; } });
+    var pw = w - pad.l - pad.r, ph = hh - pad.t - pad.b;
+    function X(i) { return pad.l + (n < 2 ? pw / 2 : i * pw / (n - 1)); }
+    function Y(v) { return pad.t + ph - (v - lo) / (hi - lo) * ph; }
+    function f(x) { return x.toFixed(1); }
+    function path(arr) { var d = "", up = false; arr.forEach(function (v, i) { if (v == null) { up = false; return; } d += (up ? " L" : " M") + f(X(i)) + " " + f(Y(v)); up = true; }); return d; }
+    var s = "";
+    for (var tk = Math.ceil(lo / 50) * 50; tk <= hi; tk += 50) {
+      s += '<line class="grid" x1="' + pad.l + '" x2="' + (w - pad.r) + '" y1="' + f(Y(tk)) + '" y2="' + f(Y(tk)) + '"/><text class="ax" x="' + (pad.l - 5) + '" y="' + f(Y(tk) + 3.5) + '" text-anchor="end">' + tk + "</text>";
+    }
+    var seps = [];
+    QB.cols.forEach(function (c, i) { if (/ Pre$/.test(c)) seps.push(i); });
+    seps.forEach(function (i, j) {
+      if (i > 0) s += '<line class="grid" x1="' + f(X(i)) + '" x2="' + f(X(i)) + '" y1="' + pad.t + '" y2="' + (pad.t + ph) + '"/>';
+      var end = j + 1 < seps.length ? seps[j + 1] : n - 1;
+      s += '<text class="ax" x="' + f((X(i) + X(end)) / 2) + '" y="' + (hh - 4) + '" text-anchor="middle">' + QB.cols[i].slice(0, 4) + "</text>";
+    });
+    var rv = Array.isArray(ref) ? lastVal(ref) : ref;
+    if (Array.isArray(ref)) s += '<path class="ref-dash" d="' + path(ref) + '"/>';
+    else if (ref != null) s += '<line class="ref-dash" x1="' + pad.l + '" x2="' + (w - pad.r) + '" y1="' + f(Y(ref)) + '" y2="' + f(Y(ref)) + '"/>';
+    if (rv != null) s += '<text class="ref-lab" x="' + (w - pad.r - 2) + '" y="' + f(Y(rv) - 4) + '" text-anchor="end">' + refLab + " " + Math.round(rv) + "</text>";
+    s += '<path class="line" d="' + path(vals) + '"/>';
+    s += '<line class="xhair" x1="0" x2="0" y1="' + pad.t + '" y2="' + (pad.t + ph) + '"/><circle class="dot" r="4" cx="0" cy="0"/><rect class="hit" x="0" y="0" width="' + w + '" height="' + hh + '"/>';
+    svg.innerHTML = s;
+    var xh = svg.querySelector(".xhair"), dot = svg.querySelector(".dot"), lastI = -1;
+    vals.forEach(function (v, i) { if (v != null) lastI = i; });
+    function set(i) {
+      var j = i;
+      while (j >= 0 && vals[j] == null) j--;
+      if (j < 0) { j = i; while (j < n && vals[j] == null) j++; }
+      if (j < 0 || j >= n) return;
+      xh.setAttribute("x1", f(X(j))); xh.setAttribute("x2", f(X(j)));
+      dot.setAttribute("cx", f(X(j))); dot.setAttribute("cy", f(Y(vals[j])));
+      $("qpChartVal").innerHTML = '<span class="chart-sub">' + QB.cols[j] + "</span> " + Math.round(vals[j]);
+    }
+    svg.__qset = set; svg.__qlast = lastI;
+    svg.__qidx = function (cx) { var rc = svg.getBoundingClientRect(), x = (cx - rc.left) / rc.width * w; return Math.max(0, Math.min(n - 1, Math.round((x - pad.l) / pw * (n - 1)))); };
+    if (lastI >= 0) set(lastI); else $("qpChartVal").textContent = "—";
+  }
+  function setQbTab(tb) {
+    state.qbTab = tb;
+    document.querySelectorAll("[data-qbtab]").forEach(function (b) { b.classList.toggle("active", b.dataset.qbtab === tb); });
+    renderQB();
+  }
+  function paneScroll() { if (window.innerWidth <= 1000) $("teamPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); }
   if (QB) {
-    document.querySelectorAll("[data-qsort]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var k = b.dataset.qsort;
-        if (state.qbSort === k) state.qbDir = -state.qbDir; else { state.qbSort = k; state.qbDir = k === "n" || k === "t" || k === "s" ? 1 : -1; }
-        renderQB();
-      });
+    document.querySelectorAll("[data-qbtab]").forEach(function (b) { b.addEventListener("click", function () { setQbTab(b.dataset.qbtab); }); });
+    $("qbHead").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-qsort]");
+      if (!b) return;
+      var k = b.dataset.qsort, so = QSORT[state.qbTab];
+      if (so[0] === k) so[1] = -so[1];
+      else { so[0] = k; so[1] = (k === "n" || k === "t" || k === "s" || k === "sn" || (state.qbTab === "def" && (k === "e" || k === "v"))) ? 1 : -1; }
+      renderQB();
+    });
+    $("qbBody").addEventListener("click", function (e) {
+      var tr = e.target.closest("tr[data-qb]");
+      if (!tr) return;
+      state.qbSel = tr.dataset.qb; renderQB(); paneScroll();
     });
     rowPick("qbBody");
+    $("qbPane").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-qbgo]");
+      if (!b) return;
+      state.qbSel = b.dataset.qbgo; setQbTab("qb");
+    });
+    (function () {
+      var svg = $("qpChart");
+      function mv(e) { if (svg.__qset) svg.__qset(svg.__qidx(e.clientX)); }
+      svg.addEventListener("pointermove", mv);
+      svg.addEventListener("pointerdown", mv);
+      svg.addEventListener("pointerleave", function (e) { if (e.pointerType !== "touch" && svg.__qset) svg.__qset(svg.__qlast); });
+    })();
   } else {
     $("btnPageQb").hidden = true;
   }
