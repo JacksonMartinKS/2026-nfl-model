@@ -339,9 +339,13 @@
     .qb-st { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); white-space: nowrap; }
     .qb-st.starter { color: var(--brand); }
     .qb-st.ir { border: 1px dashed currentColor; border-radius: 4px; padding: 1px 5px; }
+    td .qb-st.ir { display: inline-block; white-space: normal; max-width: 76px; line-height: 1.25; text-align: center; }
     td.col-team .qb-name { margin-left: 2px; }
     .qb-yr { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-left: 3px; }
     .qb-elo { font-weight: 800; }
+    .qb-sty { display: block; font-size: 0.66rem; font-weight: 600; color: var(--text-muted); margin-left: 2px; max-width: 150px; line-height: 1.3; }
+    table.qb-table th:not(.col-team), table.qb-table td:not(.col-team) { padding-left: 6px; padding-right: 6px; }
+    .qp-sty { flex-basis: 100%; font-size: 0.78rem; font-weight: 700; color: var(--text); }
     .qb-last { font-size: 0.74rem; color: var(--text-muted); }
     svg.qspark { display: block; margin: 0 auto; overflow: visible; }
     svg.qspark path { fill: none; stroke: var(--brand); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
@@ -1840,7 +1844,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     qb: function () {
       return "QB Elo is the QB ELO v2 rating (3.3 × the rolling QB value) after the latest week in the sheet. “vs. team QB” is his Elo minus his team’s rolling QB baseline, which is the QB adjustment the game model applies when he starts" +
         (QB.scale !== 1 ? " (scaled by " + QB.scale + ")" : "") + ". Last 20 games plots his QB Elo after each of his last 20 games on a fixed " + QLO + "–" + QHI +
-        " scale; the dashed line is " + QB.avg + ", an average starter. The list covers every QB who has started a " + QYEAR + " game, plus current starters who haven’t yet.";
+        " scale; the dashed line is " + QB.avg + ", an average starter. The list covers every QB who has started a " + QYEAR + " game, plus current starters who haven’t yet." + styleNote();
     },
     team: function () {
       return "Team QB Elo is each team’s rolling QB baseline: a slow-moving average of the QB play it has gotten, weighted by play share, that reverts toward " + QB.avg +
@@ -1851,6 +1855,16 @@ if (typeof module !== "undefined") module.exports = nflEngine;
         "a QB’s game against a defense 20 below average is graded 20 higher on this scale, and the reverse against a soft defense.";
     }
   };
+  function styleNote() {
+    var r = QB.sr;
+    if (!r || !r.big_play) return "";
+    return " Style labels: Pocket Passer, Mobile Passer or Dual-Threat by how much of his Elo comes from rushing (under " + r.mobile + ", " + r.mobile + "–" + r.dual_threat +
+      ", " + r.dual_threat + "+), and Run-First when rushing is at least " + Math.round(r.run_first_share * 100) + "% of his passing-plus-rushing value. Tags weight his games the way QB Elo does (the latest counts most and each older game fades by " +
+      Math.round((r.decay || 0.1) * 100) + "% per game since), need " + r.min_att + "+ weighted attempts, and count receivers’ drops as catches and interceptions off a receiver’s hands removed, so neither counts against him: Surgeon = " + r.surgeon[0] + "%+ completions, " +
+      r.surgeon[1] + "% or fewer INTs and " + r.surgeon[2] + "+ yards per attempt; Big-Play Passer = " + r.big_play[0] + "+ yards per completion with under " + r.big_play[1] +
+      "% INTs; Gunslinger = " + r.gunslinger[0] + "%+ INTs while pushing the ball (" + r.gunslinger[1] + "+ yards per completion); Turnover-Prone = the same INT rate on shorter passing; Game Manager = under " + r.game_manager[0] +
+      " yards per completion" + (r.game_manager[2] ? " and " + r.game_manager[2] + " yards per attempt" : "") + ", with under " + r.game_manager[1] + "% INTs; Sack-Prone = sacked on " + r.sack_prone + "%+ of dropbacks.";
+  }
   function qbData(tab) {
     if (tab === "qb") return QB.list.map(function (q) {
       return { q: q, n: q.n, t: q.t, s: QORD[q.s] != null ? QORD[q.s] : 3, e: q.e, a: q.a, d: q.e - q.p, g: q.g, gs: q.gs };
@@ -1866,7 +1880,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   function qbCell(tab, k, r) {
     var q = r.q;
     switch (k) {
-      case "n": return '<span class="qb-name">' + q.n + "</span>";
+      case "n": return '<span class="qb-name">' + q.n + "</span>" + (q.sty ? '<span class="qb-sty">' + q.sty.join(" · ") + "</span>" : "");
       case "t":
         if (tab !== "qb") return chip(r.t) + '<span class="t-name">' + nick(BY[r.t]) + "</span>";
         return q.t ? chip(q.t) + (q.y && String(q.y) !== QYEAR ? '<span class="qb-yr">’' + String(q.y).slice(2) + "</span>" : "") : '<span class="dl flat">—</span>';
@@ -1975,7 +1989,8 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (tab === "qb") {
       var q = qbByName(state.qbSel) || QB.list[0];
       title = q.n;
-      sub = (q.t ? chip(q.t) + BY[q.t].name : "No team") + ' · <span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span>";
+      sub = (q.t ? chip(q.t) + BY[q.t].name : "No team") + ' · <span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span>" +
+        (q.sty ? '<span class="qp-sty">' + q.sty.join(" · ") + "</span>" : "");
       bigLab = "QB Elo"; big = rnd(q.e); h = q.h; ref = QB.avg; refLab = "Avg starter"; chartLab = "QB Elo" + since;
       meta = [["Rank", "#" + rankOf(QB.list.map(function (x) { return x.e; }), q.e) + " of " + QB.list.length], ["vs. team QB", sgn1(q.a)], ["Since preseason", sgn1(q.e - q.p)]];
       body = qbBreakdown(q);
