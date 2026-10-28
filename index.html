@@ -1803,7 +1803,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   var QLO = 26, QHI = 300;
   var QTAG = { starter: "Starter", backup: "Backup", ir: "Injured Reserve" }, QORD = { starter: 0, backup: 1, ir: 2 };
   var QSORT = { qb: ["e", -1], team: ["e", -1], def: ["e", 1] };
-  var QTITLE = { qb: "Quarterback Elo", team: "Team QB Elo", def: "Pass Defense Elo" };
+  var QTITLE = { qb: "Quarterback Elo", team: "Team QB Elo", def: "Defense QB Elo Allowed" };
   state.qbTab = "qb"; state.qbSel = null;
   function sgn1(v) { if (v == null) return "—"; var r = Math.round(v); return r === 0 ? "0" : (r > 0 ? "+" : "−") + Math.abs(r); }
   function rnd(v) { if (v == null) return "—"; var r = Math.round(v); return (r < 0 ? "−" : "") + Math.abs(r); }
@@ -1836,7 +1836,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       ["d", "Season Δ", "", "Change since the preseason"], ["g", "GP", "", "Games played this season"], ["gs", "GS", "", "Games started this season"], ["lg", "Last game", "", "", 1]],
     team: [["t", "Team", "col-team"], ["e", "Team QB Elo"], ["sp", "Last 20 games", "col-chg", "", 1], ["d", "Season Δ", "", "Change since the preseason"],
       ["sn", "Starter"], ["se", "Starter Elo"], ["a", "Starter vs. team", "", "The starter’s QB Elo minus the team baseline: the QB adjustment in the game model"]],
-    def: [["t", "Team", "col-team"], ["e", "Defense Elo", "", "Rolling QB value this defense allows per game, on the QB Elo scale. Lower is tougher."],
+    def: [["t", "Team", "col-team"], ["e", "QB Elo allowed", "", "Rolling QB value this defense allows per game, on the QB Elo scale. Lower is tougher."],
       ["sp", "Last 20 games", "col-chg", "", 1], ["v", "vs. league avg"], ["d", "Season Δ", "", "Change since the preseason"],
       ["lg", "Last game", "", "Opposing QB play in its latest game, on the QB Elo scale", 1]]
   };
@@ -1851,7 +1851,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
         " each offseason. The game model’s QB adjustment is the starter’s QB Elo minus this baseline, so a team gets a boost or a penalty only when its starter is better or worse than what it usually gets.";
     },
     def: function () {
-      return "Defense Elo is the rolling QB value a defense allows per game, on the QB Elo scale (× " + QB.mult + "). Lower is tougher. “vs. league avg” is the matchup adjustment in the QB model: " +
+      return "Defense QB Elo Allowed is the rolling QB value a defense allows per game, on the QB Elo scale (× " + QB.mult + "). Lower is tougher. “vs. league avg” is the matchup adjustment in the QB model: " +
         "a QB’s game against a defense 20 below average is graded 20 higher on this scale, and the reverse against a soft defense.";
     }
   };
@@ -2013,7 +2013,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
         }).join("") + '<p class="chart-note">Pick a quarterback to see where his rating comes from.</p>';
       } else {
         sub = "Pass defense · #" + rankOf(all, e, true) + " of " + all.length + " (1 = toughest)";
-        bigLab = "Defense Elo"; big = rnd(e); ref = QB.defAvg || defAvgNow; refLab = "League avg"; chartLab = "Defense Elo" + since;
+        bigLab = "Defense QB Elo Allowed"; big = rnd(e); ref = QB.defAvg || defAvgNow; refLab = "League avg"; chartLab = "Defense QB Elo Allowed" + since;
         meta = [["vs. league avg", sgn1(e - defAvgNow)], ["Since preseason", p == null ? "—" : sgn1(e - p)], ["League avg", rnd(defAvgNow)]];
         body = '<div class="qp-sec">Last ' + r.log.length + " games</div>" + r.log.slice().reverse().map(function (L) {
           return '<div class="qp-row"><span><b>' + wkLab(L[0]) + "</b> vs " + L[1] + '<span class="qp-mut"> · ' + (L[2] || "—") + '</span></span><span class="qp-mut">allowed</span><span class="qp-num">' + rnd(L[3]) + "</span></div>";
@@ -2025,15 +2025,16 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       return '<div class="meta-item' + (i === 1 ? " mid" : i === 2 ? " end" : "") + '"><span class="meta-label">' + m[0] + '</span><span class="meta-val">' + m[1] + "</span></div>";
     }).join("");
     $("qpChartLabel").textContent = chartLab;
-    drawHist($("qpChart"), h, ref, refLab);
+    drawHist($("qpChart"), h, ref, refLab, tab === "def" ? { lo: 100, hi: 250, rev: true } : { lo: 0, hi: 350 });
     $("qpBody").innerHTML = body;
   }
-  function drawHist(svg, vals, ref, refLab) {
-    var w = 400, hh = 180, pad = { l: 30, r: 10, t: 12, b: 20 }, n = vals.length, lo = QLO, hi = QHI;
+  function drawHist(svg, vals, ref, refLab, o) {
+    o = o || {};
+    var w = 400, hh = 180, pad = { l: 30, r: 10, t: 12, b: 20 }, n = vals.length, lo = o.lo != null ? o.lo : QLO, hi = o.hi != null ? o.hi : QHI;
     vals.concat(Array.isArray(ref) ? ref : []).forEach(function (v) { if (v != null) { if (v < lo) lo = Math.floor(v / 25) * 25; if (v > hi) hi = Math.ceil(v / 25) * 25; } });
     var pw = w - pad.l - pad.r, ph = hh - pad.t - pad.b;
     function X(i) { return pad.l + (n < 2 ? pw / 2 : i * pw / (n - 1)); }
-    function Y(v) { return pad.t + ph - (v - lo) / (hi - lo) * ph; }
+    function Y(v) { var t = (v - lo) / (hi - lo) * ph; return o.rev ? pad.t + t : pad.t + ph - t; }  // rev: low values on top
     function f(x) { return x.toFixed(1); }
     function path(arr) { var d = "", up = false; arr.forEach(function (v, i) { if (v == null) { up = false; return; } d += (up ? " L" : " M") + f(X(i)) + " " + f(Y(v)); up = true; }); return d; }
     var s = "";
