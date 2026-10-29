@@ -1030,7 +1030,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     var c = TC[a] || ["#475569", "#FFFFFF", "#475569"];
     return '<span class="tchip" style="--tc:' + c[0] + ";--tf:" + c[1] + ";--ts:" + c[2] + '">' + a + "</span>";
   }
-  var TIERS = D.tiers || [[1656.93, "Dominant"], [1605.02, "Elite"], [1530.5, "Good"], [1468.06, "Average"], [1398.73, "Bad"], [1346.27, "Horrible"], [null, "Atrocious"]];
+  var TIERS = D.tiers || [[1656.93, "Dominant"], [1605.02, "Elite"], [1530.5, "Good"], [1468.06, "Average"], [1398.73, "Bad"], [1346.27, "Struggling"], [null, "Bottom-Tier"]];
   function tier(elo) {
     var e = Math.round(elo);
     for (var i = 0; i < TIERS.length; i++) if (TIERS[i][0] == null || e >= Math.ceil(TIERS[i][0])) return TIERS[i][1];
