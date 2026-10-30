@@ -264,6 +264,19 @@
     .site-tag { display: inline-block; padding: 0 5px; border-radius: 4px; background: var(--brand-wash); color: var(--brand); border: 1px solid var(--brand-tint); font-weight: 800; font-size: 0.64rem; }
     .gqi { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
     .gqi b { font-size: 0.86rem; color: var(--text); letter-spacing: 0; margin-left: 2px; font-variant-numeric: tabular-nums; }
+    .game-chips { display: inline-flex; gap: 12px; align-items: baseline; }
+    .table-foot[hidden] { display: none; }
+    .explain { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 8px; font-size: 0.76rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; line-height: 1.4; }
+    .explain p { margin: 0; }
+    .explain b { color: var(--text); font-variant-numeric: tabular-nums; }
+    .explain-h { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .explain-h b { font-size: 0.9rem; margin-left: 4px; letter-spacing: 0; }
+    .lev-w { font-size: 0.66rem; }
+    .lev-line { font-size: 0.76rem; color: var(--text-muted); margin: -2px 0 8px; display: flex; flex-direction: column; gap: 4px; line-height: 1.35; }
+    .lev-line b { color: var(--text); font-variant-numeric: tabular-nums; }
+    .lev-who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+    .lev-who .tchip { font-size: 0.64rem; }
+    .lev-d { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; margin-left: 2px; }
     .game-title { font-size: 1rem; font-weight: 800; margin: 3px 0 8px; text-wrap: balance; }
     .wp-labels { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
     .wp-labels .fav { color: var(--text); font-weight: 800; }
@@ -538,10 +551,13 @@
           <div class="view-toggle" role="group" aria-label="Game order">
             <button class="toggle-btn active" type="button" data-gsort="time">Kickoff</button>
             <button class="toggle-btn" type="button" data-gsort="gqi">Game quality</button>
+            <button class="toggle-btn" type="button" data-gsort="lev">Leverage</button>
           </div>
         </div>
       </div>
       <div class="games-list" id="gamesList"></div>
+      <div class="table-foot" id="gamesFootGqi" hidden><strong>Game quality</strong> (0 to 100) blends how close the game should be (45%), how good both teams are (47%) and both starting quarterbacks (8%). Team and QB scores use a harmonic mean, so one great team facing a bad one doesn't make a great game.</div>
+      <div class="table-foot" id="gamesFootLev" hidden><strong>Leverage</strong> comes from the season simulations: every team's odds in seasons where the home team wins are compared with seasons where the away team wins, and the probability that changes hands across all 32 teams is added up, with simulation noise stripped out. Playoff odds count 60%, division titles 20%, #1 seeds 10% and Super Bowl odds 10%, each scaled by how many there are (14 playoff spots, 8 division titles, 2 #1 seeds, 1 Super Bowl), so the result reads in playoff-odds points.</div>
       <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is. The tier under each team uses its Elo with the QB adjustment: <span id="tierLegend2"></span>. Past weeks show each game as forecast before kickoff, with the final score and whether the favorite won.</div>
     </div>
   </section>
@@ -1432,7 +1448,8 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     return '<article class="game">' +
       '<div class="game-top"><span>' + fmtDate(g.d, { weekday: "short", month: "short", day: "numeric" }) +
         (g.site ? ' · <span class="site-tag">' + g.site + "</span>" : "") + "</span>" +
-        '<span class="gqi" title="Game quality index, 0 to 100">GQI<b>' + Math.round(g.q) + "</b></span></div>" +
+        '<span class="game-chips">' + (g.lv && !g.s ? '<span class="gqi" title="Playoff leverage: how much playoff, division, #1 seed and Super Bowl odds change hands across the league depending on who wins">Leverage<b>' +
+          Math.round(g.lx != null ? g.lx : g.lv[0]) + "</b></span>" : "") + '<span class="gqi" title="Game quality index, 0 to 100">GQI<b>' + Math.round(g.q) + "</b></span></span></div>" +
       '<h3 class="game-title">' + title + "</h3>" +
       '<div class="wp-labels"><span class="' + (homeFav ? "" : "fav") + '">' + chip(g.a) + " " + pct(pa) + '</span><span class="' + (homeFav ? "fav" : "") + '">' + pct(ph) + " " + chip(g.h) + "</span></div>" +
       '<div class="wp-bar" role="img" aria-label="Win chance: ' + BY[g.a].name + " " + pct(pa) + ", " + BY[g.h].name + " " + pct(ph) + '">' +
@@ -1441,7 +1458,30 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       '<div class="pick-line">Predicted margin: ' + pick + "</div>" + resultHtml(g, homeFav) +
       '<div class="elo-scroll"><table class="elo"><thead><tr><th scope="col">Team</th><th scope="col">Elo</th><th scope="col">Rest</th><th scope="col">Field</th><th scope="col">QB</th><th scope="col">Travel</th><th scope="col">Game Elo</th></tr></thead><tbody>' +
         sideRow(g.a, g.A, false, !!g.site) + sideRow(g.h, g.H, true, !!g.site) +
-      "</tbody></table></div></article>";
+      "</tbody></table></div>" + (state.gsort === "lev" ? levExplain(g) : state.gsort === "gqi" ? gqiExplain(g) : "") + "</article>";
+  }
+  var LEVN = { poff: ["Playoffs", 0], div: ["Division", 1], seed1: ["#1 seed", 2], conf: ["Conference", 3], sb: ["Super Bowl", 4] };
+  function levExplain(g) {
+    if (!g.lv || g.s) return "";
+    var L = g.lv, W = D.levW || { poff: 0.6, div: 0.2, seed1: 0.1, sb: 0.1 };
+    var parts = Object.keys(W).filter(function (k) { return LEVN[k]; }).map(function (k) {
+      return LEVN[k][0] + " <b>" + L[LEVN[k][1]].toFixed(1) + '</b> <span class="lev-w">(' + Math.round(W[k] * 100) + "%)</span>";
+    }).join(" · ");
+    var who = (g.lt || []).filter(function (x) { return Math.abs(x[1]) >= 0.5; }).map(function (x) {
+      return "<span>" + chip(x[0]) + '<span class="lev-d">' + (x[1] > 0 ? "+" : "−") + Math.abs(x[1]).toFixed(1) + "</span></span>";
+    }).join("");
+    return '<div class="explain"><div class="explain-h">Leverage<b>' + Math.round(g.lx != null ? g.lx : L[0]) + "</b></div>" +
+      "<p>Points of odds that change hands across all 32 teams depending on who wins:</p><div>" + parts + "</div>" +
+      (L[5] >= 2 ? "<div>Also moves the #1 pick by <b>" + L[5].toFixed(1) + "</b></div>" : "") +
+      (who ? '<div class="lev-who">Playoff odds, ' + nick(BY[g.h]) + " win vs. " + nick(BY[g.a]) + " win:" + who + "</div>" : "") + "</div>";
+  }
+  function gqiExplain(g) {
+    var P = g.qp, W = D.gqiW || [0.45, 0.47, 0.08], N = ["Closeness", "Team strength", "Starting QBs"];
+    if (!P) return "";
+    var parts = P.map(function (v, i) { return v == null ? "" : N[i] + " <b>" + v + '</b> <span class="lev-w">(' + Math.round(W[i] * 100) + "%)</span>"; })
+      .filter(Boolean).join(" · ");
+    return '<div class="explain"><div class="explain-h">Game quality<b>' + Math.round(g.q) + "</b></div><div>" + parts + "</div>" +
+      "<p>Each part is scored 0 to 100: how close the game should be, how good both teams are, and both starting quarterbacks.</p></div>";
   }
   function resultHtml(g, homeFav) {
     if (!g.s) return "";
@@ -1463,6 +1503,8 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   }
   function renderGames() {
     if (!G) return;
+    $("gamesFootGqi").hidden = state.gsort !== "gqi";
+    $("gamesFootLev").hidden = state.gsort !== "lev";
     var anyFinal = G.list.some(function (g) { return g.s; });
     $("gamesTitle").textContent = G.label + (anyFinal ? " forecasts and results" : " forecasts");
     var hz = G.list.reduce(function (mx, g) { return Math.max(mx, g.hz || 0); }, 0);
@@ -1470,8 +1512,9 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       : "Pregame Elo after " + (G.week <= 1 ? "the preseason" : "Week " + (G.week - 1))) + " · " + G.list.length + " games" +
       (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "") + weekSummary(G);
     var list = G.list.map(function (g, i) { g._i = i; return g; });
-    list.sort(state.gsort === "gqi"
-      ? function (a, b) { return b.q - a.q || a._i - b._i; }
+    var lev = function (g) { return g.lv && !g.s ? (g.lx != null ? g.lx : g.lv[0]) : -1; };
+    list.sort(state.gsort === "gqi" ? function (a, b) { return b.q - a.q || a._i - b._i; }
+      : state.gsort === "lev" ? function (a, b) { return lev(b) - lev(a) || b.q - a.q || a._i - b._i; }
       : function (a, b) { return (a.d || "").localeCompare(b.d || "") || a._i - b._i; });
     var html = "", lastDay = null;
     list.forEach(function (g) {
