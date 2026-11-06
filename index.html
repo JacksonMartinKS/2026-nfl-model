@@ -272,6 +272,72 @@
     .explain-h { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
     .explain-h b { font-size: 0.9rem; margin-left: 4px; letter-spacing: 0; }
     .lev-w { font-size: 0.66rem; }
+    .sim-go { background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 9px 20px; font: inherit; font-size: 0.9rem; font-weight: 800; cursor: pointer; }
+    .sim-go:hover { filter: brightness(1.12); }
+    .sim-summary { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 0.88rem; }
+    .sim-champ { font-size: 1.05rem; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .sim-champ b { font-weight: 800; }
+    .sim-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--text-muted); }
+    .sim-line b { color: var(--text); }
+    .sim-bracket { padding: 2px 14px 16px; container-type: inline-size; }
+    .bk { position: relative; --c: 16px; height: 322px; }
+    .bk-full { --w: calc((100% - 6 * var(--c)) / 7); }
+    .bk-half .tchip { font-size: 0.62rem; padding-inline: 3px; }
+    .bk-half .bk-s { padding: 0 4px 0 2px; gap: 3px; }
+    .bk-half { --c: 10px; --w: calc((100% - 3 * var(--c)) / 4); display: none; }
+    .bk-half + .bk-half { margin-top: 12px; }
+    .bk-sbh { height: 92px; }
+    .bk-s { position: absolute; width: var(--w); height: 28px; box-sizing: border-box; display: flex; align-items: center; gap: 4px; padding: 0 6px 0 3px;
+      border: 1px solid var(--border); border-radius: 6px; font-size: 0.82rem; font-weight: 800; color: var(--text); overflow: hidden; white-space: nowrap; }
+    .bk-s .sg-seed { flex: 0 0 11px; }
+    .bk-sc { margin-left: auto; font-variant-numeric: tabular-nums; }
+    .bk-s.l { font-weight: 600; color: var(--text-muted); }
+    .bk-s.l .tchip { opacity: 0.45; }
+    .bk-s.ch { border: 2px solid var(--text); }
+    .bk-s.sel { border-color: var(--brand, #7a1951); box-shadow: inset 0 0 0 1.5px var(--brand, #7a1951); }
+    .bk-ln { position: absolute; box-sizing: border-box; border: 0 solid var(--text-muted); opacity: 0.5; width: calc(var(--c) / 2); }
+    .bk-ln.br { border-width: 1.5px 1.5px 1.5px 0; }
+    .bk-ln.bl { border-width: 1.5px 0 1.5px 1.5px; }
+    .bk-ln.h { height: 0; border-top-width: 1.5px; }
+    .bk-h, .bk-note, .bk-conf { position: absolute; width: var(--w); white-space: nowrap; }
+    .bk-h { text-align: center; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; }
+    .bk-note { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); padding-left: 4px; }
+    .bk-conf { text-align: center; font-size: 1.7rem; font-weight: 800; line-height: 28px; letter-spacing: 0.02em; color: var(--text); opacity: 0.8; }
+    .bk-sbl { width: calc(2 * var(--w) + var(--c)); font-size: 1.1rem; }
+    @container (max-width: 640px) { .bk-full { display: none; } .bk-half { display: block; } }
+    .sim-conf-h, .sim-round-h, .sim-div-h { font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+    .sim-conf-h { font-size: 0.74rem; color: var(--text); margin-bottom: 6px; }
+    .sim-round { margin-bottom: 10px; }
+    .sim-round-h { margin-bottom: 4px; }
+    .sg { border: 1px solid var(--border); border-radius: 8px; padding: 3px 8px; margin-bottom: 6px; }
+    .sg-r { display: grid; grid-template-columns: 16px auto minmax(0, 1fr) auto; align-items: center; gap: 6px; font-size: 0.82rem; min-height: 25px; color: var(--text-muted); }
+    .sg-r.w { color: var(--text); font-weight: 800; }
+    .sg-seed { font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-align: right; }
+    .sg-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sg-s { font-variant-numeric: tabular-nums; }
+    .sg-r.w .sg-s::after { content: " ◂"; font-size: 0.7rem; }
+    .sg-note { font-size: 0.64rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 0 2px 22px; }
+    .sim-sb { grid-column: 1 / -1; justify-self: center; width: 100%; max-width: 380px; }
+    .sim-stand { padding: 0 14px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+    .sim-div table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 2px; }
+    .sim-div td { padding: 3px 4px; border-bottom: 1px solid var(--border); }
+    .sim-div .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .sim-div .sd-seed { width: 18px; font-size: 0.68rem; font-weight: 800; color: var(--text-muted); }
+    .sim-div .sd-t { white-space: nowrap; }
+    .sim-div .sd-t .tchip { margin-right: 6px; }
+    tr.sim-sel td, .sim-row.sim-sel { background: rgba(122, 25, 81, 0.07); }
+    .sim-weeks details { border-top: 1px solid var(--border); }
+    .sim-weeks summary { padding: 9px 14px; cursor: pointer; font-weight: 800; font-size: 0.86rem; }
+    .sim-weeks summary span { font-weight: 600; color: var(--text-muted); font-size: 0.78rem; margin-left: 6px; }
+    .sim-games { padding: 0 14px 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 0 18px; }
+    .sim-row { display: grid; grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) 46px; align-items: center; gap: 6px; font-size: 0.84rem; min-height: 30px; border-bottom: 1px solid var(--border); }
+    .sr-a, .sr-h { display: flex; align-items: center; gap: 6px; }
+    .sr-h { justify-content: flex-end; }
+    .sr-at { color: var(--text-muted); font-size: 0.72rem; text-align: center; }
+    .sr-s { font-variant-numeric: tabular-nums; min-width: 1.6em; text-align: center; color: var(--text-muted); }
+    .sr-s.w { font-weight: 800; color: var(--text); }
+    .sr-tag { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: right; }
+    @media (max-width: 760px) { .sim-stand { grid-template-columns: 1fr; } }
     .lev-line { font-size: 0.76rem; color: var(--text-muted); margin: -2px 0 8px; display: flex; flex-direction: column; gap: 4px; line-height: 1.35; }
     .lev-line b { color: var(--text); font-variant-numeric: tabular-nums; }
     .lev-who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
@@ -469,6 +535,7 @@
         <button id="btnPageProj" class="toggle-btn active" type="button" data-page="proj">Projections</button>
         <button id="btnPageGames" class="toggle-btn" type="button" data-page="games">Game forecasts</button>
         <button id="btnPageWhatif" class="toggle-btn" type="button" data-page="whatif">What-if</button>
+        <button id="btnPageSim" class="toggle-btn" type="button" data-page="sim">Simulate</button>
         <button id="btnPageRoot" class="toggle-btn" type="button" data-page="root">Rooting guide</button>
         <button id="btnPageDraft" class="toggle-btn" type="button" data-page="draft">Draft</button>
         <button id="btnPageQb" class="toggle-btn" type="button" data-page="qb">QB Elo</button>
@@ -639,6 +706,32 @@
     </div>
   </section>
 
+  <section class="main-col" id="simView" aria-labelledby="simTitle" hidden>
+    <div class="card table-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="simTitle">Simulate the season</h2>
+          <div class="table-sub" id="simSub">One way the rest of the season could play out, from the current ratings. Every click plays a new one.</div>
+        </div>
+        <div class="table-controls"><button class="sim-go" type="button" id="simGo">Simulate</button></div>
+      </div>
+      <div class="sim-summary" id="simSummary"></div>
+    </div>
+    <div class="card table-card">
+      <div class="table-head"><div><h2 class="table-title">Playoffs</h2><div class="table-sub">Higher seed at home · the No. 1 seed hosts the lowest seed left after the Wild Card round · Super Bowl at a neutral site</div></div></div>
+      <div class="sim-bracket" id="simBracket"></div>
+    </div>
+    <div class="card table-card">
+      <div class="table-head"><div><h2 class="table-title">Final standings</h2><div class="table-sub">Playoff seed on the left · point differential includes games already played</div></div></div>
+      <div class="sim-stand" id="simStand"></div>
+    </div>
+    <div class="card table-card">
+      <div class="table-head"><div><h2 class="table-title">Week by week</h2><div class="table-sub" id="simWkSub"></div></div></div>
+      <div class="sim-weeks" id="simWeeks"></div>
+      <div class="table-foot">Each game's winner follows the model's odds, using the same ratings, home field, rest, travel, QB adjustments and season-long uncertainty in team strength as the forecast. Scores are built drive by drive: about 11 drives a side, each ending in a touchdown (usually 7, sometimes a missed extra point or a 2-point try), a field goal or nothing, plus the odd safety. How many points a team scores and allows comes from splitting its rating into offense and defense using the points it has scored and allowed this season (pulled toward an even split early on) and its starting QB. Tied games go to overtime. This is one random season; the Projections tab shows the averages over thousands of them.</div>
+    </div>
+  </section>
+
   <section class="main-col" id="qbView" aria-labelledby="qbTitle" hidden>
     <div class="card table-card">
       <div class="table-head">
@@ -798,7 +891,10 @@
    so a baseline and a what-if run with the same seed share their random numbers.
    A forced future result is also evidence about team strength: each simulated season is
    weighted by how likely the forced results were given that season's strength draws, which
-   matches conditioning the main simulation on those results (as the rooting guide does). */
+   matches conditioning the main simulation on those results (as the rooting guide does).
+   With m.detail set it plays one season and returns its details instead of averages: every
+   simulated game [index, result, effective Elo diff, width], final records, division order,
+   seeds and every playoff game [home, away, winner, diff, neutral, width] (the Simulate tab). */
 function nflEngine(m, progress) {
   "use strict";
   var n = m.teams.length, P = m.params, N = m.nSims || 10000;
@@ -834,11 +930,11 @@ function nflEngine(m, progress) {
   }
   var BASE = [bW, bL, bT, bCW, bCL, bCT, bDW, bDL, bDT, bHH], CUR = [W, L, T, CW, CL, CT, DW, DL, DT, HH];
   var simG = [], maxWk = 0;
-  m.games.forEach(function (g) {
+  m.games.forEach(function (g, gi) {
     var wk = g[0], a = g[1], h = g[2], c = conf[a] === conf[h], d = c && div[a] === div[h];
     if (wk > maxWk) maxWk = wk;
     opp[a * n + h] = 1; opp[h * n + a] = 1;
-    if (g[6]) simG.push({ a: a, h: h, c: c, d: d, fixed: g[5], diff: g[4] - g[3] + (P.rsHfa || 0), w: P.width + Math.max(0, wk - P.cw) * P.pen });
+    if (g[6]) simG.push({ a: a, h: h, c: c, d: d, fixed: g[5], diff: g[4] - g[3] + (P.rsHfa || 0), w: P.width + Math.max(0, wk - P.cw) * P.pen, gi: gi });
     else add(BASE, a, h, g[5], c, d);
   });
   var mult = P.cw <= P.full ? 1 : P.cw >= P.zero ? 0 : (P.zero - P.cw) / Math.max(1, P.zero - P.full);
@@ -849,6 +945,8 @@ function nflEngine(m, progress) {
     (divTeams[conf[i] + " " + div[i]] = divTeams[conf[i] + " " + div[i]] || []).push(i);
   }
   var off = mk();
+  var XD = m.detail ? { games: [], po: {}, sb: null, log: null } : null;  // one-season detail (Simulate tab)
+  if (XD) N = 1;
 
   function pctOf(w, l, t) { var g = w + l + t; return g > 0 ? (w + 0.5 * t) / g : 0; }
   function tot(i) { return pctOf(W[i], L[i], T[i]); }
@@ -982,7 +1080,9 @@ function nflEngine(m, progress) {
   }
   function poGame(h, a, neutral) {
     var diff = ((poElo[h] + off[h]) - (poElo[a] + off[a])) * P.poMult + (neutral ? 0 : P.poHfa);
-    return rnd() < 1 / (1 + Math.pow(10, -diff / poWidth)) ? h : a;
+    var win = rnd() < 1 / (1 + Math.pow(10, -diff / poWidth)) ? h : a;
+    if (XD && XD.log) XD.log.push([h, a, win, diff, neutral ? 1 : 0, poWidth]);
+    return win;
   }
 
   var made = mk(), dwin = mk(), seed1 = mk(), confW = mk(), sbW = mk(), wins = mk(), wsum = 0, w2 = 0, wt = 1;
@@ -995,6 +1095,7 @@ function nflEngine(m, progress) {
       if (g.fixed >= 0) { res = g.fixed; wt *= res === 1 ? ph : 1 - ph; }
       else res = u < ph ? 1 : 0;
       add(CUR, g.a, g.h, res, g.c, g.d);
+      if (XD) XD.games.push([g.gi, res, g.diff + off[g.h] - off[g.a], g.w]);
     }
     var champ = {};
     ["AFC", "NFC"].forEach(function (cf) {
@@ -1003,14 +1104,22 @@ function nflEngine(m, progress) {
       var seeds = rankTB(dws, false).concat(rankTB(others, false)).slice(0, 7), pos = {};
       seeds.forEach(function (t, q) { pos[t] = q; made[t] += wt; if (q < 4) dwin[t] += wt; });
       seed1[seeds[0]] += wt;
+      if (XD) XD.log = [];
       var wc = [poGame(seeds[1], seeds[6]), poGame(seeds[2], seeds[5]), poGame(seeds[3], seeds[4])];
       var surv = [seeds[0]].concat(wc).sort(function (x, y) { return pos[x] - pos[y]; });
       var d1 = poGame(surv[0], surv[3]), d2 = poGame(surv[1], surv[2]);
       var cw = pos[d1] < pos[d2] ? poGame(d1, d2) : poGame(d2, d1);
       confW[cw] += wt;
       champ[cf] = cw;
+      if (XD) XD.po[cf] = { seeds: seeds.slice(), divW: dws.slice(), games: XD.log };
     });
+    if (XD) XD.log = [];
     sbW[poGame(champ.AFC, champ.NFC, true)] += wt;
+    if (XD) {
+      XD.sb = XD.log[0]; XD.W = Array.from(W); XD.L = Array.from(L); XD.T = Array.from(T); XD.divRank = {};
+      Object.keys(divTeams).forEach(function (k) { XD.divRank[k] = rankTB(divTeams[k], true); });
+      return XD;
+    }
     for (i = 0; i < n; i++) wins[i] += wt * (W[i] + 0.5 * T[i]);
     wsum += wt; w2 += wt * wt;
     if (progress && (s + 1) % 1000 === 0) progress(s + 1);
@@ -1340,6 +1449,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (state.page === "root") renderRoot();
     if (state.page === "draft") renderDraft();
     if (state.page === "qb") renderQB();
+    if (state.page === "sim") renderSim();
     if (scroll && window.innerWidth <= 1000) {
       $("teamPanel").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     }
@@ -1526,7 +1636,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     });
     $("gamesList").innerHTML = html;
   }
-  var VIEWS = { proj: "projView", games: "gamesView", whatif: "whatifView", root: "rootView", draft: "draftView", qb: "qbView" };
+  var VIEWS = { proj: "projView", games: "gamesView", whatif: "whatifView", root: "rootView", draft: "draftView", qb: "qbView", sim: "simView" };
   function setPage(pg) {
     var btn = document.querySelector('[data-page="' + pg + '"]');
     state.page = btn && !btn.hidden ? pg : "proj";
@@ -1535,6 +1645,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (state.page === "whatif") renderWhatIf();
     if (state.page === "root") renderRoot();
     if (state.page === "draft") renderDraft();
+    if (state.page === "sim") renderSim();
     var onQ = state.page === "qb" && !!QB;
     ["teamCard", "teamSelect"].forEach(function (id) { $(id).hidden = onQ; });
     var tsl = document.querySelector('label[for="teamSelect"]');
@@ -1840,6 +1951,219 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   } else {
     $("btnPageDraft").hidden = true;
   }
+
+  /* ---------- Simulate: one hypothetical season ---------- */
+  var SIM = null, ELO_PER_PT = 29;
+  // tighten raw drive-by-drive spreads (margin ~16, total ~16.5 points) to NFL-like ones (~12 and ~13), and weight key margins
+  var SIM_FLOW_M = 1 / (2 * 12 * 12) - 1 / (2 * 16 * 16), SIM_FLOW_T = 1 / (2 * 13 * 13) - 1 / (2 * 16.5 * 16.5);
+  var SIM_KEY = { 1: 0.8, 2: 0.8, 3: 1.6, 4: 1.05, 6: 1.15, 7: 1.5, 8: 1.05, 10: 1.2, 14: 1.25 }, SIM_KEY_MAX = 1.6;
+  var simModel = (function () {
+    if (!EN) return null;
+    var pf = {}, pa = {}, gp = {}, tot = 0, ng = 0;
+    ABBR.forEach(function (t) { pf[t] = 0; pa[t] = 0; gp[t] = 0; });
+    EN.games.forEach(function (g) {
+      if (g[5] == null) return;
+      pf[g[1]] += g[5]; pa[g[1]] += g[6]; pf[g[2]] += g[6]; pa[g[2]] += g[5];
+      gp[g[1]]++; gp[g[2]]++; tot += g[5] + g[6]; ng++;
+    });
+    var Lg = ng ? tot / (2 * ng) : 22.5, cur = WEEKS[LAST].teams, o = {}, d = {}, qbNow = {};
+    ABBR.forEach(function (t) {
+      // offense/defense split: points scored and allowed vs. league average, shrunk toward even early in the season,
+      // then shifted equally so offense + defense matches the team's current Elo (with its QB)
+      var n = gp[t], k = n / (n + 6), oh = n ? k * (pf[t] / n - Lg) : 0, dh = n ? k * (Lg - pa[t] / n) : 0;
+      var r = cur[t], q = r[9] || 0, s = ((r[8] != null ? r[8] : 1500) + q - 1500) / ELO_PER_PT, rest = s - (oh + dh);
+      o[t] = oh + rest / 2; d[t] = dh + rest / 2; qbNow[t] = q;
+    });
+    var qbg = {};
+    (D.games || []).forEach(function (gw) { gw.list.forEach(function (g) { qbg[gw.week + "|" + g.a + "|" + g.h] = [g.A[4], g.H[4]]; }); });
+    return { L: Lg, o: o, d: d, qbNow: qbNow, qbg: qbg, pf: pf, pa: pa };
+  })();
+  function mulberry(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function simPts(mu, R) {  // one team's points, drive by drive
+    mu = Math.max(4, mu);
+    var ptd = 0.215 * Math.pow(mu / 22.5, 1.3), pfg = 0.165 * Math.pow(mu / 22.5, 0.5);
+    var c = (mu - 0.07) / (11 * (ptd * 6.97 + pfg * 3));
+    ptd *= c; pfg *= c;
+    if (ptd + pfg > 0.92) { var z = 0.92 / (ptd + pfg); ptd *= z; pfg *= z; }
+    var drives = 10 + Math.floor(R() * 3), pts = 0;
+    for (var i = 0; i < drives; i++) {
+      var u = R();
+      if (u < ptd) {
+        var v = R();
+        pts += v < 0.08 ? (R() < 0.48 ? 8 : 6) : (R() < 0.95 ? 7 : 6);  // 2-point try, or extra point (sometimes missed)
+      } else if (u < ptd + pfg) pts += 3;
+    }
+    if (R() < 0.035) pts += 2;  // safety
+    return pts;
+  }
+  function simScore(a, h, diffElo, homeWins, wk, R) {  // [away pts, home pts, overtime]
+    var M = simModel, qa = 0, qh = 0, q = wk ? M.qbg[wk + "|" + a + "|" + h] : null;
+    if (q) { qa = (q[0] - M.qbNow[a]) / ELO_PER_PT; qh = (q[1] - M.qbNow[h]) / ELO_PER_PT; }  // a different starter than today
+    var tot = 2 * M.L + (M.o[h] + qh - M.d[h]) + (M.o[a] + qa - M.d[a]), mg = diffElo / ELO_PER_PT;
+    var muH = Math.max(6, (tot + mg) / 2), muA = Math.max(6, (tot - mg) / 2);
+    for (var t = 0; t < 2000; t++) {
+      var sh = simPts(muH, R), sa = simPts(muA, R), ot = false;
+      if (sh === sa) { ot = true; var add = R() < 0.62 ? 3 : 6; if (homeWins) sh += add; else sa += add; }
+      if ((sh > sa) !== homeWins) continue;
+      // game flow: real scores sit closer to expectations than independent drives, and finish on 3 and 7 more often
+      var dm = (sh - sa) - mg, dt = (sh + sa) - tot, k = SIM_KEY[Math.abs(sh - sa)] || 1;
+      var acc = Math.exp(-dm * dm * SIM_FLOW_M - dt * dt * SIM_FLOW_T) * k / SIM_KEY_MAX;
+      if (ot) acc *= 0.6;  // ~5-6% of NFL games reach overtime
+      if (R() < acc) return [sa, sh, ot];
+    }
+    return homeWins ? [17, 20, false] : [20, 17, false];
+  }
+  function poScore(x, R) {  // engine playoff log [home, away, winner, diff, neutral, width]
+    var h = ABBR[x[0]], a = ABBR[x[1]], homeWins = x[2] === x[0], sc = simScore(a, h, x[3], homeWins, null, R);
+    var ph = 1 / (1 + Math.pow(10, -x[3] / x[5]));
+    return { h: h, a: a, w: ABBR[x[2]], s: [sc[0], sc[1]], ot: sc[2], pw: homeWins ? ph : 1 - ph };
+  }
+  function runSim() {
+    if (!EN || !simModel) return;
+    var seed = ((Date.now() ^ Math.floor(Math.random() * 4294967296)) >>> 0) || 1;
+    var msg = wiMsg({});
+    msg.detail = true; msg.nSims = 1; msg.seed = seed;
+    var r = nflEngine(msg), R = mulberry(seed ^ 0x5bd1e995), res = {};
+    r.games.forEach(function (x) {
+      var g = EN.games[x[0]], homeWins = x[1] === 1, ph = 1 / (1 + Math.pow(10, -x[2] / x[3]));
+      var sc = simScore(g[1], g[2], x[2], homeWins, g[0], R);
+      res[x[0]] = { s: [sc[0], sc[1]], ot: sc[2], pw: homeWins ? ph : 1 - ph };
+    });
+    var po = {}, divRank = {};
+    ["AFC", "NFC"].forEach(function (cf) {
+      var P = r.po[cf];
+      po[cf] = { seeds: P.seeds.map(function (i) { return ABBR[i]; }), games: P.games.map(function (x) { return poScore(x, R); }) };
+    });
+    po.sb = poScore(r.sb, R);
+    Object.keys(r.divRank).forEach(function (k) { divRank[k] = r.divRank[k].map(function (i) { return ABBR[i]; }); });
+    var rec = {};
+    ABBR.forEach(function (t, i) { rec[t] = [r.W[i], r.L[i], r.T[i]]; });
+    SIM = { res: res, po: po, rec: rec, divRank: divRank };
+    renderSim();
+  }
+  function roman(n) {
+    var v = [[50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]], out = "";
+    v.forEach(function (p) { while (n >= p[0]) { out += p[1]; n -= p[0]; } });
+    return out;
+  }
+  function ordinal(n) { return n + (n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"); }
+  function recTxt(r) { return r[0] + "-" + r[1] + (r[2] ? "-" + r[2] : ""); }
+  function winSc(x) { var hw = x.w === x.h; return [hw ? x.s[1] : x.s[0], hw ? x.s[0] : x.s[1]]; }
+  function renderSim() {
+    if (!EN || !simModel) return;
+    if (!SIM) { runSim(); return; }
+    var sel = state.team, seedOf = {}, conf = {}, RND = ["Wild Card", "Wild Card", "Wild Card", "Divisional", "Divisional", "Conference"];
+    ["AFC", "NFC"].forEach(function (cf) { SIM.po[cf].seeds.forEach(function (t, i) { seedOf[t] = i + 1; conf[t] = cf; }); });
+    // points for/against: games already played plus this season's simulated ones
+    var pf = {}, pa = {};
+    ABBR.forEach(function (t) { pf[t] = simModel.pf[t]; pa[t] = simModel.pa[t]; });
+    Object.keys(SIM.res).forEach(function (i) {
+      var g = EN.games[i], s = SIM.res[i].s;
+      pf[g[1]] += s[0]; pa[g[1]] += s[1]; pf[g[2]] += s[1]; pa[g[2]] += s[0];
+    });
+    // summary
+    var sb = SIM.po.sb, ws = winSc(sb), lose = sb.w === sb.h ? sb.a : sb.h, season = D.season || 2026;
+    var html = '<div class="sim-champ">' + chip(sb.w) + "<b>" + BY[sb.w].name + "</b> win Super Bowl " + roman(season - 1965) + ", " + ws[0] + "–" + ws[1] +
+      (sb.ot ? " (OT)" : "") + " over the " + nick(BY[lose]) + "</div>";
+    if (BY[sel]) {
+      var r = SIM.rec[sel], dk = BY[sel].div, place = SIM.divRank[dk].indexOf(sel) + 1, line = recTxt(r) + ", " + ordinal(place) + " in the " + dk;
+      if (seedOf[sel]) {
+        var games = SIM.po[conf[sel]].games.map(function (x, i) { return [x, RND[i]]; }).concat([[sb, "Super Bowl"]]).filter(function (p) { return p[0].h === sel || p[0].a === sel; });
+        var last = games[games.length - 1], lx = last[0], lsc = winSc(lx);
+        line += ", #" + seedOf[sel] + " seed · " + (lx.w === sel ? (last[1] === "Super Bowl" ? "won the Super Bowl" : "won the " + last[1] + " round")
+          : "lost in the " + last[1] + (last[1] === "Super Bowl" ? "" : " round") + " to the " + nick(BY[lx.w]) + ", " + lsc[0] + "–" + lsc[1]);
+      } else line += " · missed the playoffs";
+      html += '<div class="sim-line">' + chip(sel) + "<b>" + BY[sel].name + ":</b> " + line + "</div>";
+    }
+    var worst = ABBR.slice().sort(function (x, y) {
+      var a = SIM.rec[x], b = SIM.rec[y];
+      return (a[0] + a[2] / 2) / (a[0] + a[1] + a[2]) - (b[0] + b[2] / 2) / (b[0] + b[1] + b[2]);
+    })[0];
+    html += '<div class="sim-line">Worst record: ' + chip(worst) + "<span><b>" + BY[worst].name + "</b>, " + recTxt(SIM.rec[worst]) + "</span></div>";
+    $("simSummary").innerHTML = html;
+    // bracket: NFC on the left, AFC on the right, Super Bowl in the middle (one box per team, with its score in that round)
+    var BK_S = 28, BK_T = 24, bkY = { a: [14, 46], b: [140, 172], c: [236, 268], d1: [30, 94], d2: [156, 252], cf: [62, 204], mid: 133 };
+    function bkX(k) { return "calc(" + k + " * (var(--w) + var(--c)))"; }
+    function bkAt(k, y) { return "left:" + bkX(k) + ";top:" + (BK_T + y) + "px"; }
+    function bkSlot(t, x, k, y, ch) {
+      var sc = x ? (t === x.h ? x.s[1] : x.s[0]) : "";
+      return '<div class="bk-s' + (x && x.w !== t ? " l" : "") + (ch ? " ch" : "") + (t === sel ? " sel" : "") + '" style="' + bkAt(k, y - BK_S / 2) + '"><span class="sg-seed">' +
+        (seedOf[t] || "") + "</span>" + chip(t) + '<span class="bk-sc">' + sc + "</span></div>";
+    }
+    function bkGame(x, top, k, ys, dir) {  // both teams, the line to the next round (dir 1 = rightward, -1 = leftward), and OT/upset tags
+      var bot = top === x.h ? x.a : x.h, y1 = ys[0], y2 = ys[1], h = bkSlot(top, x, k, y1) + bkSlot(bot, x, k, y2), tags = [];
+      if (dir) h += '<div class="bk-ln ' + (dir > 0 ? "br" : "bl") + '" style="left:calc(' + bkX(k) + (dir > 0 ? " + var(--w)" : " - var(--c) / 2") + ");top:" + (BK_T + y1) + "px;height:" + (y2 - y1) + 'px"></div>' +
+        '<div class="bk-ln h" style="left:calc(' + bkX(k) + (dir > 0 ? " + var(--w) + var(--c) / 2" : " - var(--c)") + ");top:" + (BK_T + (y1 + y2) / 2) + 'px"></div>';
+      if (x.ot) tags.push("OT");
+      if (x.pw < 0.35) tags.push("Upset");
+      if (tags.length) h += '<div class="bk-note" style="' + bkAt(k, y2 + BK_S / 2 + 2) + '">' + tags.join(" · ") + "</div>";
+      return h;
+    }
+    function bkLabel(cls, k, y, txt) { return '<div class="' + cls + '" style="' + bkAt(k, y) + '">' + txt + "</div>"; }
+    function bkConf(cf, cols, dir) {  // cols: wild card, divisional, conference
+      var G2 = SIM.po[cf].games, d1 = G2[3], d2 = G2[4], wc = G2.slice(0, 3);
+      // the NFL reseeds, so each Wild Card game sits next to the divisional game its winner actually plays in
+      var A = wc.filter(function (x) { return x.w === d1.a; })[0], C = wc.filter(function (x) { return x.w === d2.h; })[0];
+      var B = wc.filter(function (x) { return x !== A && x !== C; })[0];
+      return bkGame(A, A.a, cols[0], bkY.a, dir) + bkGame(B, B.a, cols[0], bkY.b, dir) + bkGame(C, C.a, cols[0], bkY.c, dir) +
+        bkGame(d1, d1.a, cols[1], bkY.d1, dir) + bkGame(d2, d2.a, cols[1], bkY.d2, dir) + bkGame(G2[5], d1.w, cols[2], bkY.cf, dir) +
+        bkLabel("bk-conf", cols[2], bkY.mid - BK_S / 2, cf);
+    }
+    var sbn = "Super Bowl " + roman(season - 1965), nfcW = SIM.po.NFC.games[5].w, R0 = ["Wild Card", "Divisional", "Conference"];
+    var heads = function (list) { return list.map(function (t, k) { return t ? bkLabel("bk-h", k, 2 - BK_T, t) : ""; }).join(""); };
+    html = '<div class="bk bk-full">' + heads(R0.concat([sbn], R0.slice().reverse())) + bkConf("NFC", [0, 1, 2], 1) + bkConf("AFC", [6, 5, 4], -1) +
+      bkGame(sb, nfcW, 3, [bkY.mid - 16, bkY.mid + 16], 0) + bkLabel("bk-h", 3, 190, "Champion") + bkSlot(sb.w, null, 3, 222, true) + "</div>";
+    ["NFC", "AFC"].forEach(function (cf) {  // narrow screens: one conference at a time
+      html += '<div class="bk bk-half">' + heads(R0.concat(["Champion"])) + bkConf(cf, [0, 1, 2], 1) + bkSlot(SIM.po[cf].games[5].w, null, 3, bkY.mid, true) + "</div>";
+    });
+    html += '<div class="bk bk-half bk-sbh">' + heads(["", "", "Super Bowl", "Champion"]) + bkLabel("bk-conf bk-sbl", 0, 16, sbn) +
+      bkGame(sb, nfcW, 2, [14, 46], 1) + bkSlot(sb.w, null, 3, 30, true) + "</div>";
+    $("simBracket").innerHTML = html;
+    // standings
+    html = "";
+    ["AFC", "NFC"].forEach(function (cf) {
+      html += "<div>";
+      ["East", "North", "South", "West"].forEach(function (dv) {
+        var k = cf + " " + dv;
+        html += '<div class="sim-div"><div class="sim-div-h">' + k + "</div><table><tbody>" + SIM.divRank[k].map(function (t) {
+          var df = pf[t] - pa[t];
+          return '<tr class="' + (t === sel ? "sim-sel" : "") + '"><td class="sd-seed">' + (seedOf[t] || "") + '</td><td class="sd-t">' + chip(t) + nick(BY[t]) +
+            '</td><td class="num">' + recTxt(SIM.rec[t]) + '</td><td class="num">' + (df > 0 ? "+" : df < 0 ? "−" : "") + Math.abs(df) + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+      });
+      html += "</div>";
+    });
+    $("simStand").innerHTML = html;
+    // week by week
+    var byWk = {}, first = 99;
+    EN.games.forEach(function (g, i) {
+      if (g[5] == null || byWk[g[0]]) { if (g[5] == null && g[0] < first) first = g[0]; }
+      (byWk[g[0]] = byWk[g[0]] || []).push(i);
+    });
+    html = "";
+    for (var w = first; w <= 18; w++) {
+      if (!byWk[w]) continue;
+      var rows = byWk[w].map(function (i) {
+        var g = EN.games[i], played = g[5] != null, x = played ? { s: [g[5], g[6]], ot: false, pw: 1 } : SIM.res[i];
+        if (!x) return "";
+        var aw = x.s[0] > x.s[1], hw = x.s[1] > x.s[0], tag = played ? "Final" : x.ot ? "OT" : x.pw < 0.35 ? "Upset" : "";
+        return '<div class="sim-row' + (g[1] === sel || g[2] === sel ? " sim-sel" : "") + '"><span class="sr-a">' + chip(g[1]) + '<span class="sr-s' + (aw ? " w" : "") + '">' + x.s[0] +
+          '</span></span><span class="sr-at">@</span><span class="sr-h"><span class="sr-s' + (hw ? " w" : "") + '">' + x.s[1] + "</span>" + chip(g[2]) + '</span><span class="sr-tag">' + tag + "</span></div>";
+      }).join("");
+      html += "<details" + (w === first ? " open" : "") + "><summary>Week " + w + "<span>" + byWk[w].length + " games</span></summary>" + '<div class="sim-games">' + rows + "</div></details>";
+    }
+    $("simWeeks").innerHTML = html;
+    $("simWkSub").textContent = "Weeks " + first + "–18 · tap a week to open it · winners in bold";
+  }
+  if (EN && simModel) $("simGo").addEventListener("click", runSim);
+  else $("btnPageSim").hidden = true;
 
   /* ---------- QB Elo ---------- */
   var QB = D.qb && D.qb.list && D.qb.list.length && D.qb.cols ? D.qb : null;
@@ -2190,7 +2514,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
   if (BY[fromHash]) state.team = fromHash;
-  var PAGEHASH = { GAMES: "games", WHATIF: "whatif", ROOT: "root", DRAFT: "draft", QB: "qb" };
+  var PAGEHASH = { GAMES: "games", WHATIF: "whatif", ROOT: "root", DRAFT: "draft", QB: "qb", SIM: "sim" };
   if (PAGEHASH[fromHash]) setPage(PAGEHASH[fromHash]);
   teamSel.value = state.team;
   renderSummary();
