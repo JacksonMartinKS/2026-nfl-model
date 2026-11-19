@@ -201,6 +201,19 @@
     }
     .card-tab:hover { color: var(--text); }
     .card-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+    @media (max-width: 420px) { .card-tabs { gap: 10px; } .card-tab { font-size: 0.72rem; white-space: nowrap; padding: 0 2px 6px; } }
+    .sched-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .sched-table th { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: left; padding: 0 6px 6px; border-bottom: 1px solid var(--border); }
+    .sched-table td { padding: 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .sched-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .sched-table td.fav { font-weight: 800; }
+    .sched-at { display: inline-block; width: 1.7em; color: var(--text-muted); font-weight: 700; }
+    .sched-site { font-size: 0.66rem; color: var(--text-muted); margin-left: 4px; white-space: nowrap; }
+    .sched-sum { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-top: 8px; }
+    .sched-table tr.sched-done td { color: var(--text-muted); }
+    .sched-table tr.sched-done td.sched-res { color: var(--text); }
+    .sched-table tr.sched-bye td { color: var(--text-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding-top: 4px; padding-bottom: 4px; }
+    .sched-table .sched-res { min-width: 4.6em; }
     .readout { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
     .readout strong { color: var(--text); font-weight: 800; }
     .readout-hint { display: block; }
@@ -820,6 +833,7 @@
       <div class="card-tabs" role="tablist" aria-label="Team views">
         <button class="card-tab active" type="button" role="tab" id="tabBtnTrend" aria-selected="true" aria-controls="tabTrend" data-tab="trend">Season trend</button>
         <button class="card-tab" type="button" role="tab" id="tabBtnSeeds" aria-selected="false" aria-controls="tabSeeds" data-tab="seeds">Playoff seeding</button>
+        <button class="card-tab" type="button" role="tab" id="tabBtnSched" aria-selected="false" aria-controls="tabSched" data-tab="sched">Schedule</button>
       </div>
 
       <div id="tabTrend" role="tabpanel" aria-labelledby="tabBtnTrend">
@@ -852,6 +866,10 @@
 
       <div id="tabSeeds" role="tabpanel" aria-labelledby="tabBtnSeeds" hidden>
         <div id="seedBars"></div>
+      </div>
+
+      <div id="tabSched" role="tabpanel" aria-labelledby="tabBtnSched" hidden>
+        <div id="schedList"></div>
       </div>
     </div>
 
@@ -1433,15 +1451,40 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     $("outPoff").textContent = pct(r.poff);
     renderCharts();
     renderSeeds();
+    renderSched();
+  }
+
+  function renderSched() {  // all 18 weeks: pregame forecast for every game, plus the result once it's played
+    var a = state.team, byWk = {}, ew = 0, left = 0, rec = [0, 0, 0], rows = [];
+    (D.games || []).forEach(function (w) {
+      (w.list || []).forEach(function (g) { if (g.a === a || g.h === a) byWk[w.week] = g; });
+    });
+    for (var wk = 1; wk <= 18; wk++) {
+      var g = byWk[wk];
+      if (!g) { rows.push('<tr class="sched-bye"><td>' + wk + '</td><td colspan="4">Bye</td></tr>'); continue; }
+      var home = g.h === a, p = g.pa == null ? null : home ? 1 - g.pa : g.pa, m = g.m == null ? null : home ? g.m : -g.m, res = "";
+      if (g.s) {
+        var us = home ? g.s[1] : g.s[0], them = home ? g.s[0] : g.s[1], r = us > them ? "W" : us < them ? "L" : "T";
+        rec[r === "W" ? 0 : r === "L" ? 1 : 2]++;
+        res = '<b>' + r + "</b> " + us + "–" + them;
+      } else if (p != null) { ew += p; left++; }
+      rows.push('<tr' + (g.s ? ' class="sched-done"' : "") + '><td>' + wk + '</td><td><span class="sched-at">' + (home ? "vs" : "@") + "</span>" + chip(home ? g.a : g.h) +
+        (g.site ? '<span class="sched-site">' + g.site + "</span>" : "") + '</td><td class="num' + (p != null && p >= 0.5 ? " fav" : "") + '">' + (p != null ? pct(p) : "—") +
+        '</td><td class="num">' + (m != null ? (m > 0 ? "+" : m < 0 ? "−" : "") + Math.abs(m).toFixed(1) : "—") + '</td><td class="num sched-res">' + res + "</td></tr>");
+    }
+    $("schedList").innerHTML = '<table class="sched-table"><thead><tr><th>Wk</th><th>Opponent</th><th class="num">Win</th><th class="num">Margin</th><th class="num">Result</th></tr></thead><tbody>' +
+      rows.join("") + '</tbody></table><div class="sched-sum">Record ' + rec[0] + "–" + rec[1] + (rec[2] ? "–" + rec[2] : "") +
+      (left ? " · " + ew.toFixed(1) + " expected wins in " + left + " remaining game" + (left > 1 ? "s" : "") : "") +
+      ". Win chance and margin are the forecast going into each game (+ when the " + nick(BY[a]) + " are favored); played games show the final score.</div>";
   }
 
   function setTab(tab) {
     state.tab = tab;
-    ["trend", "seeds"].forEach(function (k) {
-      var on = k === tab, btn = $(k === "trend" ? "tabBtnTrend" : "tabBtnSeeds");
+    [["trend", "tabBtnTrend", "tabTrend"], ["seeds", "tabBtnSeeds", "tabSeeds"], ["sched", "tabBtnSched", "tabSched"]].forEach(function (k) {
+      var on = k[0] === tab, btn = $(k[1]);
       btn.classList.toggle("active", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
-      $(k === "trend" ? "tabTrend" : "tabSeeds").hidden = !on;
+      $(k[2]).hidden = !on;
     });
   }
 
@@ -1521,6 +1564,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   });
   $("tabBtnTrend").addEventListener("click", function () { setTab("trend"); });
   $("tabBtnSeeds").addEventListener("click", function () { setTab("seeds"); });
+  $("tabBtnSched").addEventListener("click", function () { setTab("sched"); });
 
   $("shareBtn").addEventListener("click", function () {
     var btn = this, url = location.href.split("#")[0] + "#" + state.team, fb = $("shareFallback");
@@ -1638,15 +1682,15 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       X[0].toFixed(1) + "</b> · Top 5 <b>" + X[1].toFixed(1) + "</b> · Top 10 <b>" + X[2].toFixed(1) + "</b></div>" +
       (who ? '<div class="lev-who">Average pick, ' + nick(BY[g.h]) + " win / " + nick(BY[g.a]) + " win:" + who + "</div>" : "") + "</div>";
   }
-  if (D.tankW && $("gamesFootTank")) (function (W) {
-    var v = function (k) { return (W.pick1 * (k === 1) + W.top5 * (k <= 5) + W.top10 * (k <= 10) + W.slot * Math.max(0, 18 - k) / 17); };
-    var p = function (x) { return Math.round(x * 100) + "%"; }, r = function (a, b) { return Math.round((v(a) - v(b)) / (v(1) - v(2)) * 100); };
-    $("gamesFootTank").innerHTML = "<strong>Tank Bowl</strong> measures how much a game moves the top of next year's draft order. Each draft slot is worth a set amount: " +
-      "the #1 pick " + p(W.pick1) + ", a top-5 pick " + p(W.top5) + ", a top-10 pick " + p(W.top10) + ", plus " + p(W.slot) + " spread evenly down the 18 non-playoff picks. " +
+  if (D.tankV && $("gamesFootTank")) (function (V, B) {
+    var f = function (x) { return x.toLocaleString("en-US"); }, r = function (a, b) { return Math.round((V[a - 1] - V[b - 1]) / (V[0] - V[1]) * 100); };
+    $("gamesFootTank").innerHTML = "<strong>Tank Bowl</strong> measures how much a game moves the top of next year's draft order. Each pick is worth its value on the " +
+      "traditional (Jimmy Johnson) draft trade chart, " + f(V[1]) + " for the 2nd pick down to " + f(V[17]) + " for the 18th" +
+      (B ? ", with the #1 pick raised to " + f(V[0]) + " (" + f(V[0] - B) + " on the chart)" : "") + ". Picks 19–32 belong to playoff teams and are set by the playoffs, so they all count the same. " +
       "Every pick's average value in seasons where the home team wins is compared with seasons where the away team wins, and the value that changes hands is added up " +
-      "(by the team the pick came from, with simulation noise stripped out). A game that decides the #1 pick outright, with the loser picking 2nd, scores 100; one that swaps " +
-      "the 5th and 6th picks scores " + r(5, 6) + "; the 10th and 11th, " + r(10, 11) + ".";
-  })(D.tankW);
+      "(by the team the pick came from, with simulation noise stripped out). A game that decides the #1 pick outright, with the loser picking 2nd, scores 100; swapping " +
+      "the 2nd and 3rd picks scores " + r(2, 3) + ", the 5th and 6th " + r(5, 6) + ", and the 10th and 11th " + r(10, 11) + ".";
+  })(D.tankV, D.tankB || 0);
   function gqiExplain(g) {
     var P = g.qp, W = D.gqiW || [0.45, 0.47, 0.08], N = ["Closeness", "Team strength", "Starting QBs"];
     if (!P) return "";
