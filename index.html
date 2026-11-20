@@ -454,6 +454,8 @@
     .qb-st.starter { color: var(--brand); }
     .qb-st.ir { border: 1px dashed currentColor; border-radius: 4px; padding: 1px 5px; }
     td .qb-st.ir { display: inline-block; white-space: normal; max-width: 76px; line-height: 1.25; text-align: center; }
+    .qb-st.fa { border: 1px solid currentColor; border-radius: 4px; padding: 1px 5px; }
+    td .qb-st.fa { display: inline-block; }
     td.col-team .qb-name { margin-left: 2px; }
     .qb-yr { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-left: 3px; }
     .qb-elo { font-weight: 800; }
@@ -2348,7 +2350,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   /* ---------- QB Elo ---------- */
   var QB = D.qb && D.qb.list && D.qb.list.length && D.qb.cols ? D.qb : null;
   var QLO = 26, QHI = 300;
-  var QTAG = { starter: "Starter", backup: "Backup", ir: "Injured Reserve" }, QORD = { starter: 0, backup: 1, ir: 2 };
+  var QTAG = { starter: "Starter", backup: "Backup", ir: "Injured Reserve", fa: "Free Agent" }, QORD = { starter: 0, backup: 1, ir: 2, fa: 3 };
   var QSORT = { qb: ["e", -1], team: ["e", -1], def: ["e", 1] };
   var QTITLE = { qb: "Quarterback Elo", team: "Team QB Elo", def: "Defense QB Elo Allowed" };
   state.qbTab = "qb"; state.qbSel = null;
@@ -2443,7 +2445,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   }
   function qbData(tab) {
     if (tab === "qb") return QB.list.map(function (q) {
-      return { q: q, n: q.n, t: q.t, s: QORD[q.s] != null ? QORD[q.s] : 3, e: q.e, a: q.a, d: q.e - q.p, g: q.g, gs: q.gs };
+      return { q: q, n: q.n, t: q.t, s: QORD[q.s] != null ? QORD[q.s] : 4, e: q.e, a: q.a, d: q.e - q.p, g: q.g, gs: q.gs };
     });
     var src = tab === "team" ? QB.team : QB.def;
     return Object.keys(src).filter(function (t) { return BY[t]; }).map(function (t) {
@@ -2565,7 +2567,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (tab === "qb") {
       var q = qbByName(state.qbSel) || QB.list[0];
       title = q.n;
-      sub = (q.t ? chip(q.t) + BY[q.t].name : "No team") + ' · <span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span>" +
+      sub = (q.t ? chip(q.t) + BY[q.t].name : q.s === "fa" ? "No team" : "No team") + ' · <span class="qb-st ' + q.s + '">' + (QTAG[q.s] || q.s) + "</span>" +
         (q.sty ? '<span class="qp-sty">' + q.sty.join(" · ") + "</span>" : "");
       bigLab = "QB Elo"; big = rnd(q.e); h = q.h; ref = QB.avg; refLab = "Avg starter"; chartLab = "QB Elo" + since;
       meta = [["Rank", "#" + rankOf(QB.list.map(function (x) { return x.e; }), q.e) + " of " + QB.list.length], ["vs. team QB", sgn1(q.a)], ["Since preseason", sgn1(q.e - q.p)]];
