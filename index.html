@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>try { if (localStorage.getItem("nfl-theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>NFL 2026 Forecast · Jackson Martin Forecasts</title>
@@ -48,6 +49,25 @@
       color-scheme: light;
     }
     * { box-sizing: border-box; }
+    :root[data-theme="dark"] {
+      --bg: #141116; --card-bg: #1c181f; --surface: #2c2630; --subtle: #221d25; --toggle-bg: #151217;
+      --border: #2f2833; --border-dark: #6a6170; --chip-border: #3a3240;
+      --text: #ede7ee; --text-muted: #a59ca8;
+      --brand: #d977ad; --brand-tint: #5a2a47; --brand-wash: #2a1a25;
+      --p1: #2b1c27; --p2: #48243e; --p3: #6a2c58; --p4: #8c3572; --p5: #b04c8b;
+      color-scheme: dark;
+    }
+    :root[data-theme="dark"] .sim-go { background: linear-gradient(135deg, var(--brand-start), var(--brand-end)); }
+    :root[data-theme="dark"] .bd-bar i.s1, :root[data-theme="dark"] .bd-leg i.s1 { background: #d977ad; }
+    :root[data-theme="dark"] .bd-bar i.s2, :root[data-theme="dark"] .bd-leg i.s2 { background: #9c5a83; }
+    :root[data-theme="dark"] .bd-bar i.s3, :root[data-theme="dark"] .bd-leg i.s3 { background: #5e3a52; }
+    :root[data-theme="dark"] tr.sim-sel td, :root[data-theme="dark"] .sim-row.sim-sel { background: rgba(217, 119, 173, 0.1); }
+    .theme-tog { order: 3; display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--card-bg);
+      color: var(--text); font: 600 0.82rem var(--font); cursor: pointer; flex-shrink: 0; }
+    .theme-tog:hover { border-color: var(--brand); color: var(--brand); }
+    .theme-tog svg { width: 15px; height: 15px; }
+    .page-toggle { order: 2; }
+    @media (max-width: 860px) { .theme-tog { order: 1; margin-left: auto; } .page-toggle { order: 2; flex-basis: 100%; } }
     html { background: var(--bg); }
     body {
       margin: 0;
@@ -549,12 +569,14 @@
       <div class="view-toggle page-toggle" role="group" aria-label="Page section">
         <button id="btnPageProj" class="toggle-btn active" type="button" data-page="proj">Projections</button>
         <button id="btnPageGames" class="toggle-btn" type="button" data-page="games">Game forecasts</button>
+        <button id="btnPageSp" class="toggle-btn" type="button" data-page="sp">Win or lose</button>
         <button id="btnPageWhatif" class="toggle-btn" type="button" data-page="whatif">What-if</button>
         <button id="btnPageSim" class="toggle-btn" type="button" data-page="sim">Simulate</button>
         <button id="btnPageRoot" class="toggle-btn" type="button" data-page="root">Rooting guide</button>
         <button id="btnPageDraft" class="toggle-btn" type="button" data-page="draft">Draft</button>
         <button id="btnPageQb" class="toggle-btn" type="button" data-page="qb">QB Elo</button>
       </div>
+      <button type="button" class="theme-tog" id="themeTog" aria-label="Switch to dark theme"></button>
     </div>
     <div class="legend" aria-label="Probability shading">
       <span class="legend-title">Odds</span>
@@ -648,14 +670,35 @@
     </div>
   </section>
 
+  <section class="main-col" id="spView" aria-labelledby="spTitle" hidden>
+    <div class="card games-card">
+      <div class="table-head">
+        <div>
+          <h2 class="table-title" id="spTitle">Win or lose</h2>
+          <div class="table-sub">Each team's odds now, with a win, and with a loss in its game this week. Teams on a bye or already finished show one dot.</div>
+        </div>
+        <div class="view-toggle" role="group" aria-label="Conference">
+          <button class="toggle-btn active" type="button" data-spconf="ALL">All</button>
+          <button class="toggle-btn" type="button" data-spconf="AFC">AFC</button>
+          <button class="toggle-btn" type="button" data-spconf="NFC">NFC</button>
+        </div>
+      </div>
+      <div class="met-row"><div class="view-toggle met-toggle" role="group" aria-label="Odds to show" id="spMet"></div></div>
+      <div class="sp-legend"><span><i class="sp-dot lose"></i>With a loss</span><span><i class="sp-dot cur"></i>Now</span><span><i class="sp-dot win"></i>With a win</span></div>
+      <div class="sp-chart" id="spChart"></div>
+    </div>
+  </section>
+
   <section class="main-col" id="whatifView" aria-labelledby="wiTitle" hidden>
     <div class="card games-card">
       <div class="table-head">
         <div>
           <h2 class="table-title" id="wiTitle">What-if</h2>
-          <div class="table-sub">Pick the winner of any game, past or future, then simulate the rest of the season again.</div>
+          <div class="table-sub">Pick the winner of any game, past or future, then simulate the rest of the season again. Choose a team to list all of its games.</div>
         </div>
         <div class="table-controls">
+          <label class="mini-label" for="wiTeam">Team</label>
+          <select id="wiTeam" class="compact"><option value="">All teams</option></select>
           <label class="mini-label" for="wiWeek">Week</label>
           <select id="wiWeek" class="compact"></select>
         </div>
@@ -707,21 +750,6 @@
         </table>
       </div>
       <div class="table-foot">Root for is the result that helps the selected team more. The arrows show how far that team's odds move from where they are now, in percentage points, and Swing is the gap between the two results. Only games not yet played are listed.</div>
-    </div>
-    <div class="card games-card">
-      <div class="table-head">
-        <div>
-          <h2 class="table-title" id="spTitle">Win or lose</h2>
-          <div class="table-sub">Each team's odds now, with a win, and with a loss in its game this week. Teams on a bye or already finished show one dot.</div>
-        </div>
-        <div class="view-toggle" role="group" aria-label="Conference">
-          <button class="toggle-btn active" type="button" data-spconf="ALL">All</button>
-          <button class="toggle-btn" type="button" data-spconf="AFC">AFC</button>
-          <button class="toggle-btn" type="button" data-spconf="NFC">NFC</button>
-        </div>
-      </div>
-      <div class="sp-legend"><span><i class="sp-dot lose"></i>With a loss</span><span><i class="sp-dot cur"></i>Now</span><span><i class="sp-dot win"></i>With a win</span></div>
-      <div class="sp-chart" id="spChart"></div>
     </div>
   </section>
 
@@ -790,6 +818,7 @@
             <th class="col-team" scope="col">Team</th>
             <th scope="col" data-dk="wins"><button class="sort-btn" type="button" data-dsort="wins">Proj. wins<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="avg"><button class="sort-btn" type="button" data-dsort="avg" title="Average draft slot of each first-round pick the team owns">1st-round pick<span class="sort-arrow"></span></button></th>
+            <th scope="col" data-dk="cap"><button class="sort-btn" type="button" data-dsort="cap" title="Expected value of the team's first-round picks on the traditional (Jimmy Johnson) draft trade chart">1st-round capital<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="p1"><button class="sort-btn" type="button" data-dsort="p1">#1 pick<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="p5"><button class="sort-btn" type="button" data-dsort="p5" title="Chance of owning at least one top-5 pick">Top 5<span class="sort-arrow"></span></button></th>
             <th scope="col" data-dk="p10"><button class="sort-btn" type="button" data-dsort="p10" title="Chance of owning at least one top-10 pick">Top 10<span class="sort-arrow"></span></button></th>
@@ -1751,7 +1780,23 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     });
     $("gamesList").innerHTML = html;
   }
-  var VIEWS = { proj: "projView", games: "gamesView", whatif: "whatifView", root: "rootView", draft: "draftView", qb: "qbView", sim: "simView" };
+  /* ---------- Light / dark theme ---------- */
+  var ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  var ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+  function renderThemeToggle() {
+    var dark = document.documentElement.dataset.theme === "dark", b = $("themeTog");
+    b.innerHTML = (dark ? ICON_SUN : ICON_MOON) + "<span>" + (dark ? "Light" : "Dark") + "</span>";
+    b.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  $("themeTog").addEventListener("click", function () {
+    var dark = document.documentElement.dataset.theme !== "dark";
+    if (dark) document.documentElement.dataset.theme = "dark"; else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem("nfl-theme", dark ? "dark" : "light"); } catch (e) {}
+    renderThemeToggle();
+  });
+  renderThemeToggle();
+
+  var VIEWS = { proj: "projView", games: "gamesView", sp: "spView", whatif: "whatifView", root: "rootView", draft: "draftView", qb: "qbView", sim: "simView" };
   function setPage(pg) {
     var btn = document.querySelector('[data-page="' + pg + '"]');
     state.page = btn && !btn.hidden ? pg : "proj";
@@ -1761,6 +1806,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (state.page === "root") renderRoot();
     if (state.page === "draft") renderDraft();
     if (state.page === "sim") renderSim();
+    if (state.page === "sp") renderSpread();
     var onQ = state.page === "qb" && !!QB;
     ["teamCard", "teamSelect"].forEach(function (id) { $(id).hidden = onQ; });
     var tsl = document.querySelector('label[for="teamSelect"]');
@@ -1831,7 +1877,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   /* ---------- Rooting guide + win-or-lose chart ---------- */
   var F = D.focus && D.focus.games && D.focus.games.length ? D.focus : null;
   var METS = [["poff", "Playoffs"], ["div", "Division"], ["seed1", "#1 seed"], ["conf", "Win conf."], ["sb", "Win SB"], ["pick1", "#1 pick"], ["top5", "Top-5 pick"]];
-  state.rmet = "poff"; state.spConf = "ALL";
+  state.rmet = "poff"; state.spConf = "ALL"; state.spMet = "poff";
   function metName(k) { return METS.filter(function (x) { return x[0] === k; })[0][1]; }
   function renderRoot() {
     if (!F) return;
@@ -1853,11 +1899,11 @@ if (typeof module !== "undefined") module.exports = nflEngine;
         '<td class="swing">' + (even ? "–" : (r.swing * 100).toFixed(1) + " pts") + "</td>" +
         '<td class="kick">' + gameDate(F.week, r.g.a, r.g.h) + "</td></tr>";
     }).join("");
-    renderSpread();
   }
   function renderSpread() {
-    var mi = F.metrics.indexOf(state.rmet);
-    $("spTitle").textContent = "Week " + F.week + ": " + metName(state.rmet) + " odds with a win or a loss";
+    if (!F) return;
+    var mi = F.metrics.indexOf(state.spMet);
+    $("spTitle").textContent = "Week " + F.week + ": " + metName(state.spMet) + " odds with a win or a loss";
     var X = function (p) { return (Math.max(0, Math.min(1, p)) * 100).toFixed(2) + "%"; };
     var rows = ABBR.filter(function (t) { return state.spConf === "ALL" || BY[t].conf === state.spConf; }).map(function (t) {
       var g = F.games.filter(function (x) { return x.a === t || x.h === t; })[0], r = { t: t, base: F.base[t][mi], win: null, lose: null };
@@ -1888,16 +1934,20 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (e.mode === "own") return e.orig[0] === e.owner ? "Own" : "via " + e.orig[0];
     return (e.mode === "earlier" ? "Earlier of " : "Later of ") + e.orig.join("/");
   }
+  var CHART = D.draftChart || [3000, 2600, 2200, 1800, 1700, 1600, 1500, 1400, 1350, 1300, 1250, 1200, 1150, 1100, 1050, 1000,
+    950, 900, 875, 850, 800, 780, 760, 740, 720, 700, 680, 660, 640, 620, 600, 590];
+  function chartValue(h) { var s = 0, v = 0; for (var i = 0; i < h.length && i < CHART.length; i++) { s += h[i]; v += h[i] * CHART[i]; } return s ? v / s : 0; }
   function renderDraft() {
     if (!DR) return;
     var rows = ABBR.map(function (t) {
       var ents = DR.picks.filter(function (e) { return e.owner === t; }).map(function (e) { return { e: e, m: meanSlot(e.hist) }; }).sort(function (x, y) { return x.m - y.m; });
       var r2 = ABBR.filter(function (o) { return (DR.r2[o] || o) === t; }).map(function (o) { return { o: o, m: 32 + meanSlot(DR.own[o]) }; });
       var gone = DR.picks.filter(function (e) { return e.owner !== t && e.orig.indexOf(t) >= 0; }).map(function (e) { return e.owner; });
-      return { t: t, ents: ents, r2: r2, gone: gone, st: DR.owner[t] || [0, 0, 0, 0], best: ents.length ? ents[0].m : 99, wins: get(t, LAST).mean };
+      var cap = ents.reduce(function (s, x) { return s + chartValue(x.e.hist); }, 0);
+      return { t: t, ents: ents, r2: r2, gone: gone, st: DR.owner[t] || [0, 0, 0, 0], best: ents.length ? ents[0].m : 99, wins: get(t, LAST).mean, cap: cap };
     });
     var k = state.dsort, asc = k === "avg" || k === "wins";
-    var key = { avg: function (r) { return r.best; }, wins: function (r) { return r.wins; }, p1: function (r) { return -r.st[0]; }, p5: function (r) { return -r.st[1]; }, p10: function (r) { return -r.st[2]; } }[k];
+    var key = { avg: function (r) { return r.best; }, wins: function (r) { return r.wins; }, p1: function (r) { return -r.st[0]; }, p5: function (r) { return -r.st[1]; }, p10: function (r) { return -r.st[2]; }, cap: function (r) { return -r.cap; } }[k];
     rows.sort(function (x, y) { return key(x) - key(y) || x.best - y.best; });
     $("draftTitle").textContent = (DR.year || "") + " draft projection";
     $("draftSub").textContent = "Where each team's picks land" + (D.nSims ? " across " + D.nSims.toLocaleString("en-US") + " simulated seasons" : "") + ", following pick trades";
@@ -1905,7 +1955,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       var r1 = r.ents.length ? r.ents.map(function (x) { return '<span class="dpick"><b>' + x.m.toFixed(1) + "</b><small>" + pickLabel(x.e) + "</small></span>"; }).join("")
         : '<span class="dnone">None' + (r.gone.length ? "<small>own pick to " + r.gone.join("/") + "</small>" : "") + "</span>";
       return '<tr class="team-row' + (r.t === state.team ? " selected" : "") + '" data-team="' + r.t + '" tabindex="0"><td class="col-team">' + chip(r.t) + '<span class="t-name">' + nick(BY[r.t]) + "</span></td>" +
-        "<td>" + r.wins.toFixed(1) + '</td><td class="dcell">' + r1 + "</td><td>" + pp(r.st[0]) + "</td><td>" + pp(r.st[1]) + "</td><td>" + pp(r.st[2]) + "</td></tr>";
+        "<td>" + r.wins.toFixed(1) + '</td><td class="dcell">' + r1 + "</td><td>" + (r.cap ? Math.round(r.cap).toLocaleString("en-US") : "—") + "</td><td>" + pp(r.st[0]) + "</td><td>" + pp(r.st[1]) + "</td><td>" + pp(r.st[2]) + "</td></tr>";
     }).join("");
     document.querySelectorAll("#draftView th[data-dk]").forEach(function (th) {
       var on = th.dataset.dk === k;
@@ -1928,13 +1978,14 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       return '<li><span class="ord">' + (i + 1) + "</span>" + chip(x.e.owner) + '<span class="ord-lab">' + (x.e.mode === "own" && x.e.orig[0] === x.e.owner ? "" : pickLabel(x.e)) + '</span><span class="ord-avg">' + x.m.toFixed(1) + "</span></li>";
     }).join("");
     var trades = DR.picks.filter(function (e) { return e.mode !== "own" || e.orig[0] !== e.owner; }).map(function (e) { return pickLabel(e).replace("via ", "") + " pick to " + e.owner; });
-    $("draftFoot").textContent = "Pick numbers are the average draft slot of each first-round pick. Draft order: non-playoff teams by record (worst first), then playoff teams by the round they're knocked out, with ties broken by strength of schedule. Traded firsts: " + trades.join("; ") + ". " +
+    $("draftFoot").textContent = "Pick numbers are the average draft slot of each first-round pick. 1st-round capital is the expected value of a team's first-round picks on the traditional (Jimmy Johnson) draft trade chart, " +
+      CHART[0].toLocaleString("en-US") + " for #1 down to " + CHART[CHART.length - 1].toLocaleString("en-US") + " for #" + CHART.length + ". Draft order: non-playoff teams by record (worst first), then playoff teams by the round they're knocked out, with ties broken by strength of schedule. Traded firsts: " + trades.join("; ") + ". " +
       (DR.source ? DR.source + "." : "");
   }
 
   /* ---------- What-if ---------- */
   var EN = D.engine && D.engine.games && D.engine.poElo && typeof nflEngine === "function" ? D.engine : null;
-  state.wiPick = {}; state.wiConf = "ALL";
+  state.wiPick = {}; state.wiConf = "ALL"; state.wiTeam = "";
   var wiBase = null, wiLast = null, wiWorker = null, wiBusy = false, WI_SEED = 20261, wiCur = 18;
   if (EN) { wiCur = 99; EN.games.forEach(function (g) { if (g[5] == null && g[0] < wiCur) wiCur = g[0]; }); if (wiCur === 99) wiCur = 18; }
   state.wiWeek = wiCur;
@@ -1969,7 +2020,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     if (!EN) return;
     var wp = EN.params, html = "";
     EN.games.forEach(function (g, i) {
-      if (g[0] !== state.wiWeek) return;
+      if (state.wiTeam ? g[1] !== state.wiTeam && g[2] !== state.wiTeam : g[0] !== state.wiWeek) return;
       var a = g[1], h = g[2], played = g[5] != null, f = state.wiPick[i] || "", aw = played ? actualWinner(g) : null, info;
       if (played) info = "Final: " + (aw === "H" ? h + " " + g[6] + "–" + g[5] : aw === "A" ? a + " " + g[5] + "–" + g[6] : "tie " + g[5] + "–" + g[6]);
       else {
@@ -1977,7 +2028,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
         info = "Model: " + (ph >= 0.5 ? h + " " + pct(ph) : a + " " + pct(1 - ph));
       }
       var cls = function (v) { return (f === v ? "on" : "") + (!f && aw === v ? " won" : ""); };
-      html += '<div class="wi-game' + (f ? " changed" : "") + '"><div class="wi-info"><span>' + gameDate(g[0], a, h) + "</span><span>" + info + "</span></div>" +
+      html += '<div class="wi-game' + (f ? " changed" : "") + '"><div class="wi-info"><span>' + (state.wiTeam ? "Week " + g[0] + " · " : "") + gameDate(g[0], a, h) + "</span><span>" + info + "</span></div>" +
         '<div class="wi-seg" role="group" aria-label="' + BY[a].name + " at " + BY[h].name + '">' +
         '<button type="button" data-g="' + i + '" data-v="A" class="' + cls("A") + '" aria-pressed="' + (f === "A") + '">' + chip(a) + "</button>" +
         '<button type="button" data-g="' + i + '" data-v="" class="mid' + (!f ? " on" : "") + '" aria-pressed="' + !f + '">' + (played ? "Actual" : "Simulate") + "</button>" +
@@ -2014,6 +2065,15 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     for (var wk = 1; wk <= maxW; wk++) { var o = document.createElement("option"); o.value = wk; o.textContent = "Week " + wk + (wk === wiCur ? " (current)" : ""); wsel.appendChild(o); }
     wsel.value = String(state.wiWeek);
     wsel.addEventListener("change", function () { state.wiWeek = +wsel.value; renderWhatIf(); });
+    var wtsel = $("wiTeam");
+    DIVS.forEach(function (d) {
+      var og = document.createElement("optgroup");
+      og.label = d;
+      TEAMS.filter(function (t) { return t.div === d; }).sort(function (x, y) { return x.name.localeCompare(y.name); })
+        .forEach(function (t) { var o = document.createElement("option"); o.value = t.abbr; o.textContent = t.name; og.appendChild(o); });
+      wtsel.appendChild(og);
+    });
+    wtsel.addEventListener("change", function () { state.wiTeam = wtsel.value; wsel.disabled = !!wtsel.value; renderWhatIf(); });
     $("wiRun").textContent = "Run " + (EN.params.nSims || 10000).toLocaleString("en-US") + " simulations";
     $("wiGames").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-g]");
@@ -2057,8 +2117,13 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     }).join("");
     bindToggle("rmet", "rmet", renderRoot);
     bindToggle("spconf", "spConf", renderSpread);
+    $("spMet").innerHTML = METS.filter(function (x) { return F.metrics.indexOf(x[0]) >= 0; }).map(function (x) {
+      return '<button type="button" class="toggle-btn' + (x[0] === state.spMet ? " active" : "") + '" data-spmet="' + x[0] + '">' + x[1] + "</button>";
+    }).join("");
+    bindToggle("spmet", "spMet", renderSpread);
   } else {
     $("btnPageRoot").hidden = true;
+    $("btnPageSp").hidden = true;
   }
   if (DR) {
     document.querySelectorAll("[data-dsort]").forEach(function (b) { b.addEventListener("click", function () { state.dsort = b.dataset.dsort; renderDraft(); }); });
@@ -2629,7 +2694,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
   if (BY[fromHash]) state.team = fromHash;
-  var PAGEHASH = { GAMES: "games", WHATIF: "whatif", ROOT: "root", DRAFT: "draft", QB: "qb", SIM: "sim" };
+  var PAGEHASH = { GAMES: "games", WINLOSE: "sp", WHATIF: "whatif", ROOT: "root", DRAFT: "draft", QB: "qb", SIM: "sim" };
   if (PAGEHASH[fromHash]) setPage(PAGEHASH[fromHash]);
   teamSel.value = state.team;
   renderSummary();
