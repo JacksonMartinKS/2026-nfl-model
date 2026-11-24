@@ -666,7 +666,7 @@
       <div class="games-list" id="gamesList"></div>
       <div class="table-foot" id="gamesFootGqi" hidden><strong>Game quality</strong> (0 to 100) blends how close the game should be (45%), how good both teams are (47%) and both starting quarterbacks (8%). Team and QB scores use a harmonic mean, so one great team facing a bad one doesn't make a great game.</div>
       <div class="table-foot" id="gamesFootLev" hidden><strong>Leverage</strong> comes from the season simulations: every team's odds in seasons where the home team wins are compared with seasons where the away team wins, and the probability that changes hands across all 32 teams is added up, with simulation noise stripped out. Playoff odds count 80%, division titles 10% and #1 seeds 10%, each scaled by how many there are (14 playoff spots, 8 division titles, 2 #1 seeds), so the result reads in playoff-odds points.</div>
-      <div class="table-foot" id="gamesFootMw" hidden><strong>Must-watch</strong> (0 to 100) is for games with a lot riding on them that should also be good: the geometric mean of leverage (capped at 100) and game quality, so a game needs both to rank high. A close game between two strong teams with a playoff spot or the #1 seed at stake tops the list; a lopsided game, or one with little at stake, doesn't.</div>
+      <div class="table-foot" id="gamesFootMw" hidden><strong>Must-watch</strong> (0 to 100) is for games with a lot riding on them that should also be good: the geometric mean of leverage (capped at 100) and game quality, so a game needs both to rank high. A close game between two strong teams with a playoff spot or the #1 seed at stake tops the list; a lopsided game, or one with little at stake, doesn't. Played games keep the numbers they had going in; pick "Season so far" in the week list to rank every game played.</div>
       <div class="table-foot" id="gamesFootTank" hidden><strong>Tank Bowl</strong> measures how much a game moves the top of next year's draft order.</div>
       <div class="table-foot"><strong>Elo</strong> is each team's rating going into the week. <strong>Rest</strong> adjusts for days since the last game (short week or extra rest), <strong>Field</strong> is home-field advantage (smaller at neutral sites), <strong>QB</strong> adjusts for the starting quarterback, and <strong>Travel</strong> for distance traveled. <strong>Game Elo</strong> adds them up, and the gap between the two Game Elos sets the predicted margin and win chance. <strong>GQI</strong> (game quality index, 0–100) rates how strong the matchup is. The tier under each team uses its Elo with the QB adjustment: <span id="tierLegend2"></span>. Past weeks show each game as forecast before kickoff, with the final score and whether the favorite won. Kickoff times are in your time zone.</div>
     </div>
@@ -1649,11 +1649,11 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     var title = nick(BY[g.a]) + (g.site ? " vs. " : " at ") + nick(BY[g.h]);
     var pick = Math.abs(g.m) < 0.05 ? "<b>Even</b>" : "<b>" + nick(BY[fav]) + " by " + Math.abs(g.m).toFixed(1) + "</b>";
     return '<article class="game">' +
-      '<div class="game-top"><span>' + fmtDate(koDay(g), { weekday: "short", month: "short", day: "numeric" }) + (koTime(g) ? " · " + koTime(g) : "") +
+      '<div class="game-top"><span>' + (G && G.season && g._wk ? "Week " + g._wk + " · " : "") + fmtDate(koDay(g), { weekday: "short", month: "short", day: "numeric" }) + (koTime(g) ? " · " + koTime(g) : "") +
         (g.site ? ' · <span class="site-tag">' + g.site + "</span>" : "") + "</span>" +
-        '<span class="game-chips">' + (state.gsort === "mw" && g.mw != null && !g.s ? '<span class="gqi" title="Must-watch: what\'s at stake combined with how good the game should be, 0 to 100">Must-watch<b>' + Math.round(g.mw) + "</b></span>"
-          : state.gsort === "tank" && g.tb != null && !g.s ? '<span class="gqi" title="Tank Bowl: draft value that changes hands depending on who wins; deciding the #1 pick outright = 100">Tank Bowl<b>' + Math.round(g.tb) + "</b></span>" : "") +
-        (g.lv && !g.s ? '<span class="gqi" title="Playoff leverage: how much playoff value (a berth, plus a bonus for the #1 seed and its bye) changes hands across the league depending on who wins">Leverage<b>' +
+        '<span class="game-chips">' + (state.gsort === "mw" && g.mw != null ? '<span class="gqi" title="Must-watch: what\'s at stake combined with how good the game should be, 0 to 100">Must-watch<b>' + Math.round(g.mw) + "</b></span>"
+          : state.gsort === "tank" && g.tb != null ? '<span class="gqi" title="Tank Bowl: draft value that changes hands depending on who wins; deciding the #1 pick outright = 100">Tank Bowl<b>' + Math.round(g.tb) + "</b></span>" : "") +
+        (g.lv ? '<span class="gqi" title="Playoff leverage: how much playoff value (a berth, plus a bonus for the #1 seed and its bye) changes hands across the league depending on who wins">Leverage<b>' +
           Math.round(g.lx != null ? g.lx : g.lv[0]) + "</b></span>" : "") + '<span class="gqi" title="Game quality index, 0 to 100">GQI<b>' + Math.round(g.q) + "</b></span></span></div>" +
       '<h3 class="game-title">' + title + "</h3>" +
       '<div class="wp-labels"><span class="' + (homeFav ? "" : "fav") + '">' + chip(g.a) + " " + pct(pa) + '</span><span class="' + (homeFav ? "fav" : "") + '">' + pct(ph) + " " + chip(g.h) + "</span></div>" +
@@ -1667,13 +1667,13 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   }
   var LEVN = [["Playoffs", 0], ["Division", 1], ["#1 seed", 2]];
   function levExplain(g) {
-    if (!g.lv || g.s) return "";
+    if (!g.lv) return "";
     var L = g.lv, val = !!D.levV;  // seed-value leverage (V1.6+) or the older weighted blend
     var parts = LEVN.map(function (k) { return k[0] + " <b>" + L[k[1]].toFixed(1) + "</b>"; }).join(" · ");
     var who = (g.lt || []).filter(function (x) { return Math.abs(x[1]) >= 0.5; }).map(function (x) {
       return "<span>" + chip(x[0]) + '<span class="lev-d">' + (x[1] > 0 ? "+" : "−") + Math.abs(x[1]).toFixed(val ? 0 : 1) + "</span></span>";
     }).join("");
-    return '<div class="explain"><div class="explain-h">Leverage<b>' + Math.round(g.lx != null ? g.lx : L[0]) + "</b></div>" +
+    return '<div class="explain"><div class="explain-h">Leverage' + (g.s ? " going in" : "") + "<b>" + Math.round(g.lx != null ? g.lx : L[0]) + "</b></div>" +
       (val ? "<p>Playoff value that changes hands across the league depending on who wins, in playoff berths ×100. Points of odds that move:</p>"
         : "<p>Points of odds that change hands across all 32 teams depending on who wins:</p>") + "<div>" + parts + "</div>" +
       (g.lm != null ? "<div>Expected swing <b>" + Math.round(g.lm) + "</b>: leverage × 4 × " + pct1(1 - g.pa) + " × " + pct1(g.pa) + ", what the odds should actually move once it's played</div>" : "") +
@@ -1687,12 +1687,12 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       "changes hands across all 32 teams is added up, with simulation noise stripped out, and multiplied by 100. A game that decides one playoff spot " +
       "outright scores 100; one that decides the #1 seed between two teams that are in either way scores " + Math.round((V[0] - V[1]) * 100) +
       "; one that only swaps two teams between the 2 and 5 seeds scores " + Math.round((V[1] - V[4]) * 100) + ". " +
-      "Each game also shows its expected swing, leverage × 4 × p × (1 − p): how much the odds should actually move once it's played. A coin flip keeps all of its leverage, a 75–25 game keeps 75% and a 90–10 game 36%.";
+      "Each game also shows its expected swing, leverage × 4 × p × (1 − p): how much the odds should actually move once it's played. A coin flip keeps all of its leverage, a 75–25 game keeps 75% and a 90–10 game 36%. Played games keep the numbers from the last forecast before kickoff.";
   })(D.levV);
   function pct1(p) { return (Math.round(p * 1000) / 10).toFixed(1) + "%"; }
   function mwExplain(g) {
-    if (g.mw == null || g.s) return "";
-    return '<div class="explain"><div class="explain-h">Must-watch<b>' + Math.round(g.mw) + "</b></div>" +
+    if (g.mw == null) return "";
+    return '<div class="explain"><div class="explain-h">Must-watch' + (g.s ? " going in" : "") + "<b>" + Math.round(g.mw) + "</b></div>" +
       "<p>What's at stake and how good the game should be, combined so a game needs both:</p><div>Leverage <b>" + Math.round(g.lx) +
       "</b> · Game quality <b>" + Math.round(g.q) + "</b>" + (g.lm != null ? " · Expected swing <b>" + Math.round(g.lm) + "</b>" : "") + "</div></div>";
   }
@@ -1701,14 +1701,14 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     return e ? e.owner : t;
   }
   function tankExplain(g) {
-    if (g.tb == null || g.s) return "";
+    if (g.tb == null) return "";
     var X = g.tx || [0, 0, 0];
     var who = (g.tt || []).map(function (x) {
       var o = pickOwner(x[0]);
       return "<span>" + chip(x[0]) + '<span class="lev-d">' + x[1].toFixed(1) + " / " + x[2].toFixed(1) + "</span>" +
         (o !== x[0] ? ' <span class="lev-w">(' + o + "'s pick)</span>" : "") + "</span>";
     }).join("");
-    return '<div class="explain"><div class="explain-h">Tank Bowl<b>' + Math.round(g.tb) + "</b></div>" +
+    return '<div class="explain"><div class="explain-h">Tank Bowl' + (g.s ? " going in" : "") + "<b>" + Math.round(g.tb) + "</b></div>" +
       "<p>Draft value that changes hands depending on who wins (deciding the #1 pick outright = 100). Points of odds that move:</p><div>#1 pick <b>" +
       X[0].toFixed(1) + "</b> · Top 5 <b>" + X[1].toFixed(1) + "</b> · Top 10 <b>" + X[2].toFixed(1) + "</b></div>" +
       (who ? '<div class="lev-who">Average pick, ' + nick(BY[g.h]) + " win / " + nick(BY[g.a]) + " win:" + who + "</div>" : "") + "</div>";
@@ -1720,7 +1720,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       (B ? ", with the #1 pick raised to " + f(V[0]) + " (" + f(V[0] - B) + " on the chart)" : "") + ". Picks 19–32 belong to playoff teams and are set by the playoffs, so they all count the same. " +
       "Every pick's average value in seasons where the home team wins is compared with seasons where the away team wins, and the value that changes hands is added up " +
       "(by the team the pick came from, with simulation noise stripped out). A game that decides the #1 pick outright, with the loser picking 2nd, scores 100; swapping " +
-      "the 2nd and 3rd picks scores " + r(2, 3) + ", the 5th and 6th " + r(5, 6) + ", and the 10th and 11th " + r(10, 11) + ".";
+      "the 2nd and 3rd picks scores " + r(2, 3) + ", the 5th and 6th " + r(5, 6) + ", and the 10th and 11th " + r(10, 11) + ". Played games keep the numbers from the last forecast before kickoff.";
   })(D.tankV, D.tankB || 0);
   function gqiExplain(g) {
     var P = g.qp, W = D.gqiW || [0.45, 0.47, 0.08], N = ["Closeness", "Team strength", "Starting QBs"];
@@ -1755,14 +1755,14 @@ if (typeof module !== "undefined") module.exports = nflEngine;
     $("gamesFootMw").hidden = state.gsort !== "mw";
     $("gamesFootTank").hidden = state.gsort !== "tank";
     var anyFinal = G.list.some(function (g) { return g.s; });
-    $("gamesTitle").textContent = G.label + (anyFinal ? " forecasts and results" : " forecasts");
+    $("gamesTitle").textContent = G.season ? "Season so far" : G.label + (anyFinal ? " forecasts and results" : " forecasts");
     var hz = G.list.reduce(function (mx, g) { return Math.max(mx, g.hz || 0); }, 0);
-    $("gamesSub").textContent = (hz ? "Current ratings, " + hz + (hz === 1 ? " week" : " weeks") + " out, so the odds use a wider Elo curve"
+    $("gamesSub").textContent = G.season ? "Every game played so far, rated going into it · " + G.list.length + " games" + weekSummary(G) : (hz ? "Current ratings, " + hz + (hz === 1 ? " week" : " weeks") + " out, so the odds use a wider Elo curve"
       : "Pregame Elo after " + (G.week <= 1 ? "the preseason" : "Week " + (G.week - 1))) + " · " + G.list.length + " games" +
       (G.byes && G.byes.length ? " · On bye: " + G.byes.join(", ") : "") + weekSummary(G);
     var list = G.list.map(function (g, i) { g._i = i; return g; });
-    var lev = function (g) { return g.lv && !g.s ? (g.lx != null ? g.lx : g.lv[0]) : -1; };
-    var idx = function (g, k) { return g[k] != null && !g.s ? g[k] : -1; };
+    var lev = function (g) { return g.lv ? (g.lx != null ? g.lx : g.lv[0]) : -1; };
+    var idx = function (g, k) { return g[k] != null ? g[k] : -1; };
     list.sort(state.gsort === "gqi" ? function (a, b) { return b.q - a.q || a._i - b._i; }
       : state.gsort === "lev" ? function (a, b) { return lev(b) - lev(a) || b.q - a.q || a._i - b._i; }
       : state.gsort === "mw" ? function (a, b) { return idx(b, "mw") - idx(a, "mw") || b.q - a.q || a._i - b._i; }
@@ -1825,8 +1825,19 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       o.textContent = gw.label + (!open ? "" : i === gwCur ? (open === gw.list.length ? " (current)" : " (in progress)") : " (upcoming)");
       gws.appendChild(o);
     });
+    var so = document.createElement("option");
+    so.value = "season";
+    so.textContent = "Season so far (played games)";
+    gws.appendChild(so);
     gws.value = String(state.gweek);
-    gws.addEventListener("change", function () { state.gweek = +gws.value; G = GW[state.gweek]; renderGames(); });
+    gws.addEventListener("change", function () {
+      if (gws.value === "season") {
+        var all = [];
+        GW.forEach(function (gw) { gw.list.forEach(function (g) { if (g.s) { g._wk = gw.week; all.push(g); } }); });
+        G = { label: "Season so far", season: true, week: 0, list: all, byes: [] };
+      } else { state.gweek = +gws.value; G = GW[state.gweek]; }
+      renderGames();
+    });
     renderGames();
   } else {
     $("btnPageGames").hidden = true;
