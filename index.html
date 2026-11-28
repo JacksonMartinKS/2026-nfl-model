@@ -195,6 +195,9 @@
     .b3 { background: var(--p3); color: var(--text); }
     .b4 { background: var(--p4); color: var(--on-dark); }
     .b5 { background: var(--p5); color: var(--on-dark); }
+    /* shaded numbers: always white with a black outline, so the text doesn't flip between black and white */
+    .b0, .b1, .b2, .b3, .b4, .b5, .gqi b.hx { color: #fff; font-weight: 800;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000; }
     .chg { font-size: 0.74rem; font-weight: 700; color: var(--text); }
     .chg.flat { color: var(--text-muted); font-weight: 600; }
     .table-foot { font-size: 0.68rem; color: var(--text-muted); padding: 8px 14px 6px; line-height: 1.5; }
@@ -1674,7 +1677,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   }
   function heatNum(v) {  // an index value shaded like the odds: 0 = no color, 100 = full purple
     var x = Math.max(0, Math.min(100, v));
-    return '<b class="hx" style="background:color-mix(in srgb, var(--p5) ' + x.toFixed(0) + '%, transparent)' + (x >= 55 ? ";color:var(--on-dark)" : "") + '">' + Math.round(v) + "</b>";
+    return '<b class="hx" style="background:color-mix(in srgb, var(--p5) ' + x.toFixed(0) + '%, transparent)">' + Math.round(v) + "</b>";
   }
   function gameChips(g) {
     return (state.gsort === "tank" && g.tb != null ? '<span class="gqi" title="Tank Bowl: draft value that changes hands depending on who wins; deciding the #1 pick outright = 100">Tank Bowl' + heatNum(g.tb) + "</span>" : "") +
