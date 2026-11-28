@@ -300,7 +300,30 @@
     .site-tag { display: inline-block; padding: 0 5px; border-radius: 4px; background: var(--brand-wash); color: var(--brand); border: 1px solid var(--brand-tint); font-weight: 800; font-size: 0.64rem; }
     .gqi { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
     .gqi b { font-size: 0.86rem; color: var(--text); letter-spacing: 0; margin-left: 2px; font-variant-numeric: tabular-nums; }
-    .game-chips { display: inline-flex; gap: 12px; align-items: baseline; }
+    .game-chips { display: inline-flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+    .gqi b.hx { padding: 1px 5px; border-radius: 4px; margin-left: 4px; }
+    .game-top { flex-wrap: wrap; row-gap: 4px; }
+    .game-top > span:first-child { flex: 1 1 100%; }
+    @media (max-width: 600px) { .tsel-btn { min-width: 0; max-width: 100%; } }
+    .tsel { position: relative; display: inline-block; vertical-align: middle; }
+    .tsel[hidden] { display: none; }
+    .tsel-native { position: absolute; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .tsel-btn { display: inline-flex; align-items: center; gap: 8px; min-width: 200px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--card-bg); color: var(--text); font: 600 0.86rem var(--font); cursor: pointer; text-align: left; }
+    .tsel-btn:hover, .tsel-btn[aria-expanded="true"] { border-color: var(--brand); }
+    .tsel-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .tsel-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tsel-caret { color: var(--text-muted); font-size: 0.7rem; }
+    .tsel-list { position: absolute; z-index: 60; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; max-width: min(320px, 92vw); max-height: 340px;
+      overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2); padding: 4px; }
+    .tsel-grp { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 8px 8px 3px; }
+    .tsel-opt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 0.86rem; white-space: nowrap; }
+    .tsel-opt:hover, .tsel-opt.hl { background: var(--subtle); }
+    .tsel-opt.sel { font-weight: 800; }
+    .tsel-none { display: inline-block; width: 2.6em; flex: none; }
+    .tsel .tchip { flex: none; }
+    #teamPanel .tsel { display: block; margin-bottom: 14px; }
+    #teamPanel .tsel-btn { width: 100%; }
     @media (max-width: 600px) { .game-top { flex-wrap: wrap; row-gap: 4px; } .game-top > span:first-child { flex: 1 1 100%; } }
     .table-foot[hidden] { display: none; }
     .explain { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 8px; font-size: 0.76rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; line-height: 1.4; }
@@ -529,7 +552,9 @@
     @media (max-width: 860px) {
       .brand-mark { width: 28px; height: 28px; }
       .brand-name { font-size: 0.56rem; }
-      header h1 { font-size: 0.92rem; }
+      header h1 { font-size: 0.92rem; white-space: normal; }
+      .brand-block > div { min-width: 0; }
+      .updated-stamp { white-space: nowrap; }
       .header-inner { padding-block: 7px; gap: 6px; }
       svg.wbar { display: none; }
       .t-name { display: none; }
@@ -744,6 +769,8 @@
         <div class="table-controls">
           <label class="mini-label" for="rootTeam">Team</label>
           <select id="rootTeam" class="compact"></select>
+          <label class="mini-label" for="rootWeek">Week</label>
+          <select id="rootWeek" class="compact"></select>
         </div>
       </div>
       <div class="met-row"><div class="view-toggle met-toggle" role="group" aria-label="Odds to show" id="rootMet"></div></div>
@@ -1645,19 +1672,26 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       adjCell(s[2], s[1] >= 100 ? "offseason" : s[1] + " days") + adjCell(s[3]) + adjCell(s[4]) + adjCell(s[5]) +
       '<td class="game-elo">' + Math.round(s[0]) + "</td></tr>";
   }
+  function heatNum(v) {  // an index value shaded like the odds: 0 = no color, 100 = full purple
+    var x = Math.max(0, Math.min(100, v));
+    return '<b class="hx" style="background:color-mix(in srgb, var(--p5) ' + x.toFixed(0) + '%, transparent)' + (x >= 55 ? ";color:var(--on-dark)" : "") + '">' + Math.round(v) + "</b>";
+  }
+  function gameChips(g) {
+    return (state.gsort === "tank" && g.tb != null ? '<span class="gqi" title="Tank Bowl: draft value that changes hands depending on who wins; deciding the #1 pick outright = 100">Tank Bowl' + heatNum(g.tb) + "</span>" : "") +
+      (g.mw != null ? '<span class="gqi" title="Must-watch: what\'s at stake combined with how good the game should be, 0 to 100">Must-watch' + heatNum(g.mw) + "</span>" : "") +
+      (g.lv ? '<span class="gqi" title="Playoff leverage: how much playoff value (a berth, plus a bonus for the #1 seed and its bye) changes hands across the league depending on who wins">Leverage' +
+        heatNum(g.lx != null ? g.lx : g.lv[0]) + "</span>" : "") +
+      '<span class="gqi" title="Game quality index, 0 to 100">GQI' + heatNum(g.q) + "</span>";
+  }
   function gameHtml(g) {
     var pa = g.pa, ph = 1 - pa, homeFav = ph >= pa, fav = homeFav ? g.h : g.a;
     var ca = (TC[g.a] || ["#475569"])[0], ch = (TC[g.h] || ["#94a3b8"])[0];
-    if (colorDist(ca, ch) < 100 && TC[g.h]) ch = TC[g.h][2]; /* similar colors: home team uses its accent */
     var title = nick(BY[g.a]) + (g.site ? " vs. " : " at ") + nick(BY[g.h]);
     var pick = Math.abs(g.m) < 0.05 ? "<b>Even</b>" : "<b>" + nick(BY[fav]) + " by " + Math.abs(g.m).toFixed(1) + "</b>";
     return '<article class="game">' +
       '<div class="game-top"><span>' + (G && G.season && g._wk ? "Week " + g._wk + " · " : "") + fmtDate(koDay(g), { weekday: "short", month: "short", day: "numeric" }) + (koTime(g) ? " · " + koTime(g) : "") +
         (g.site ? ' · <span class="site-tag">' + g.site + "</span>" : "") + "</span>" +
-        '<span class="game-chips">' + (state.gsort === "mw" && g.mw != null ? '<span class="gqi" title="Must-watch: what\'s at stake combined with how good the game should be, 0 to 100">Must-watch<b>' + Math.round(g.mw) + "</b></span>"
-          : state.gsort === "tank" && g.tb != null ? '<span class="gqi" title="Tank Bowl: draft value that changes hands depending on who wins; deciding the #1 pick outright = 100">Tank Bowl<b>' + Math.round(g.tb) + "</b></span>" : "") +
-        (g.lv ? '<span class="gqi" title="Playoff leverage: how much playoff value (a berth, plus a bonus for the #1 seed and its bye) changes hands across the league depending on who wins">Leverage<b>' +
-          Math.round(g.lx != null ? g.lx : g.lv[0]) + "</b></span>" : "") + '<span class="gqi" title="Game quality index, 0 to 100">GQI<b>' + Math.round(g.q) + "</b></span></span></div>" +
+        '<span class="game-chips">' + gameChips(g) + "</span></div>" +
       '<h3 class="game-title">' + title + "</h3>" +
       '<div class="wp-labels"><span class="' + (homeFav ? "" : "fav") + '">' + chip(g.a) + " " + pct(pa) + '</span><span class="' + (homeFav ? "fav" : "") + '">' + pct(ph) + " " + chip(g.h) + "</span></div>" +
       '<div class="wp-bar" role="img" aria-label="Win chance: ' + BY[g.a].name + " " + pct(pa) + ", " + BY[g.h].name + " " + pct(ph) + '">' +
@@ -1898,12 +1932,16 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   function renderRoot() {
     if (!F) return;
     var t = state.team, mi = F.metrics.indexOf(state.rmet), base = F.base[t][mi];
+    var wk = state.rweek || F.week, fut = wk !== F.week;
     $("rootTeam").value = t;
-    $("rootTitle").textContent = "Week " + F.week + " rooting guide";
-    $("rootSub").textContent = "How each remaining Week " + F.week + " game moves one team's odds" + (D.nSims ? " · from " + D.nSims.toLocaleString("en-US") + " simulated seasons" : "");
+    $("rootTitle").textContent = "Week " + wk + " rooting guide";
+    $("rootSub").textContent = (fut ? "How each Week " + wk + " game would move one team's odds, given everything so far" : "How each remaining Week " + F.week + " game moves one team's odds") + (D.nSims ? " · from " + D.nSims.toLocaleString("en-US") + " simulated seasons" : "");
     $("rootCur").innerHTML = chip(t) + " <b>" + BY[t].name + "</b> · " + metName(state.rmet) + " odds now: <b>" + pct(base) + "</b>";
-    var rows = F.games.map(function (g) {
-      var ph = g.hw[t][mi], pa = g.aw[t][mi], hi = Math.max(ph, pa), lo = Math.min(ph, pa);
+    var cl = function (x) { return Math.max(0, Math.min(1, x)); };
+    var games = fut ? (D.rootAll || []).filter(function (r) { return r[0] === wk; }).map(function (r) { return { a: r[1], h: r[2], q: r[3], d: r[4] }; }) : F.games;
+    var rows = games.map(function (g) {
+      var dd = fut ? ((g.d[t] || [])[mi] || 0) / 1000 : 0;  // later weeks: home-win minus away-win change, from the current run
+      var ph = fut ? cl(base + (1 - g.q) * dd) : g.hw[t][mi], pa = fut ? cl(base - g.q * dd) : g.aw[t][mi], hi = Math.max(ph, pa), lo = Math.min(ph, pa);
       return { g: g, root: ph >= pa ? g.h : g.a, hi: hi, lo: lo, swing: hi - lo };
     }).sort(function (x, y) { return y.swing - x.swing; });
     $("rootBody").innerHTML = rows.map(function (r) {
@@ -1913,7 +1951,7 @@ if (typeof module !== "undefined") module.exports = nflEngine;
         '<td title="' + pct(r.hi) + '">' + ptsHtml(even ? 0 : r.hi - base) + "</td>" +
         '<td title="' + pct(r.lo) + '">' + ptsHtml(even ? 0 : r.lo - base) + "</td>" +
         '<td class="swing">' + (even ? "–" : (r.swing * 100).toFixed(1) + " pts") + "</td>" +
-        '<td class="kick">' + gameDate(F.week, r.g.a, r.g.h) + "</td></tr>";
+        '<td class="kick">' + gameDate(wk, r.g.a, r.g.h) + "</td></tr>";
     }).join("");
   }
   function renderSpread() {
@@ -2128,6 +2166,11 @@ if (typeof module !== "undefined") module.exports = nflEngine;
       rsel.appendChild(og);
     });
     rsel.addEventListener("change", function () { selectTeam(rsel.value, false); renderRoot(); });
+    var rwk = $("rootWeek"), rweeks = [F.week].concat((D.rootAll || []).map(function (r) { return r[0]; })
+      .filter(function (w, i, a) { return w > F.week && a.indexOf(w) === i; }).sort(function (x, y) { return x - y; }));
+    rwk.innerHTML = rweeks.map(function (w) { return '<option value="' + w + '">Week ' + w + (w === F.week ? " (current)" : "") + "</option>"; }).join("");
+    rwk.addEventListener("change", function () { state.rweek = +rwk.value; renderRoot(); });
+    if (rweeks.length < 2) { rwk.hidden = true; document.querySelector('label[for="rootWeek"]').hidden = true; }
     $("rootMet").innerHTML = METS.filter(function (x) { return F.metrics.indexOf(x[0]) >= 0; }).map(function (x) {
       return '<button type="button" class="toggle-btn' + (x[0] === state.rmet ? " active" : "") + '" data-rmet="' + x[0] + '">' + x[1] + "</button>";
     }).join("");
@@ -2706,6 +2749,88 @@ if (typeof module !== "undefined") module.exports = nflEngine;
   } else {
     $("btnPageQb").hidden = true;
   }
+
+  /* ---------- Team dropdowns with the team badge ---------- */
+  function enhanceTeamSelect(sel) {
+    if (!sel || sel._ts) return;
+    var wrap = document.createElement("div"), btn = document.createElement("button"), list = document.createElement("div");
+    wrap.className = "tsel";
+    sel.parentNode.insertBefore(wrap, sel);
+    wrap.appendChild(sel);
+    sel.classList.add("tsel-native");
+    sel.tabIndex = -1;
+    btn.type = "button";
+    btn.className = "tsel-btn";
+    btn.setAttribute("aria-haspopup", "listbox");
+    btn.setAttribute("aria-expanded", "false");
+    var lab = document.querySelector('label[for="' + sel.id + '"]');
+    if (lab) { btn.setAttribute("aria-label", lab.textContent); lab.addEventListener("click", function (e) { e.preventDefault(); btn.focus(); }); }
+    list.className = "tsel-list";
+    list.setAttribute("role", "listbox");
+    list.hidden = true;
+    wrap.appendChild(btn);
+    wrap.appendChild(list);
+    var opts = function () { return Array.prototype.slice.call(sel.options); };
+    var label = function (o) { return (BY[o.value] ? chip(o.value) : '<span class="tsel-none"></span>') + '<span class="tsel-name">' + o.textContent + "</span>"; };
+    function paint() {
+      var o = sel.options[sel.selectedIndex];
+      btn.innerHTML = (o ? label(o) : "") + '<span class="tsel-caret" aria-hidden="true">▾</span>';
+    }
+    function build() {
+      var html = "", one = function (o) {
+        return '<div class="tsel-opt' + (o.value === sel.value ? " sel hl" : "") + '" role="option" aria-selected="' + (o.value === sel.value) + '" data-v="' + o.value + '">' + label(o) + "</div>";
+      };
+      Array.prototype.forEach.call(sel.children, function (c) {
+        if (c.tagName === "OPTGROUP") { html += '<div class="tsel-grp">' + c.label + "</div>"; Array.prototype.forEach.call(c.children, function (o) { html += one(o); }); }
+        else html += one(c);
+      });
+      list.innerHTML = html;
+    }
+    function open() {
+      build();
+      list.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+      var cur = list.querySelector(".sel");
+      if (cur) list.scrollTop = cur.offsetTop - list.clientHeight / 2;
+    }
+    function close() { list.hidden = true; btn.setAttribute("aria-expanded", "false"); }
+    function pick(v) {
+      if (v === sel.value) return;
+      sel.value = v;
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    btn.addEventListener("click", function () { if (list.hidden) open(); else close(); });
+    list.addEventListener("click", function (e) {
+      var o = e.target.closest(".tsel-opt");
+      if (!o) return;
+      close();
+      pick(o.getAttribute("data-v"));
+      btn.focus();
+    });
+    document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) close(); });
+    btn.addEventListener("keydown", function (e) {
+      var os = opts(), i = sel.selectedIndex;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        var j = Math.max(0, Math.min(os.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)));
+        pick(os[j].value);
+        if (!list.hidden) build();
+      } else if (e.key === "Escape") { close(); }
+      else if (e.key.length === 1 && /[a-z]/i.test(e.key)) {
+        var k = e.key.toLowerCase(), n = os.length;
+        for (var s2 = 1; s2 <= n; s2++) { var o2 = os[(i + s2) % n]; if (o2.textContent.toLowerCase().charAt(0) === k) { pick(o2.value); if (!list.hidden) build(); break; } }
+      }
+    });
+    // code that sets sel.value directly repaints the button too
+    var d = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value");
+    Object.defineProperty(sel, "value", { configurable: true, get: function () { return d.get.call(this); }, set: function (v) { d.set.call(this, v); paint(); } });
+    sel.addEventListener("change", paint);
+    new MutationObserver(function () { wrap.hidden = sel.hidden; }).observe(sel, { attributes: true, attributeFilter: ["hidden"] });
+    wrap.hidden = sel.hidden;
+    sel._ts = true;
+    paint();
+  }
+  ["teamSelect", "rootTeam", "wiTeam"].forEach(function (id) { enhanceTeamSelect($(id)); });
 
   /* ---------- Boot ---------- */
   var fromHash = (location.hash || "").replace("#", "").toUpperCase();
